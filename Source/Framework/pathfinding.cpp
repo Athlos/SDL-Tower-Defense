@@ -1,0 +1,319 @@
+#include "pathfinding.h"
+#include "grid.h"
+#include "tile.h"
+#include "tileheap.h"
+#include "position.h"
+
+#include <queue>
+#include <set>
+#include <cassert>
+#include <algorithm>
+
+// Static Members:
+Pathfinding* Pathfinding::sm_pInstance = 0;
+
+Pathfinding::Pathfinding()
+{
+}
+
+Pathfinding::~Pathfinding()
+{
+}
+
+Pathfinding& Pathfinding::GetInstance()
+{
+	if (sm_pInstance == 0)
+	{
+		sm_pInstance = new Pathfinding();
+	}
+
+	assert(sm_pInstance);
+
+	return (*sm_pInstance);
+}
+
+void Pathfinding::DestroyInstance()
+{
+	delete sm_pInstance;
+	sm_pInstance = 0;
+}
+
+std::vector<Tile*> Pathfinding::FindPath(int xStart, int yStart, int xEnd, int yEnd, bool drawPath)
+{
+	Tile* startTile = m_grid->GetTileFromPixelCoord(xStart, yStart);
+	Tile* endTile = m_grid->GetTileFromPixelCoord(xEnd, yEnd);
+
+	std::vector<Tile*> waypoints;
+
+	TileHeap* openSet = new TileHeap(m_grid->GetGridSizeX() * m_grid->GetGridSizeY()); // Fringe set
+
+	std::set<Tile*> closedSet; // Explored set
+
+	openSet->Add(startTile); // Load start point
+
+	while (openSet->Size() > 0)
+	{
+		Tile* currentTile = openSet->RemoveFirst();
+
+		//Remove from fringe
+		closedSet.insert(currentTile);
+
+		//Update state
+		if (drawPath)
+		{
+			currentTile->SetState(EXPLORED);
+		}
+
+		if (currentTile == endTile) // Path found
+		{
+			waypoints = RetracePath(startTile, endTile, drawPath);
+			delete(openSet);
+
+			break;
+		}
+
+		for each(Tile* neighbour in m_grid->GetNeighboursDiagonal(currentTile)) // Process neighbouring tiles
+		{
+			if (neighbour->IsOccupied() || closedSet.find(neighbour) != closedSet.end()) // check if valid neighbour
+			{
+				continue;
+			}
+
+			int newCostToNeighbour = currentTile->GetGCost() + GetDistance(currentTile, neighbour);
+
+			if (newCostToNeighbour < neighbour->GetGCost() || !openSet->Contains(neighbour))
+			{
+				neighbour->m_gCost = newCostToNeighbour;
+				neighbour->m_hCost = GetDistance(neighbour, endTile);
+
+				neighbour->m_parent = currentTile;
+
+				if (!openSet->Contains(neighbour)) // If open set does not contain neighbour, push it
+				{
+					if (drawPath)
+					{
+						neighbour->SetState(FRINGE);
+					}
+
+					openSet->Add(neighbour);
+				}
+			}
+		}
+	}
+
+	return waypoints;
+}
+
+std::vector<Position*> Pathfinding::SimplifyPath(std::vector<Tile*> path)
+{
+	std::vector<Position*> simplePath;
+
+	float oldDirX = 0;
+	float oldDirY = 0;
+
+	for (int i = 1; i < path.size(); ++i)
+	{
+		float dirX = path[i - 1]->GetCenter().m_x - path[i]->GetCenter().m_x;
+		float dirY = path[i - 1]->GetCenter().m_y - path[i]->GetCenter().m_y;
+
+		float hyp = sqrt(dirX*dirX + dirY*dirY);
+
+		dirX /= hyp;
+		dirY /= hyp;
+
+		if (dirX != oldDirX || dirY != oldDirY)
+		{
+			simplePath.push_back(new Position(path[i - 1]->GetCenter().m_x, path[i - 1]->GetCenter().m_y));
+		}
+
+		oldDirX = dirX;
+		oldDirY = dirY;
+	}
+
+	if (!path.empty())
+	{
+		simplePath.push_back(new Position(path[path.size() - 1]->GetCenter().m_x, path[path.size() - 1]->GetCenter().m_y));
+	}
+
+	return simplePath;
+}
+
+std::vector<Tile*> Pathfinding::RetracePath(Tile* start, Tile* end, bool drawPath)
+{
+	Tile* currentTile = end;
+
+	std::vector<Tile*> path;
+
+	while (currentTile != start)
+	{
+		if (drawPath)
+		{
+			currentTile->SetState(PATH);
+		}
+
+		path.push_back(currentTile);
+
+		currentTile = currentTile->m_parent;
+	}
+
+	path.push_back(start);
+
+	std::reverse(path.begin(), path.end());
+
+	return path;
+}
+
+int Pathfinding::GetDistance(Tile* a, Tile* b)
+{
+	int distX = abs(a->GetGridX() - b->GetGridX());
+	int distY = abs(a->GetGridY() - b->GetGridY());
+
+	int distance = 0;
+
+	/*
+	14 is diagonal value
+	10 is horizontal or vertical value
+	move diagonal first to close distance better
+	then move horizontal or vertical
+	*/
+	if (distX > distY)
+	{
+		distance = 14 * distY + 10 * (distX - distY);
+	}
+	else
+	{
+		distance = 14 * distX + 10 * (distY - distX);
+	}
+
+	return distance;
+}
+
+void Pathfinding::FindPathVector(int xStart, int yStart, int xEnd, int yEnd)
+{
+	Tile* startTile = m_grid->GetTileFromPixelCoord(xStart, yStart);
+	Tile* endTile = m_grid->GetTileFromPixelCoord(xEnd, yEnd);
+
+	std::vector<Tile*> openSet; // Fringe set
+	std::set<Tile*> closedSet; // Explored set
+
+	openSet.push_back(startTile); // Load start point
+
+	while (openSet.size() > 0)
+	{
+		Tile* currentTile = openSet.at(0);
+		int currentTileIndex = 0;
+
+		//Find best Tile to explore
+		for (int i = 1; i < openSet.size(); ++i)
+		{
+			if (openSet[i]->FCost() < currentTile->FCost() || openSet[i]->FCost() == currentTile->FCost() && openSet.at(i)->GetHCost() < currentTile->GetHCost())
+			{
+				currentTile = openSet.at(i);
+				currentTileIndex = i;
+			}
+		}
+
+		//Remove from fringe
+		openSet.erase(openSet.begin() + currentTileIndex);
+		closedSet.insert(currentTile);
+
+		//Update state
+		currentTile->SetState(EXPLORED);
+
+		if (currentTile == endTile) // Path found
+		{
+			RetracePath(startTile, endTile, false);
+			return;
+		}
+
+		for each(Tile* neighbour in m_grid->GetNeighbours(currentTile)) // Process neighbouring tiles
+		{
+			if (neighbour->GetState() == BLOCKED || closedSet.find(neighbour) != closedSet.end()) // check if valid neighbour
+			{
+				continue;
+			}
+
+			int newCostToNeighbour = currentTile->GetGCost() + GetDistance(currentTile, neighbour);
+
+			if (newCostToNeighbour < neighbour->GetGCost() || std::find(openSet.begin(), openSet.end(), neighbour) == openSet.end())
+			{
+				neighbour->m_gCost = newCostToNeighbour;
+				neighbour->m_hCost = GetDistance(neighbour, endTile);
+
+				neighbour->m_parent = currentTile;
+
+				if (std::find(openSet.begin(), openSet.end(), neighbour) == openSet.end()) // If open set does not contain neighbour, push it
+				{
+					neighbour->SetState(FRINGE);
+
+					openSet.push_back(neighbour);
+				}
+			}
+		}
+	}
+}
+
+void Pathfinding::FindPathHeap(int xStart, int yStart, int xEnd, int yEnd)
+{
+	Tile* startTile = m_grid->GetTileFromPixelCoord(xStart, yStart);
+	Tile* endTile = m_grid->GetTileFromPixelCoord(xEnd, yEnd);
+
+	std::vector<Tile*> openSet; // Fringe set
+	std::make_heap(openSet.begin(), openSet.end(), Comparator());
+
+	std::set<Tile*> closedSet; // Explored set
+
+	openSet.push_back(startTile); // Load start point
+	std::push_heap(openSet.begin(), openSet.end(), Comparator());
+
+	while (openSet.size() > 0)
+	{
+		std::make_heap(openSet.begin(), openSet.end(), Comparator());
+
+		Tile* currentTile = openSet.front();
+
+		std::pop_heap(openSet.begin(), openSet.end(), Comparator());
+		openSet.pop_back();
+
+		//Remove from fringe
+		closedSet.insert(currentTile);
+
+		//Update state
+		currentTile->SetState(EXPLORED);
+
+		if (currentTile == endTile) // Path found
+		{
+			RetracePath(startTile, endTile, false);
+			return;
+		}
+
+		for each(Tile* neighbour in m_grid->GetNeighbours(currentTile)) // Process neighbouring tiles
+		{
+			if (neighbour->GetState() == BLOCKED || closedSet.find(neighbour) != closedSet.end()) // check if valid neighbour
+			{
+				continue;
+			}
+
+			int newCostToNeighbour = currentTile->GetGCost() + GetDistance(currentTile, neighbour);
+
+			if (newCostToNeighbour < neighbour->GetGCost() || std::find(openSet.begin(), openSet.end(), neighbour) == openSet.end())
+			{
+				neighbour->m_gCost = newCostToNeighbour;
+				neighbour->m_hCost = GetDistance(neighbour, endTile);
+
+				neighbour->m_parent = currentTile;
+
+				if (std::find(openSet.begin(), openSet.end(), neighbour) == openSet.end()) // If open set does not contain neighbour, push it
+				{
+					neighbour->SetState(FRINGE);
+
+					if (!std::is_heap(openSet.begin(), openSet.end(), Comparator()))
+						std::make_heap(openSet.begin(), openSet.end(), Comparator());
+
+					openSet.push_back(neighbour);
+					std::push_heap(openSet.begin(), openSet.end(), Comparator());
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,156 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="animatedsprite.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="backbuffer.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="enemy.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="entity.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="explosion.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="game.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="inputhandler.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="logmanager.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="particle.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="particleemitter.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="playerbullettrailparticle.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="sprite.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="texture.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="texturemanager.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="label.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="textparticle.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="grid.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="tile.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="pathfinding.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="tileheap.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="tower.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="quadtree.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="position.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="animatedsprite.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="backbuffer.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="enemy.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="entity.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="explosion.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="game.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="inputhandler.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="logmanager.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="particle.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="particleemitter.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="playerbullettrailparticle.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="sprite.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="texture.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="texturemanager.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="label.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="textparticle.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="grid.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="tile.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="pathfinding.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="tileheap.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="tower.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="quadtree.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="position.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Headers">
+      <UniqueIdentifier>{e8b9d832-2091-4879-8e96-52161d78a6fa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source">
+      <UniqueIdentifier>{e275bb4f-36a0-4307-956f-8a7439691156}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,70 @@
+#ifndef __ENEMY_H__
+#define __ENEMY_H__
+
+#include "entity.h"
+
+#include <vector>
+
+class Tile;
+class Grid;
+class Position;
+
+class Enemy : public Entity
+{
+	// Member Methods:
+public:
+	Enemy();
+	~Enemy();
+
+	void SetPosition(float x, float y);
+
+	void Process(float deltaTime);
+	void Draw(BackBuffer& backBuffer);
+
+	void DrawHealthBar(BackBuffer& backBuffer);
+
+	void SetData(int health, float speed, int damage);
+	bool IsClickedOn(int x, int y);
+
+	void TakeDamage(int amount);
+	int GetDamage();
+
+	int GetReward();
+	void SetReward(int amount);
+
+	void SetTilePosition(Tile* tile);
+	Tile* GetTilePosition();
+
+	void SetPath(std::vector<Position*> path);
+
+	void MoveToWaypoints(float deltaTime);
+
+private:
+	void UpdateDirection();
+
+	// Member Data:
+public:
+	Grid* m_grid;
+
+	bool m_inRange;
+	bool m_targetted;
+
+protected:
+	int m_currentHealth;
+	int m_maxHealth;
+
+	int m_damage;
+	int m_reward;
+
+	float m_speed;
+	float m_directionX;
+	float m_directionY;
+
+	Tile* m_tilePosition;
+
+	std::vector<Position*> m_waypoints;
+	int m_waypointIndex;
+
+};
+#endif //__ENEMY_H__
+

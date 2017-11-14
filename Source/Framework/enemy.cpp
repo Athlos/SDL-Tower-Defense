@@ -12,13 +12,13 @@
 #include <cassert>
 
 Enemy::Enemy()
+ : m_reachedEnd(false)
+ , m_directionX(0.0f)
+ , m_directionY(0.0f)
 {
-
+	Entity::Entity();
 	m_targetted = false;
 	m_inRange = false;
-
-	m_directionX = 0.0f;
-	m_directionY = 0.0f;
 }
 
 Enemy::~Enemy() 
@@ -77,23 +77,34 @@ void Enemy::Draw(BackBuffer& backBuffer)
 {
 	//TEMP drawing rectangle for enemies
 
-	if (m_inRange)
+	if (m_targetted)
 	{
-		if (m_targetted)
-		{
-			backBuffer.SetDrawColour(255, 0, 0);
-		}
-		else
-		{
-			backBuffer.SetDrawColour(255, 215, 0);
-		}
+		backBuffer.SetDrawColour(255, 0, 0);
 	}
 	else
 	{
-		backBuffer.SetDrawColour(0, 0, 255);
+		backBuffer.SetDrawColour(255, 215, 0);
 	}
 
-	backBuffer.DrawRectangle(m_x, m_y, m_x + 16, m_y + 16, 1);
+	Entity::Draw(backBuffer);
+
+	//if (m_inRange)
+	//{
+	//	if (m_targetted)
+	//	{
+	//		backBuffer.SetDrawColour(255, 0, 0);
+	//	}
+	//	else
+	//	{
+	//		backBuffer.SetDrawColour(255, 215, 0);
+	//	}
+	//}
+	//else
+	//{
+	//	backBuffer.SetDrawColour(0, 0, 255);
+	//}
+
+	//backBuffer.DrawRectangle(m_x, m_y, m_x + 16, m_y + 16, 1);
 
 	DrawHealthBar(backBuffer);
 }
@@ -111,10 +122,7 @@ void Enemy::DrawHealthBar(BackBuffer& backBuffer)
 
 void Enemy::SetPosition(float x, float y) 
 {
-	m_x = x;
-	m_y = y;
-	m_pSprite->SetX(static_cast<int>(m_x));
-	m_pSprite->SetY(static_cast<int>(m_y));
+	Entity::SetPosition(x, y);
 }
 
 void Enemy::SetTilePosition(Tile* tile)
@@ -158,7 +166,7 @@ void Enemy::MoveToWaypoints(float deltaTime)
 		{
 			m_waypoints.clear();
 
-			m_dead = true; // kill enemy at end of path
+			m_reachedEnd = true;
 
 			return;
 		}
@@ -171,8 +179,7 @@ void Enemy::MoveToWaypoints(float deltaTime)
 	m_x += deltaTime * m_directionX * m_speed;
 	m_y += deltaTime * m_directionY * m_speed;
 
-	m_pSprite->SetX(static_cast<int>(m_x));
-	m_pSprite->SetY(static_cast<int>(m_y));
+	SetPosition(m_x, m_y);
 }
 
 void Enemy::UpdateDirection()
@@ -194,4 +201,10 @@ void Enemy::UpdateDirection()
 		m_directionX /= hyp;
 		m_directionY /= hyp;
 	}
+}
+
+
+bool Enemy::ReachedEnd() const
+{
+	return m_reachedEnd;
 }

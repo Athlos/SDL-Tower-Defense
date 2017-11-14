@@ -1,9 +1,12 @@
 #include "tower.h"
 #include "tile.h"
 #include "enemy.h"
+#include "axisalignedboundingbox.h"
+#include "backbuffer.h"
 
 Tower::Tower(int range, float firingSpeed, int damage)
 {
+	Entity::Entity();
 	m_tileRange = range;
 	m_firingSpeed = firingSpeed;
 	m_damage = damage;
@@ -23,7 +26,7 @@ void Tower::Process(float deltaTime)
 
 	m_timeElapsed += deltaTime;
 
-	if (m_timeElapsed >= m_firingSpeed && HasValidTarget())
+	if (m_timeElapsed >= m_firingSpeed && m_currentTarget != 0)
 	{
 		Shoot();
 	}
@@ -31,18 +34,22 @@ void Tower::Process(float deltaTime)
 
 void Tower::Draw(BackBuffer& backBuffer)
 {
+	backBuffer.SetDrawColour(0, 0, 0);
 	Entity::Draw(backBuffer);
+
+	backBuffer.SetDrawColour(0, 125, 0, 1);
+	backBuffer.DrawRectangle(m_towerRangeArea->center->m_x - m_towerRangeArea->halfDimension, m_towerRangeArea->center->m_y + m_towerRangeArea->halfDimension, m_towerRangeArea->center->m_x + m_towerRangeArea->halfDimension, m_towerRangeArea->center->m_y - m_towerRangeArea->halfDimension, 0);
 }
 
 void Tower::Shoot()
 {
 	m_timeElapsed = 0;
 
-	m_currentTarget->m_enemyTarget->TakeDamage(m_damage);
+	m_currentTarget->TakeDamage(m_damage);
 
-	if (m_currentTarget->m_enemyTarget->IsDead())
+	if (m_currentTarget->IsDead())
 	{
-		m_currentTarget = 0;
+		EvaluateTarget();
 	}
 }
 
@@ -50,58 +57,56 @@ void Tower::SetTilePosition(Tile* tile)
 {
 	Entity::SetPosition(tile->GetX(), tile->GetY());
 	m_tilePosition = tile;
+
+	m_towerRangeArea = new AxisAlignedBoundingBox(m_pos, m_tileRange * tile->GetTileWidth() + (tile->GetTileWidth() / 2));
 }
 
-void Tower::GetEnemiesInRange(std::vector<Enemy*> enemies)
+void Tower::SetEnemiesInRange(std::vector<Entity*> enemies)
 {
-	if (enemies.empty())
+	m_targetsInRange.clear();
+
+	for each (Entity* e in enemies)
+	{
+		m_targetsInRange.push_back(reinterpret_cast<Enemy*>(e));
+	}
+
+	EvaluateTarget();
+}
+
+AxisAlignedBoundingBox* Tower::GetRangeBounds()
+{
+	return m_towerRangeArea;
+}
+
+void Tower::SetCurrentTarget(Enemy* target)
+{
+	m_currentTarget = target;
+}
+
+void Tower::EvaluateTarget()
+{
+	m_currentTarget = 0;
+
+	if (m_targetsInRange.empty())
 	{
 		return;
 	}
 
-	SetCurrentTarget(0);
-	float closestDistance = sqrt((enemies.at(0)->GetCenterX() - GetCenterX()) * (enemies.at(0)->GetCenterX() - GetCenterX()) + (enemies.at(0)->GetCenterY() - GetCenterY()) * (enemies.at(0)->GetCenterY() - GetCenterY()));
+	m_currentTarget = m_targetsInRange[0];
+	/*int targetIndex = 0;
 
-	if (enemies.size() == 1)
-	{
-		SetCurrentTarget(new Target(enemies.at(0), closestDistance)); // Update target to shoot
-	}
-	else // there are more than 1 enemies to compare
-	{
-		float rangeInPixels = m_tileRange * m_tilePosition->GetTileWidth(); // convert tile range to pixels
+	float closest = sqrt((m_currentTarget->GetCenterX() - GetCenterX()) * (m_currentTarget->GetCenterX() - GetCenterX()) + (m_currentTarget->GetCenterY() - GetCenterY()) * (m_currentTarget->GetCenterY() - GetCenterY())) > m_tileRange * m_tilePosition->GetTileWidth();
 
-		for each (Enemy* enemy in enemies) // check all enemies
+	for (targetIndex = 1; targetIndex < m_targetsInRange.size(); ++targetIndex)
+	{
+		float currentDistance = sqrt((m_targetsInRange[targetIndex]->GetCenterX() - GetCenterX()) * (m_targetsInRange[targetIndex]->GetCenterX() - GetCenterX()) + (m_targetsInRange[targetIndex]->GetCenterY() - GetCenterY()) * (m_targetsInRange[targetIndex]->GetCenterY() - GetCenterY())) > m_tileRange * m_tilePosition->GetTileWidth();
+
+		if (currentDistance < closest)
 		{
-			float distance = sqrt((enemy->GetCenterX() - GetCenterX()) * (enemy->GetCenterX() - GetCenterX()) + (enemy->GetCenterY() - GetCenterY()) * (enemy->GetCenterY() - GetCenterY())); // get distance between center of enemy and tower
-
-			if (distance < rangeInPixels) // check distance between centers is within tower range
-			{
-				SetCurrentTarget(new Target(enemy, distance)); // Update target to shoot
-				break;
-			}
+			m_currentTarget = m_targetsInRange[targetIndex];
+			closest = currentDistance;
 		}
 	}
-}
 
-void Tower::SetCurrentTarget(Target* target)
-{
-
-	m_currentTarget = target;
-}
-
-bool Tower::HasValidTarget()
-{
-	if (m_currentTarget == 0)
-	{
-		return false;
-	}
-	else if (sqrt((m_currentTarget->m_enemyTarget->GetCenterX() - GetCenterX()) * (m_currentTarget->m_enemyTarget->GetCenterX() - GetCenterX()) + (m_currentTarget->m_enemyTarget->GetCenterY() - GetCenterY()) * (m_currentTarget->m_enemyTarget->GetCenterY() - GetCenterY())) > m_tileRange * m_tilePosition->GetTileWidth()) // check distance is in range
-	{
-		return true;
-	}
-	else
-	{
-		m_currentTarget = 0;
-		return false;
-	}
+	m_targetsInRange.erase(m_targetsInRange.begin() + targetIndex - 1);*/
 }

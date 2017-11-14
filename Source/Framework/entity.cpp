@@ -10,7 +10,6 @@
 #include <cassert>
 #include <SDL.h>
 
-
 // This includes:
 #include "game.h"
 
@@ -19,6 +18,8 @@
 #include "inputhandler.h"
 #include "logmanager.h"
 #include "sprite.h"
+#include "position.h"
+#include "axisalignedboundingbox.h"
 
 // Library includes:
 #include <cassert>
@@ -33,6 +34,8 @@ Entity::Entity()
 , m_velocityY(0.0f)
 , m_dead(false)
 {
+	m_pos = new Position(m_x, m_y);
+	m_bounds = new AxisAlignedBoundingBox(m_pos, 8);
 }
 
 Entity::~Entity()
@@ -99,6 +102,8 @@ void Entity::Draw(BackBuffer& backBuffer)
 {
 	assert(m_pSprite);
 	m_pSprite->Draw(backBuffer);
+
+	//backBuffer.DrawRectangle(m_bounds->center->m_x - m_bounds->halfDimension, m_bounds->center->m_y + m_bounds->halfDimension, m_bounds->center->m_x + m_bounds->halfDimension, m_bounds->center->m_y - m_bounds->halfDimension, 0);
 }
 
 bool Entity::IsCollidingWith(int x, int y, int radius)
@@ -117,8 +122,10 @@ void Entity::SetPosition(float x, float y)
 	m_y = y;
 	m_pSprite->SetX(static_cast<int>(m_x));
 	m_pSprite->SetY(static_cast<int>(m_y));
-}
 
+	m_pos->m_x = GetCenterX();
+	m_pos->m_y = GetCenterY();
+}
 
 void Entity::SetDead(bool dead)
 {
@@ -134,7 +141,6 @@ float Entity::GetPositionY() const
 {
 	return (m_y);
 }
-
 
 float Entity::GetCenterX() const
 {
@@ -164,4 +170,14 @@ void Entity::SetHorizontalVelocity(float x)
 void Entity::SetVerticalVelocity(float y)
 {
 	m_velocityY = y;
+}
+
+Position* Entity::GetPosition() const
+{
+	return m_pos;
+}
+
+AxisAlignedBoundingBox* Entity::GetCollisionBounds() const
+{
+	return m_bounds;
 }

@@ -33,21 +33,25 @@ public:
 
 	void SetTilePosition(Tile* tile);
 
-	void GetEnemiesInRange(std::vector<Enemy*> enemies);
-	void SetCurrentTarget(Target* target);
+	void SetEnemiesInRange(std::vector<Entity*> enemies);
 
-	bool HasValidTarget();
+	AxisAlignedBoundingBox* GetRangeBounds();
+
+	void SetCurrentTarget(Enemy* target);
+	void EvaluateTarget();
 
 	//Member Data:
 protected:
 	Tile* m_tilePosition;
 
-	Target* m_currentTarget;
+	Enemy* m_currentTarget;
 
-	std::vector<Enemy*> m_tagetsInRange;
+	std::vector<Enemy*> m_targetsInRange;
 
 	int m_tileRange;
 	float m_firingSpeed;
 	float m_timeElapsed;
 	int m_damage;
+
+	AxisAlignedBoundingBox* m_towerRangeArea;
 };

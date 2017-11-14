@@ -116,7 +116,7 @@ Tile* Grid::GetTileFromPixelCoord(int x, int y)
 	float xPos = x / (float)((Game::GetInstance().m_screenWidth * 0.75f) / m_gridSizeX);
 	float yPos = y / (float)(Game::GetInstance().m_screenHeight / m_gridSizeY);
 
-	if (xPos >= 0 && xPos <= m_gridSizeX && yPos >= 0 && yPos <= m_gridSizeY)
+	if (xPos >= 0 && xPos < m_gridSizeX && yPos >= 0 && yPos < m_gridSizeY)
 	{
 		return m_grid.at(xPos)->at(yPos);
 	}

@@ -73,6 +73,7 @@
     <ClCompile Include="position.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="axisalignedboundingbox.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="animatedsprite.h">
@@ -144,6 +145,7 @@
     <ClInclude Include="position.h">
       <Filter>Headers</Filter>
     </ClInclude>
+    <ClInclude Include="axisalignedboundingbox.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Headers">

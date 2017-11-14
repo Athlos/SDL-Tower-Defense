@@ -12,6 +12,7 @@ class Pathfinding;
 class Enemy;
 class Tower;
 class Position;
+class QuadTree;
 
 #include "fmod.hpp";
 
@@ -44,9 +45,15 @@ protected:
 	void Process(float deltaTime);
 	void Draw(BackBuffer& backBuffer);
 
+	void DrawUI(BackBuffer& backBuffer);
+
+	void UpdateLives(int amount);
+
 private:
 	Game(const Game& game);
 	Game& operator=(const Game& game);
+
+	void TestQuadTree(int x, int y);
 	
 	Game();
 
@@ -57,6 +64,8 @@ public:
 
 	const static int m_screenWidth = 800;
 	const static int m_screenHeight = 600;
+
+	QuadTree* m_quadTree;
 
 protected:
 	static Game* sm_pInstance;
@@ -78,6 +87,7 @@ protected:
 
 	//UI ELEMENTS
 	Label* m_debug_fps;
+	Label* m_lifeCounter;
 
 	//GAME ENTITIES
 	Grid* m_map;
@@ -90,6 +100,9 @@ protected:
 	//WAVES
 	int m_waveNumber;
 	bool m_waveActive;
+
+	int m_currentLives;
+	int m_totalLives;
 
 	//AUDIO
 	FMOD::System *system;

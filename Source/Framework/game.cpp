@@ -16,6 +16,7 @@
 #include "enemy.h"
 #include "tower.h"
 #include "position.h"
+#include "quadtree.h"
 
 // Library includes:
 #include <cassert>
@@ -121,11 +122,26 @@ bool Game::Initialise()
 	m_waveNumber = 1;
 	m_waveActive = false;
 
+	Position* topLeftPos = new Position( m_screenHeight / 2, m_screenHeight / 2 );
+	AxisAlignedBoundingBox* gridBounds = new AxisAlignedBoundingBox (topLeftPos, m_screenHeight / 2 );
+	m_quadTree = new QuadTree(gridBounds);
+
+	m_totalLives = 100;
+	m_currentLives = m_totalLives;
+
 	//SET UP UI
 
 	m_debug_fps = new Label("");
 	m_debug_fps->SetBounds(m_screenWidth - 48, 0, 48, 24);
 	m_debug_fps->SetColour(0, 255, 0, 50);
+
+	std::stringstream lifeMessage;
+	lifeMessage << "Lives: " << m_currentLives;
+	m_lifeCounter = new Label(lifeMessage.str());
+
+	m_lifeCounter->SetBounds(m_screenWidth * 0.8f, 30, m_screenWidth * 0.15f, 32);
+	m_lifeCounter->SetColour(255, 0, 0, 50);
+
 
 	//SET UP AUDIO
 	system = NULL;
@@ -253,8 +269,13 @@ void Game::Process(float deltaTime)
 	{
 		Enemy* current = *enemyIter;
 
-		if (current->IsDead())
+		if (current->IsDead() || current->ReachedEnd())
 		{
+			if (current->ReachedEnd())
+			{
+				UpdateLives(-1);
+			}
+
 			enemyIter = m_enemies.erase(enemyIter);
 
 			delete current;
@@ -268,18 +289,35 @@ void Game::Process(float deltaTime)
 		else
 		{
 			current->Process(deltaTime);
+			current->m_targetted = false;
 			enemyIter++;
 		}
 	}
 
+	//Redo quad tree
+	delete(m_quadTree);
+
+	Position* topLeftPos = new Position(m_screenHeight / 2, m_screenHeight / 2);
+	AxisAlignedBoundingBox* gridBounds = new AxisAlignedBoundingBox(topLeftPos, m_screenHeight / 2);
+	m_quadTree = new QuadTree(gridBounds);
+
+	for each (Enemy* enemy in m_enemies)
+	{
+		m_quadTree->Insert(enemy);
+	}
+
 	for each (Tower* tower in m_towers)
 	{
-		if (!m_enemies.empty() && !tower->HasValidTarget())
+		std::vector<Entity*> entitiesInRange = m_quadTree->QueryRange(tower->GetRangeBounds());
+
+		tower->SetEnemiesInRange(entitiesInRange);
+
+		for each (Enemy* enemy in entitiesInRange)
 		{
-			tower->GetEnemiesInRange(m_enemies);
+			enemy->m_targetted = true;
 		}
 
- 		tower->Process(deltaTime);
+		tower->Process(deltaTime);
 	}
 
 	system->update(); // Update system
@@ -305,8 +343,7 @@ void Game::Draw(BackBuffer& backBuffer)
 		tower->Draw(backBuffer);
 	}
 
-	//Draw UI
-	m_debug_fps->Draw(backBuffer);
+	DrawUI(backBuffer);
 
 	//Draw Map Path
 	backBuffer.SetDrawColour(0, 255, 0);
@@ -315,7 +352,26 @@ void Game::Draw(BackBuffer& backBuffer)
 		backBuffer.DrawLine(path[i - 1]->m_x, path[i - 1]->m_y, path[i]->m_x, path[i]->m_y);
 	}
 
+	//m_quadTree->Draw(backBuffer);
+
 	backBuffer.Present();
+}
+
+void Game::DrawUI(BackBuffer& backBuffer)
+{
+	//Draw UI
+	//m_debug_fps->Draw(backBuffer);
+	m_lifeCounter->Draw(backBuffer);
+}
+
+void Game::UpdateLives(int amount)
+{
+	m_currentLives += amount;
+
+	std::stringstream lifeMessage;
+	lifeMessage << "Lives: " << m_currentLives;
+
+	m_lifeCounter->SetText(lifeMessage.str());
 }
 
 void Game::Quit()
@@ -336,6 +392,9 @@ bool Game::IsPaused()
 
 void Game::OnLeftMouseClick(int x, int y)
 {
+	//TestQuadTree(x, y);
+	//return;
+
 	if (m_waveActive)
 	{
 		for each (Enemy* e in m_enemies)
@@ -371,6 +430,12 @@ void Game::OnLeftMouseClick(int x, int y)
 	}
 }
 
+void Game::TestQuadTree(int x, int y)
+{
+	Position* newPos = new Position(x, y);
+	//m_quadTree->Insert(newPos);
+}
+
 void Game::OnRightMouseClick(int x, int y)
 {
 	Tile* clicked = m_map->GetTileFromPixelCoord(x, y);
@@ -404,27 +469,35 @@ void Game::SpawnEnemies(int amount)
 {
 	for (int i = 0; i < amount; ++i)
 	{
-
 		Enemy* testEnemy = new Enemy();
 
 		Sprite* testEnemySprite = m_pBackBuffer->CreateSprite("assets\\Enemy16x.png");
 
 		testEnemy->Initialise(testEnemySprite);
-
-		testEnemy->SetData(rand() % 10 + 1, rand() % 51 + 20, 1);
+		
+		testEnemy->SetData(rand() % 5 + 1, rand() % 51 + 50, 1);
 
 		testEnemy->SetTilePosition(m_map->GetGridStart());
 
 		testEnemy->m_grid = m_map;
 
+		testEnemy->SetPosition(1, 1);
+
 		m_enemies.push_back(testEnemy);
+
+		m_quadTree->Insert(testEnemy);
 	}
 }
 
 void Game::PlaceTower(int x, int y)
 {
+	if (m_waveActive)
+	{
+		return;
+	}
+
 	Tile* currentTile = m_map->GetTileFromPixelCoord(x, y);
-	Tower* newTower = new Tower(2, 1, 1);
+	Tower* newTower = new Tower(1, 1, 1);
 
 	Sprite* newTowerSprite = m_pBackBuffer->CreateSprite("assets\\tower_base.png");
 
@@ -439,4 +512,7 @@ void Game::PlaceTower(int x, int y)
 	currentTile->SetOccupied(true);
 
 	m_towers.push_back(newTower);
+
+	m_map->UpdatePath();
+	path = m_pathfinding->SimplifyPath(m_map->GetGridPath());
 }

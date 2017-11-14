@@ -39,6 +39,8 @@ public:
 
 	void MoveToWaypoints(float deltaTime);
 
+	bool ReachedEnd() const;
+
 private:
 	void UpdateDirection();
 
@@ -64,6 +66,8 @@ protected:
 
 	std::vector<Position*> m_waypoints;
 	int m_waypointIndex;
+
+	bool m_reachedEnd;
 
 };
 #endif //__ENEMY_H__

@@ -4,6 +4,8 @@
 // Forward Declarations:
 class BackBuffer;
 class Sprite;
+class Position;
+class AxisAlignedBoundingBox;
 
 class Entity
 {
@@ -39,6 +41,10 @@ public:
 
 	Sprite* GetSprite();
 
+	Position* GetPosition() const;
+
+	AxisAlignedBoundingBox* GetCollisionBounds() const;
+
 private:
 	Entity(const Entity& entity);
 	Entity& operator=(const Entity& entity);
@@ -49,6 +55,9 @@ protected:
 
 	float m_x;
 	float m_y;
+
+	Position* m_pos;
+	AxisAlignedBoundingBox* m_bounds;
 
 	float m_velocityX;
 	float m_velocityY;

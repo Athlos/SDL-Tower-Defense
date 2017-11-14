@@ -4,12 +4,12 @@ class Position
 	//Member Methods:
 public:
 	Position();
-	Position(int xPos, int yPos);
+	Position(float xPos, float yPos);
 	~Position();
 
 	//Member Data:
 public:
-	int m_x;
-	int m_y;
+	float m_x;
+	float m_y;
 };
 

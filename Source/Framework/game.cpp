@@ -450,7 +450,7 @@ void Game::StartWave()
 {
 	if (!m_waveActive)
 	{
-		SpawnEnemies(5);
+		SpawnEnemies(10);
 
 		m_map->UpdatePath();
 
@@ -471,11 +471,11 @@ void Game::SpawnEnemies(int amount)
 	{
 		Enemy* testEnemy = new Enemy();
 
-		Sprite* testEnemySprite = m_pBackBuffer->CreateSprite("assets\\Enemy16x.png");
+		Sprite* testEnemySprite = m_pBackBuffer->CreateSprite("assets\\enemy.png");
 
 		testEnemy->Initialise(testEnemySprite);
 		
-		testEnemy->SetData(rand() % 5 + 1, rand() % 51 + 50, 1);
+		testEnemy->SetData(3, rand() % 101 + 50, 1);
 
 		testEnemy->SetTilePosition(m_map->GetGridStart());
 

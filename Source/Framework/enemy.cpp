@@ -23,7 +23,7 @@ Enemy::Enemy()
 
 Enemy::~Enemy() 
 {
-
+	Entity::~Entity();
 }
 
 int Enemy::GetReward()
@@ -113,11 +113,11 @@ void Enemy::DrawHealthBar(BackBuffer& backBuffer)
 {
 	//Draw Frame
 	backBuffer.SetDrawColour(0, 0, 0);
-	backBuffer.DrawRectangle(m_x, m_y - 4, m_x + 16, m_y, 0);
+	backBuffer.DrawRectangle(m_x, m_y - 4, m_x + 32, m_y, 0);
 
 	//Draw Fill
 	backBuffer.SetDrawColour(255, 0, 0);
-	backBuffer.DrawRectangle(m_x, m_y - 4, m_x + (((float)m_currentHealth / (float)m_maxHealth) * 16), m_y, 1);
+	backBuffer.DrawRectangle(m_x, m_y - 4, m_x + (((float)m_currentHealth / (float)m_maxHealth) * 32), m_y, 1);
 }
 
 void Enemy::SetPosition(float x, float y) 
@@ -152,13 +152,13 @@ void Enemy::MoveToWaypoints(float deltaTime)
 		return;
 	}
 
-	assert(m_x >= 0);
-	assert(m_y >= 0);
+	//assert(m_x >= 0);
+	//assert(m_y >= 0);
 
 	float xDiff = abs(m_x - m_waypoints[m_waypointIndex]->m_x);
 	float yDiff = abs(m_y - m_waypoints[m_waypointIndex]->m_y);
 
-	if (xDiff < 10 && yDiff < 10)
+	if (xDiff < 17 && yDiff < 17)
 	{
 		++m_waypointIndex;
 

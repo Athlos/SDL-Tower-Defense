@@ -26,9 +26,17 @@ void Tower::Process(float deltaTime)
 
 	m_timeElapsed += deltaTime;
 
-	if (m_timeElapsed >= m_firingSpeed && m_currentTarget != 0)
+	if (m_currentTarget != 0)
 	{
-		Shoot();
+		if (m_currentTarget->IsDead())
+		{
+			EvaluateTarget();
+		}
+
+		if (m_timeElapsed >= m_firingSpeed && m_currentTarget != 0)
+		{
+			Shoot();
+		}
 	}
 }
 
@@ -63,11 +71,22 @@ void Tower::SetTilePosition(Tile* tile)
 
 void Tower::SetEnemiesInRange(std::vector<Entity*> enemies)
 {
+	//if (m_currentTarget != 0 )
+	//{
+	//	if (m_currentTarget->GetCollisionBounds()->intersects(m_towerRangeArea)) // if current target is in range, do not refresh enemies
+	//	{
+	//		return;
+	//	}
+	//}
+
 	m_targetsInRange.clear();
 
 	for each (Entity* e in enemies)
 	{
-		m_targetsInRange.push_back(reinterpret_cast<Enemy*>(e));
+		if (!e->IsDead())
+		{
+			m_targetsInRange.push_back(reinterpret_cast<Enemy*>(e));
+		}
 	}
 
 	EvaluateTarget();
@@ -93,6 +112,7 @@ void Tower::EvaluateTarget()
 	}
 
 	m_currentTarget = m_targetsInRange[0];
+	m_targetsInRange.erase(m_targetsInRange.begin());
 	/*int targetIndex = 0;
 
 	float closest = sqrt((m_currentTarget->GetCenterX() - GetCenterX()) * (m_currentTarget->GetCenterX() - GetCenterX()) + (m_currentTarget->GetCenterY() - GetCenterY()) * (m_currentTarget->GetCenterY() - GetCenterY())) > m_tileRange * m_tilePosition->GetTileWidth();

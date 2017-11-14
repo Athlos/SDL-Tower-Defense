@@ -1,14 +1,19 @@
-﻿Build started 14-Nov-17 5:00:21 PM.
+﻿Build started 14-Nov-17 5:48:27 PM.
      1>Project "C:\Users\Pascal\Desktop\SDL Tower Defense\SDL-Tower-Defense\Source\Framework\Framework.vcxproj" on node 2 (Build target(s)).
      1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V120\Microsoft.CppBuild.targets(388,5): warning MSB8028: The intermediate directory (Debug\) contains files shared from another project (Framework.vcxproj).  This can lead to incorrect clean and rebuild behavior.
      1>InitializeBuildStatus:
-         Touching "Debug\SDL Core.tlog\unsuccessfulbuild".
+         Creating "Debug\SDL Core.tlog\unsuccessfulbuild" because "AlwaysCreate" was specified.
        ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /I"C:\Users\Pascal\Desktop\SDL Tower Defense\SDL-Tower-Defense\Source\\SDL\SDL2-2.0.3\include\\" /I"C:\Users\Pascal\Desktop\SDL Tower Defense\SDL-Tower-Defense\Source\\SDL\SDL2_image-2.0.0\include" /I"C:\Users\Pascal\Desktop\SDL Tower Defense\SDL-Tower-Defense\Source\\FMOD\inc\\" /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _WINDOWS /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt tower.cpp
-         tower.cpp
-     1>c:\users\pascal\desktop\sdl tower defense\sdl-tower-defense\source\framework\tower.cpp(41): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
-     1>c:\users\pascal\desktop\sdl tower defense\sdl-tower-defense\source\framework\tower.cpp(58): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
-     1>c:\users\pascal\desktop\sdl tower defense\sdl-tower-defense\source\framework\tower.cpp(61): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /I"C:\Users\Pascal\Desktop\SDL Tower Defense\SDL-Tower-Defense\Source\\SDL\SDL2-2.0.3\include\\" /I"C:\Users\Pascal\Desktop\SDL Tower Defense\SDL-Tower-Defense\Source\\SDL\SDL2_image-2.0.0\include" /I"C:\Users\Pascal\Desktop\SDL Tower Defense\SDL-Tower-Defense\Source\\FMOD\inc\\" /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _WINDOWS /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt game.cpp
+         game.cpp
+     1>c:\users\pascal\desktop\sdl tower defense\sdl-tower-defense\source\framework\game.h(17): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+     1>c:\users\pascal\desktop\sdl tower defense\sdl-tower-defense\source\framework\game.h(19): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+     1>c:\users\pascal\desktop\sdl tower defense\sdl-tower-defense\source\framework\game.cpp(107): warning C4244: 'argument' : conversion from 'time_t' to 'unsigned int', possible loss of data
+     1>c:\users\pascal\desktop\sdl tower defense\sdl-tower-defense\source\framework\game.cpp(142): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
+     1>c:\users\pascal\desktop\sdl tower defense\sdl-tower-defense\source\framework\game.cpp(350): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\pascal\desktop\sdl tower defense\sdl-tower-defense\source\framework\game.cpp(352): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
+     1>c:\users\pascal\desktop\sdl tower defense\sdl-tower-defense\source\framework\game.cpp(435): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+     1>c:\users\pascal\desktop\sdl tower defense\sdl-tower-defense\source\framework\game.cpp(478): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
        Link:
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Pascal\Desktop\SDL Tower Defense\SDL-Tower-Defense\Source\Debug\SDL Core.exe" /INCREMENTAL /NOLOGO /LIBPATH:"C:\Users\Pascal\Desktop\SDL Tower Defense\SDL-Tower-Defense\Source\\SDL\SDL2-2.0.3\lib\x86" /LIBPATH:"C:\Users\Pascal\Desktop\SDL Tower Defense\SDL-Tower-Defense\Source\\SDL\SDL2_image-2.0.0\lib\x86" /LIBPATH:"C:\Users\Pascal\Desktop\SDL Tower Defense\SDL-Tower-Defense\Source\\FMOD\lib\\" SDL2.lib SDL2main.lib SDL2_image.lib fmodL_vc.lib SDL2_ttf.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\Pascal\Desktop\SDL Tower Defense\SDL-Tower-Defense\Source\Debug\SDL Core.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Pascal\Desktop\SDL Tower Defense\SDL-Tower-Defense\Source\Debug\SDL Core.lib" /MACHINE:X86 Debug\animatedsprite.obj
          Debug\axisalignedboundingbox.obj
@@ -43,4 +48,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:00.58
+Time Elapsed 00:00:01.38

@@ -72,30 +72,6 @@ std::vector<Tile*> Pathfinding::FindPath(int xStart, int yStart, int xEnd, int y
 			break;
 		}
 
-		bool allowDiagonal = true;
-
-		//Handle choosing if a diagonal tile is allowed
-		for (int shift = -1; shift <= 1; ++shift)
-		{
-			if (m_grid->GetTile(currentTile->GetGridX() + shift, currentTile->GetGridY()) != 0)
-			{
-				if (m_grid->GetTile(currentTile->GetGridX() + shift, currentTile->GetGridY())->IsOccupied()) // if tile has blocked neighbours, do not allow diagonal movement
-				{
-					allowDiagonal = false;
-					break;
-				}
-			}
-
-			if (m_grid->GetTile(currentTile->GetGridX(), currentTile->GetGridY() + shift) != 0)
-			{
-				if (m_grid->GetTile(currentTile->GetGridX(), currentTile->GetGridY() + shift)->IsOccupied()) // if tile has blocked neighbours, do not allow diagonal movement
-				{
-					allowDiagonal = false;
-					break;
-				}
-			}
-		}
-
 		for (int x = -1; x <= 1; ++x)
 		{
 			for (int y = -1; y <= 1; ++y)
@@ -116,12 +92,39 @@ std::vector<Tile*> Pathfinding::FindPath(int xStart, int yStart, int xEnd, int y
 						continue;
 					}
 
+					//Now we want to check if this tile is in a diagonal direction
+					//If it is, you can only move to it if the path does not cut past an occupied tile
+					//Diagonal tiles have a different X and Y coordinate
+					if (currentTile->GetGridX() != neighbour->GetGridX() && currentTile->GetGridY() != neighbour->GetGridY())
+					{
+						//If this is a diagonal tile, we need to check if it has a blocked neighbour that we would cut across if we went this way
+						Tile* yNeighbour = m_grid->GetTile(neighbour->GetGridX(), currentTile->GetGridY()); // Get the tile with the matching Y axis to the current tile
+
+						if (yNeighbour != 0)
+						{
+							if (yNeighbour->IsOccupied()) // If that neighbour is blocked, then you should not go diagonal
+							{
+								continue;
+							}
+						}
+
+						Tile* xNeighbour = m_grid->GetTile(currentTile->GetGridX(), neighbour->GetGridY()); // Get the tile with the matching X axis to the current tile
+
+						if (xNeighbour != 0)
+						{
+							if (xNeighbour->IsOccupied()) // If that neighbour is blocked, then you should not go diagonal
+							{
+								continue;
+							}
+						}
+					}
+
 					int newCostToNeighbour = currentTile->GetGCost() + GetDistanceDiagonal(currentTile, neighbour); // Calculate heuristic cost to move to that neighbour
 
 					if (neighbour->GetGridX() != currentTile->GetGridX() && neighbour->GetGridY() != currentTile->GetGridY()) // Handle blocked diagonal routes
 					{
 						//neighbour is diagonal to current tile
-						if (m_grid->GetTile(neighbour->GetGridX(), currentTile->GetGridY())->IsOccupied() && m_grid->GetTile(currentTile->GetGridX(), neighbour->GetGridY())->IsOccupied() || !allowDiagonal)
+						if (m_grid->GetTile(neighbour->GetGridX(), currentTile->GetGridY())->IsOccupied() && m_grid->GetTile(currentTile->GetGridX(), neighbour->GetGridY())->IsOccupied())
 						{
 							//Cannot go diagonal if there are blocked tiles around it
 							continue;

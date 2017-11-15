@@ -58,19 +58,19 @@ void Label::SetText(std::string textOnScreen)
 	m_requiredUpdate = true;
 
 	//Debug
-	std::string message;
-	for each (char c in textOnScreen)
-	{
-		message += c;
-		if (c == '\n')
-		{
-			m_textArray.push_back(message);
-			message = "";
-			SDL_Log("NEWLINE");
-		}
-	}
+	//std::string message;
+	//for each (char c in textOnScreen)
+	//{
+	//	message += c;
+	//	if (c == '\n')
+	//	{
+	//		m_textArray.push_back(message);
+	//		message = "";
+	//		SDL_Log("NEWLINE");
+	//	}
+	//}
 
-	m_textArray.push_back(message);
+	//m_textArray.push_back(message);
 }
 
 void Label::SetColour(int r, int g, int b, int a) 

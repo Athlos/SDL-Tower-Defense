@@ -1,6 +1,7 @@
 #include "projectile.h"
 #include "position.h"
 #include "sprite.h"
+#include "game.h"
 
 #include <math.h>
 

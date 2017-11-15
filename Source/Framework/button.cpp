@@ -6,9 +6,20 @@
 
 Button::Button(std::string text)
 {
-	Label::Label(text);
+	//Label::Label(text);
+
+	m_colour = { 0, 0, 0, 0 };
+	m_textTexture = NULL;
+	m_requiredUpdate = false;
+	SetText(text);
+	SetBounds(0, 0, 100, 30);
+
+	TTF_Init();
+	m_fontSize = 24;
+	m_font = TTF_OpenFont("assets/currentfont.TTF", m_fontSize);
 
 	m_backgroundColour = { 192, 192, 192 };
+	m_customSprite = false;
 }
 
 Button::~Button()

@@ -89,7 +89,6 @@ Initialises renderer, input, audio, player and other variables needed to begin
 */
 bool Game::Initialise()
 {
-
 	// Load backbuffer
 	m_pBackBuffer = new BackBuffer();
 	if (!m_pBackBuffer->Initialise(m_screenWidth, m_screenHeight))
@@ -157,6 +156,12 @@ bool Game::Initialise()
 	m_towerText->SetColour(255, 0, 0, 50);
 	m_towerText->SetFontSize(32);
 
+	m_highlighted = new Label(" Selected");
+
+	m_highlighted->SetBounds(m_screenWidth * 0.76f, m_screenHeight * 0.52f, m_screenWidth * 0.23f, m_screenHeight * 0.07f);
+	m_highlighted->SetColour(240, 230, 140, 50);
+	m_highlighted->SetFontSize(32);
+
 	m_wallButton = new Button("");
 	m_wallButton->SetBounds(m_screenWidth * 0.77f, m_screenHeight * 0.28f, m_screenWidth * 0.05f, m_screenWidth * 0.05f);
 	Sprite* wallSprite = m_pBackBuffer->CreateSprite("assets\\wall_base.png");
@@ -167,6 +172,12 @@ bool Game::Initialise()
 
 	Sprite* newTowerSprite = m_pBackBuffer->CreateSprite("assets\\tower_base.png");
 	m_towerButton->SetCustomSprite(newTowerSprite);
+
+	m_startWave = new Button("Start Wave");
+	m_startWave->SetBounds(m_screenWidth * 0.76f, m_screenHeight * 0.93f, m_screenWidth * 0.23f, m_screenWidth * 0.05f);
+	m_startWave->SetFontSize(28);
+	m_startWave->SetBackgroundColour(139, 0, 0);
+	m_startWave->SetColour(255, 255, 255, 255);
 
 	m_selected = NOTHING;
 
@@ -320,6 +331,13 @@ void Game::Process(float deltaTime)
 			delete proj;
 			proj = 0;
 		}
+		else if (proj->GetPositionX() < 0 || proj->GetPositionX() > m_screenHeight || proj->GetPositionY() < 0 || proj->GetPositionY() > m_screenHeight)
+		{
+			projectileIter = m_projectiles.erase(projectileIter);
+
+			delete proj;
+			proj = 0;
+		}
 		else
 		{
 			++projectileIter;
@@ -431,13 +449,24 @@ void Game::DrawUI(BackBuffer& backBuffer)
 	m_waveCounter->Draw(backBuffer);
 	m_currencyCounter->Draw(backBuffer);
 
+	//Draw building UI
 	backBuffer.SetDrawColour(192, 192, 192);
-	backBuffer.DrawRectangle(m_screenWidth * 0.76f, m_screenHeight * 0.20f, m_screenWidth * 0.99f, m_screenHeight * 0.5f, 1);
+	backBuffer.DrawRectangle(m_screenWidth * 0.76f, m_screenHeight * 0.20f, m_screenWidth * 0.99f, m_screenHeight * 0.5f, 1); // Background
 
-	m_towerText->Draw(backBuffer);
+	m_towerText->Draw(backBuffer); // Title
 
+	//Buttons
 	m_towerButton->Draw(backBuffer);
 	m_wallButton->Draw(backBuffer);
+
+	//Draw Selected UI
+	backBuffer.SetDrawColour(192, 192, 192);
+	backBuffer.DrawRectangle(m_screenWidth * 0.76f, m_screenHeight * 0.52f, m_screenWidth * 0.99f, m_screenHeight * 0.92f, 1); // Background
+
+	m_highlighted->Draw(backBuffer); // Selected title
+
+	//Start wave
+	m_startWave->Draw(backBuffer);
 
 	//Draw cursor
 	if (m_cursorSprite != 0)
@@ -527,6 +556,10 @@ void Game::OnLeftMouseClick(int x, int y)
 		m_cursorSprite = wallSprite;
 
 		m_selected = WALL;
+	}
+	else if (m_startWave->WasClickedOn(x, y))
+	{
+		StartWave();
 	}
 	else
 	{
@@ -624,7 +657,7 @@ void Game::PlaceTower(int x, int y)
 		return;
 	}
 
-	Tower* newTower = new Tower(1, 1, 1, 100);
+	Tower* newTower = new Tower(2, 0.5, 1, 100);
 
 	newTower->Initialise(m_pBackBuffer);
 

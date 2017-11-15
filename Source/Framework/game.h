@@ -106,9 +106,11 @@ protected:
 	Label* m_currencyCounter; // Currency amount counter
 
 	Label* m_towerText;
+	Label* m_highlighted;
 	
 	Button* m_wallButton;
 	Button* m_towerButton;
+	Button* m_startWave;
 
 	Sprite* m_cursorSprite;
 	BuildingTypeSelected m_selected;

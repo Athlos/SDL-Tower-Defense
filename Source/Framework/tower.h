@@ -6,6 +6,7 @@
 
 class Tile;
 class Enemy;
+class Projectile;
 
 struct Target
 {
@@ -25,6 +26,8 @@ class Tower : public Entity
 public:
 	Tower(int range, float firingSpeed, int damage, int cost);
 	~Tower();
+
+	bool Initialise(BackBuffer* backBuffer);
 
 	void Process(float deltaTime);
 	void Draw(BackBuffer& backBuffer);
@@ -57,4 +60,6 @@ protected:
 	int m_cost;
 
 	AxisAlignedBoundingBox* m_towerRangeArea;
+
+	BackBuffer* m_backBuffer;
 };

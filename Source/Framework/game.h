@@ -15,6 +15,7 @@ class Tower;
 class Position;
 class QuadTree;
 class EnemySpawner;
+class Projectile;
 
 #include "fmod.hpp";
 
@@ -47,6 +48,7 @@ public:
 
 	void StartWave();
 	void AddEnemy(Enemy* enemy);
+	void AddProjectile(Projectile* projectile);
 
 	void PlaceTower(int x, int y);
 	void PlaceWall(int x, int y);
@@ -116,6 +118,7 @@ protected:
 	Pathfinding* m_pathfinding; // Pathfinding class
 	std::vector<Enemy*> m_enemies; // Container of enemies on map
 	std::vector<Tower*> m_towers; // Container of towers in game
+	std::vector<Projectile*> m_projectiles; // Container of projectiles in game TODO update to use a projectile pool of some sort
 
 	EnemySpawner* m_enemySpawner; // Spawner for enemies
 

@@ -40,12 +40,20 @@ Entity::Entity()
 
 Entity::~Entity()
 {
+	delete m_pSprite;
+	m_pSprite = 0;
+
+	delete m_bounds;
+	m_bounds = 0;
 }
 
 bool Entity::Initialise(Sprite* sprite)
 {
 	assert(sprite);
 	m_pSprite = sprite;
+
+	m_pSprite->SetX(m_x);
+	m_pSprite->SetY(m_y);
 
 	return (true);
 }

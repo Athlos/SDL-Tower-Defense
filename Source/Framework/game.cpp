@@ -19,6 +19,7 @@
 #include "position.h"
 #include "quadtree.h"
 #include "enemyspawner.h"
+#include "projectile.h"
 
 // Library includes:
 #include <cassert>
@@ -226,8 +227,6 @@ bool Game::DoGameLoop()
 
 	//std::chrono::duration<double> elapsed_secondsVec = endVec - startVec;
 
-
-
 	//auto startHeap = std::chrono::system_clock::now();
 
 	//for (int i = 0; i < 250; ++i)
@@ -300,6 +299,33 @@ void Game::Process(float deltaTime)
 
 	m_enemySpawner->Process(deltaTime);
 
+	//Process projectiles
+	std::vector<Projectile*>::iterator projectileIter = m_projectiles.begin();
+
+	while (projectileIter != m_projectiles.end())
+	{
+		Projectile* proj = *projectileIter;
+
+		proj->Process(deltaTime);
+
+		std::vector<Entity*> entitiesInRange = m_quadTree->QueryRange(proj->GetCollisionBounds());
+
+		if (!entitiesInRange.empty())
+		{
+			Enemy* hit = reinterpret_cast<Enemy*>(entitiesInRange[0]);
+			hit->TakeDamage(proj->GetDamage());
+
+			projectileIter = m_projectiles.erase(projectileIter);
+
+			delete proj;
+			proj = 0;
+		}
+		else
+		{
+			++projectileIter;
+		}
+	}
+
 	std::vector<Enemy*>::iterator enemyIter = m_enemies.begin();
 
 	while (enemyIter != m_enemies.end())
@@ -332,7 +358,7 @@ void Game::Process(float deltaTime)
 		{
 			current->Process(deltaTime);
 			current->m_targetted = false;
-			enemyIter++;
+			++enemyIter;
 		}
 	}
 
@@ -383,6 +409,11 @@ void Game::Draw(BackBuffer& backBuffer)
 	for each (Tower* tower in m_towers)
 	{
 		tower->Draw(backBuffer);
+	}
+
+	for each (Projectile* projectile in m_projectiles)
+	{
+		projectile->Draw(backBuffer);
 	}
 
 	DrawUI(backBuffer);
@@ -560,6 +591,11 @@ void Game::AddEnemy(Enemy* enemy)
 	m_enemies.push_back(enemy);
 }
 
+void Game::AddProjectile(Projectile* projectile)
+{
+	m_projectiles.push_back(projectile);
+}
+
 void Game::PlaceTower(int x, int y)
 {
 	if (m_enemySpawner->IsWaveActive())
@@ -590,9 +626,7 @@ void Game::PlaceTower(int x, int y)
 
 	Tower* newTower = new Tower(1, 1, 1, 100);
 
-	Sprite* newTowerSprite = m_pBackBuffer->CreateSprite("assets\\tower_base.png");
-
-	newTower->Initialise(newTowerSprite);
+	newTower->Initialise(m_pBackBuffer);
 
 	//Scale to tile size
 	newTower->GetSprite()->SetWidth(currentTile->GetTileWidth());

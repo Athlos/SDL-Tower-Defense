@@ -25,8 +25,6 @@
 #include <cassert>
 #include <cstring>
 
-using namespace std;
-
 BackBuffer::BackBuffer()
 : m_pTextureManager(0)
 , m_pWindow(0)
@@ -267,10 +265,10 @@ void BackBuffer::DrawText(SDL_Texture* textOnScreen, SDL_Rect bounds)
 SDL_Texture* BackBuffer::CreateText(std::string text, SDL_Color colour)
 {
 	//replace surface
-	//SDL_FreeSurface(m_surface);
-	//m_surface = 0;
+	SDL_FreeSurface(m_surface);
+	m_surface = 0;
 
-	//m_surface = SDL_GetWindowSurface(m_pWindow);
+	m_surface = SDL_GetWindowSurface(m_pWindow);
 
 	//create text and save into surface, then use surface to create a texture we can render
 	m_surface = TTF_RenderText_Blended(m_font, text.c_str(), colour);

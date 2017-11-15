@@ -7,6 +7,8 @@ AxisAlignedBoundingBox::AxisAlignedBoundingBox()
 
 AxisAlignedBoundingBox::~AxisAlignedBoundingBox()
 {
+	delete center;
+	center = 0;
 }
 
 AxisAlignedBoundingBox::AxisAlignedBoundingBox(Position* cent, float half)

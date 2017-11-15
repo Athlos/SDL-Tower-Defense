@@ -14,6 +14,20 @@ QuadTree::QuadTree(AxisAlignedBoundingBox* bounds)
 
 QuadTree::~QuadTree()
 {
+	delete m_topLeft;
+	m_topLeft = 0;
+
+	delete m_topRight;
+	m_topRight = 0;
+
+	delete m_bottomLeft;
+	m_bottomLeft = 0;
+
+	delete m_bottomRight;
+	m_bottomRight = 0;
+
+	delete m_bounds;
+	m_bounds = 0;
 }
 
 void QuadTree::Subdivide()

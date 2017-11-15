@@ -3,6 +3,11 @@
 #include "enemy.h"
 #include "axisalignedboundingbox.h"
 #include "backbuffer.h"
+#include "projectile.h"
+#include "game.h"
+#include "sprite.h"
+
+#include <cassert>
 
 Tower::Tower(int range, float firingSpeed, int damage, int cost)
 {
@@ -18,7 +23,21 @@ Tower::Tower(int range, float firingSpeed, int damage, int cost)
 
 Tower::~Tower()
 {
+	Entity::Entity();
+}
 
+bool Tower::Initialise(BackBuffer* backBuffer)
+{
+	m_pSprite = backBuffer->CreateSprite("assets\\tower_base.png");
+
+	assert(m_pSprite);
+
+	m_pSprite->SetX(m_x);
+	m_pSprite->SetY(m_y);
+
+	m_backBuffer = backBuffer;
+
+	return (true);
 }
 
 void Tower::Process(float deltaTime)
@@ -54,12 +73,23 @@ void Tower::Shoot()
 {
 	m_timeElapsed = 0;
 
-	m_currentTarget->TakeDamage(m_damage);
+	Projectile* firedProjectile = new Projectile(m_damage, 500, 1.0f);
 
-	if (m_currentTarget->IsDead())
-	{
-		EvaluateTarget();
-	}
+	Sprite* projectileSprite = m_backBuffer->CreateSprite("assets\\projectile.png");
+
+	firedProjectile->Initialise(projectileSprite);
+
+	firedProjectile->SetPosition(m_pos->m_x, m_pos->m_y);
+	firedProjectile->SetTarget(m_currentTarget->GetPosition());
+
+	Game::GetInstance().AddProjectile(firedProjectile);
+
+	//m_currentTarget->TakeDamage(m_damage);
+
+	//if (m_currentTarget->IsDead())
+	//{
+	//	EvaluateTarget();
+	//}
 }
 
 void Tower::SetTilePosition(Tile* tile)
@@ -114,6 +144,7 @@ void Tower::EvaluateTarget()
 
 	m_currentTarget = m_targetsInRange[0];
 	m_targetsInRange.erase(m_targetsInRange.begin());
+
 	/*int targetIndex = 0;
 
 	float closest = sqrt((m_currentTarget->GetCenterX() - GetCenterX()) * (m_currentTarget->GetCenterX() - GetCenterX()) + (m_currentTarget->GetCenterY() - GetCenterY()) * (m_currentTarget->GetCenterY() - GetCenterY())) > m_tileRange * m_tilePosition->GetTileWidth();

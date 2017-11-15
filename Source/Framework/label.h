@@ -47,11 +47,14 @@ protected:
 	//Holds multi line message
 	std::vector<std::string> m_textArray;
 	SDL_Texture* m_textTexture;
+
 	SDL_Rect m_bounds;
+	SDL_Rect m_currentBounds;
+
 	SDL_Color m_colour;
 	bool m_requiredUpdate;
 
 	TTF_Font* m_font;
-
+	int m_fontSize;
 };
 

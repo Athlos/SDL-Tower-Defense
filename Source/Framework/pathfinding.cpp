@@ -61,7 +61,7 @@ std::vector<Tile*> Pathfinding::FindPath(int xStart, int yStart, int xEnd, int y
 		//Update state
 		if (drawPath)
 		{
-			currentTile->SetState(EXPLORED);
+			//currentTile->SetState(EXPLORED);
 		}
 
 		if (currentTile == endTile) // Path found
@@ -72,41 +72,128 @@ std::vector<Tile*> Pathfinding::FindPath(int xStart, int yStart, int xEnd, int y
 			break;
 		}
 
-		for each(Tile* neighbour in m_grid->GetNeighboursDiagonal(currentTile)) // Process neighbouring tiles
+		bool allowDiagonal = true;
+
+		//Handle choosing if a diagonal tile is allowed
+		for (int x = -1; x <= 1; ++x)
 		{
-			if (neighbour->IsOccupied() || closedSet.find(neighbour) != closedSet.end()) // check if valid neighbour
+			for (int y = -1; y <= 1; ++y)
 			{
-				continue;
-			}
-
-			int newCostToNeighbour = currentTile->GetGCost() + GetDistance(currentTile, neighbour);
-
-			if (newCostToNeighbour < neighbour->GetGCost() || !openSet->Contains(neighbour))
-			{
-				neighbour->m_gCost = newCostToNeighbour;
-				neighbour->m_hCost = GetDistance(neighbour, endTile);
-
-				neighbour->m_parent = currentTile;
-
-				if (!openSet->Contains(neighbour)) // If open set does not contain neighbour, push it
+				if (m_grid->GetTile(currentTile->GetGridX() + x, currentTile->GetGridY() + y) != 0)
 				{
-					if (drawPath)
+					if (m_grid->GetTile(currentTile->GetGridX() + x, currentTile->GetGridY() + y)->IsOccupied()) // if tile has blocked neighbours, do not allow diagonal movement
 					{
-						neighbour->SetState(FRINGE);
+						allowDiagonal = false;
+						break;
+					}
+				}
+			}
+		}
+
+		for (int x = -1; x <= 1; ++x)
+		{
+			for (int y = -1; y <= 1; ++y)
+			{
+				if (x == 0 && y == 0)
+				{
+					continue;
+				}
+
+				Tile* neighbour = m_grid->GetTile(currentTile->GetGridX() + x, currentTile->GetGridY() + y);
+
+				if (neighbour != 0)
+				{
+					//We have found a valid neighbour, lets try to evaluate it
+
+					if (neighbour->IsOccupied() || closedSet.find(neighbour) != closedSet.end()) //Check if neighbour can be evaluated by checking if you can walk on it and if its not already in the closed set
+					{
+						continue;
 					}
 
-					openSet->Add(neighbour);
+					int newCostToNeighbour = currentTile->GetGCost() + GetDistanceDiagonal(currentTile, neighbour); // Calculate heuristic cost to move to that neighbour
+
+					if (neighbour->GetGridX() != currentTile->GetGridX() && neighbour->GetGridY() != currentTile->GetGridY()) // Handle blocked diagonal routes
+					{
+						//neighbour is diagonal to current tile
+						if (m_grid->GetTile(neighbour->GetGridX(), currentTile->GetGridY())->IsOccupied() && m_grid->GetTile(currentTile->GetGridX(), neighbour->GetGridY())->IsOccupied() || !allowDiagonal)
+						{
+							//Cannot go diagonal if there are blocked tiles around it
+							continue;
+						}
+					}
+
+					if (newCostToNeighbour < neighbour->GetGCost() || !openSet->Contains(neighbour))
+					{
+						neighbour->m_gCost = newCostToNeighbour;
+
+						neighbour->m_hCost = GetDistanceDiagonal(neighbour, endTile);
+
+						neighbour->m_parent = currentTile;
+
+						if (!openSet->Contains(neighbour)) // If open set does not contain neighbour, push it
+						{
+							if (drawPath)
+							{
+								//neighbour->SetState(FRINGE);
+							}
+
+							openSet->Add(neighbour);
+						}
+					}
 				}
 			}
 		}
 	}
 
+
+
+	//	for each(Tile* neighbour in m_grid->GetNeighboursDiagonal(currentTile)) // Process neighbouring tiles
+	//	{
+	//		if (neighbour->IsOccupied() || closedSet.find(neighbour) != closedSet.end()) // check if valid neighbour
+	//		{
+	//			continue;
+	//		}
+
+	//		//Evaluate diagonals
+	//		int distance = 0;
+
+	//		if (neighbour->GetGridX() != currentTile->GetGridX() && neighbour->GetGridY() != currentTile->GetGridY())
+	//		{
+	//			distance = GetDistanceDiagonal(currentTile, neighbour);
+	//		}
+	//		else
+	//		{
+	//			distance = GetDistance(currentTile, neighbour);
+	//		}
+
+	//		int newCostToNeighbour = currentTile->GetGCost() + distance;
+
+	//		if (newCostToNeighbour < neighbour->GetGCost() || !openSet->Contains(neighbour))
+	//		{
+	//			neighbour->m_gCost = newCostToNeighbour;
+	//			neighbour->m_hCost = distance;
+
+	//			neighbour->m_parent = currentTile;
+
+	//			if (!openSet->Contains(neighbour)) // If open set does not contain neighbour, push it
+	//			{
+	//				if (drawPath)
+	//				{
+	//					//neighbour->SetState(FRINGE);
+	//				}
+
+	//				openSet->Add(neighbour);
+	//			}
+	//		}
+	//	}
+	//}
+
 	return waypoints;
 }
 
-std::vector<Position*> Pathfinding::SimplifyPath(std::vector<Tile*> path)
+std::queue<Position*> Pathfinding::SimplifyPath(std::vector<Tile*> path)
 {
-	std::vector<Position*> simplePath;
+	std::queue<Position*> simplePath;
 
 	float oldDirX = 0;
 	float oldDirY = 0;
@@ -123,7 +210,7 @@ std::vector<Position*> Pathfinding::SimplifyPath(std::vector<Tile*> path)
 
 		if (dirX != oldDirX || dirY != oldDirY)
 		{
-			simplePath.push_back(new Position(path[i - 1]->GetCenter().m_x, path[i - 1]->GetCenter().m_y));
+			simplePath.push(new Position(path[i - 1]->GetCenter().m_x, path[i - 1]->GetCenter().m_y));
 		}
 
 		oldDirX = dirX;
@@ -132,7 +219,7 @@ std::vector<Position*> Pathfinding::SimplifyPath(std::vector<Tile*> path)
 
 	if (!path.empty())
 	{
-		simplePath.push_back(new Position(path[path.size() - 1]->GetCenter().m_x, path[path.size() - 1]->GetCenter().m_y));
+		simplePath.push(new Position(path[path.size() - 1]->GetCenter().m_x, path[path.size() - 1]->GetCenter().m_y));
 	}
 
 	return simplePath;
@@ -148,7 +235,7 @@ std::vector<Tile*> Pathfinding::RetracePath(Tile* start, Tile* end, bool drawPat
 	{
 		if (drawPath)
 		{
-			currentTile->SetState(PATH);
+			//currentTile->SetState(PATH);
 		}
 
 		path.push_back(currentTile);
@@ -164,6 +251,27 @@ std::vector<Tile*> Pathfinding::RetracePath(Tile* start, Tile* end, bool drawPat
 }
 
 int Pathfinding::GetDistance(Tile* a, Tile* b)
+{
+	int distX = abs(a->GetGridX() - b->GetGridX());
+	int distY = abs(a->GetGridY() - b->GetGridY());
+
+	int distance = 0;
+
+	//if (distX > distY)
+	//{
+	//	distance = 21 * distY + 10 * (distX - distY);
+	//}
+	//else
+	//{
+	//	distance = 21 * distX + 10 * (distY - distX);
+	//}
+
+	distance = 10 * (distX + distY);
+
+	return distance;
+}
+
+int Pathfinding::GetDistanceDiagonal(Tile* a, Tile* b)
 {
 	int distX = abs(a->GetGridX() - b->GetGridX());
 	int distY = abs(a->GetGridY() - b->GetGridY());
@@ -218,7 +326,7 @@ void Pathfinding::FindPathVector(int xStart, int yStart, int xEnd, int yEnd)
 		closedSet.insert(currentTile);
 
 		//Update state
-		currentTile->SetState(EXPLORED);
+		//currentTile->SetState(EXPLORED);
 
 		if (currentTile == endTile) // Path found
 		{
@@ -244,7 +352,7 @@ void Pathfinding::FindPathVector(int xStart, int yStart, int xEnd, int yEnd)
 
 				if (std::find(openSet.begin(), openSet.end(), neighbour) == openSet.end()) // If open set does not contain neighbour, push it
 				{
-					neighbour->SetState(FRINGE);
+					//neighbour->SetState(FRINGE);
 
 					openSet.push_back(neighbour);
 				}
@@ -279,7 +387,7 @@ void Pathfinding::FindPathHeap(int xStart, int yStart, int xEnd, int yEnd)
 		closedSet.insert(currentTile);
 
 		//Update state
-		currentTile->SetState(EXPLORED);
+		//currentTile->SetState(EXPLORED);
 
 		if (currentTile == endTile) // Path found
 		{
@@ -305,7 +413,7 @@ void Pathfinding::FindPathHeap(int xStart, int yStart, int xEnd, int yEnd)
 
 				if (std::find(openSet.begin(), openSet.end(), neighbour) == openSet.end()) // If open set does not contain neighbour, push it
 				{
-					neighbour->SetState(FRINGE);
+					//neighbour->SetState(FRINGE);
 
 					if (!std::is_heap(openSet.begin(), openSet.end(), Comparator()))
 						std::make_heap(openSet.begin(), openSet.end(), Comparator());

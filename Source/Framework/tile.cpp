@@ -16,6 +16,8 @@ Tile::Tile(int x, int y, TileState walkable)
 	m_gCost = 0;
 
 	m_heapIndex = 0;
+
+	m_hasWall = false;
 }
 
 Tile::~Tile()
@@ -39,15 +41,7 @@ int Tile::GetGCost() const
 
 void Tile::Draw(BackBuffer& backBuffer)
 {
-	if (m_state == EMPTY)
-	{
-		backBuffer.DrawSprite(*m_tileSprites.at(EMPTY));
-	}
-	else if (m_state == BLOCKED)
-	{
-		backBuffer.DrawSprite(*m_tileSprites.at(BLOCKED));
-	}
-	else
+	if (m_state == START || m_state == END)
 	{
 		backBuffer.SetDrawColour(m_colour.r, m_colour.g, m_colour.b);
 
@@ -56,6 +50,14 @@ void Tile::Draw(BackBuffer& backBuffer)
 		backBuffer.SetDrawColour(0, 0, 0);
 
 		backBuffer.DrawRectangle(m_xScreenPos, m_yScreenPos, m_xScreenPos + m_gridWidth, m_yScreenPos + m_gridHeight, 0);
+	}
+	else if (m_hasWall)
+	{
+		backBuffer.DrawSprite(*m_tileSprites.at(BLOCKED));
+	}
+	else
+	{
+		backBuffer.DrawSprite(*m_tileSprites.at(EMPTY));
 	}
 }
 
@@ -131,22 +133,6 @@ void Tile::SetState(TileState state)
 		m_colour.b = 0;
 
 		m_occupied = true;
-
-		break;
-	case FRINGE:
-		m_colour.r = 255;
-		m_colour.g = 0;
-		m_colour.b = 0;
-		break;
-	case EXPLORED:
-		m_colour.r = 0;
-		m_colour.g = 255;
-		m_colour.b = 0;
-		break;
-	case PATH:
-		m_colour.r = 0;
-		m_colour.g = 0;
-		m_colour.b = 255;
 		break;
 	case START:
 		m_colour.r = 255;
@@ -195,6 +181,25 @@ bool Tile::IsOccupied()
 void Tile::SetOccupied(bool occupied)
 {
 	m_occupied = occupied;
+
+	if (occupied)
+	{
+		m_state = BLOCKED;
+	}
+	else
+	{
+		m_state = EMPTY;
+	}
+}
+
+void Tile::SetWall(bool hasWall)
+{
+	m_hasWall = hasWall;
+
+	if (m_state == EMPTY)
+	{
+		m_state = BLOCKED;
+	}
 }
 
 void Tile::SetSpriteDefault(Sprite* sprite)

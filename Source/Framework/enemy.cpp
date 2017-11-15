@@ -30,6 +30,7 @@ int Enemy::GetReward()
 {
 	return m_reward;
 }
+
 void Enemy::SetReward(int amount) 
 {
 	m_reward = amount;
@@ -43,6 +44,11 @@ void Enemy::SetData(int health, float speed, int damage)
 
 	m_speed = speed;
 	m_damage = damage;
+
+	//Calculate reward
+	m_reward = 0;
+	m_reward += m_currentHealth * 5;
+	m_reward += m_speed * .002;
 }
 
 bool Enemy::IsClickedOn(int x, int y) 
@@ -137,17 +143,22 @@ Tile* Enemy::GetTilePosition()
 	return m_tilePosition;
 }
 
-void Enemy::SetPath(std::vector<Position*> path)
+void Enemy::SetPath(std::queue<Position*> path)
 {
 	m_waypoints = path;
-	m_waypointIndex = 0;
+
+	if (!path.empty())
+	{
+		m_currentWaypoint = m_waypoints.front();
+		m_waypoints.pop();
+	}
 
 	UpdateDirection();
 }
 
 void Enemy::MoveToWaypoints(float deltaTime)
 {
-	if (m_waypoints.empty())
+	if (m_currentWaypoint == 0)
 	{
 		return;
 	}
@@ -155,23 +166,23 @@ void Enemy::MoveToWaypoints(float deltaTime)
 	//assert(m_x >= 0);
 	//assert(m_y >= 0);
 
-	float xDiff = abs(m_x - m_waypoints[m_waypointIndex]->m_x);
-	float yDiff = abs(m_y - m_waypoints[m_waypointIndex]->m_y);
+	float xDiff = abs(m_pos->m_x - m_currentWaypoint->m_x);
+	float yDiff = abs(m_pos->m_y - m_currentWaypoint->m_y);
 
-	if (xDiff < 17 && yDiff < 17)
+	if (xDiff < 2 && yDiff < 2)
 	{
-		++m_waypointIndex;
-
-		if (m_waypointIndex >= m_waypoints.size())
+		if (m_waypoints.empty())
 		{
-			m_waypoints.clear();
-
 			m_reachedEnd = true;
+			m_currentWaypoint = 0;
 
 			return;
 		}
 		else
 		{
+			m_currentWaypoint = m_waypoints.front();
+			m_waypoints.pop();
+
 			UpdateDirection();
 		}
 	}
@@ -184,17 +195,17 @@ void Enemy::MoveToWaypoints(float deltaTime)
 
 void Enemy::UpdateDirection()
 {
-	if (!m_waypoints.empty())
+	if (m_currentWaypoint != 0)
 	{
-		float angle = atan2(GetCenterX() - m_waypoints[m_waypointIndex]->m_x, GetCenterY() - m_waypoints[m_waypointIndex]->m_y);
+		float angle = atan2(GetCenterX() - m_currentWaypoint->m_x, GetCenterY() - m_currentWaypoint->m_y);
 
 		angle *= 180 / 3.1459f;
 		angle *= -1;
 
 		m_pSprite->SetAngle(angle);
 
-		m_directionX = m_waypoints[m_waypointIndex]->m_x - GetCenterX();
-		m_directionY = m_waypoints[m_waypointIndex]->m_y - GetCenterY();
+		m_directionX = m_currentWaypoint->m_x - GetCenterX();
+		m_directionY = m_currentWaypoint->m_y - GetCenterY();
 
 		float hyp = sqrt(m_directionX*m_directionX + m_directionY*m_directionY);
 

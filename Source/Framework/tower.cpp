@@ -4,12 +4,13 @@
 #include "axisalignedboundingbox.h"
 #include "backbuffer.h"
 
-Tower::Tower(int range, float firingSpeed, int damage)
+Tower::Tower(int range, float firingSpeed, int damage, int cost)
 {
 	Entity::Entity();
 	m_tileRange = range;
 	m_firingSpeed = firingSpeed;
 	m_damage = damage;
+	m_cost = cost;
 
 	m_currentTarget = 0;
 	m_timeElapsed = 0;
@@ -45,8 +46,8 @@ void Tower::Draw(BackBuffer& backBuffer)
 	backBuffer.SetDrawColour(0, 0, 0);
 	Entity::Draw(backBuffer);
 
-	backBuffer.SetDrawColour(0, 125, 0, 1);
-	backBuffer.DrawRectangle(m_towerRangeArea->center->m_x - m_towerRangeArea->halfDimension, m_towerRangeArea->center->m_y + m_towerRangeArea->halfDimension, m_towerRangeArea->center->m_x + m_towerRangeArea->halfDimension, m_towerRangeArea->center->m_y - m_towerRangeArea->halfDimension, 0);
+	//backBuffer.SetDrawColour(0, 125, 0, 1);
+	//backBuffer.DrawRectangle(m_towerRangeArea->center->m_x - m_towerRangeArea->halfDimension, m_towerRangeArea->center->m_y + m_towerRangeArea->halfDimension, m_towerRangeArea->center->m_x + m_towerRangeArea->halfDimension, m_towerRangeArea->center->m_y - m_towerRangeArea->halfDimension, 0);
 }
 
 void Tower::Shoot()
@@ -129,4 +130,9 @@ void Tower::EvaluateTarget()
 	}
 
 	m_targetsInRange.erase(m_targetsInRange.begin() + targetIndex - 1);*/
+}
+
+int Tower::GetTowerCost()
+{
+	return m_cost;
 }

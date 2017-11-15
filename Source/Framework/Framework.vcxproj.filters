@@ -73,7 +73,12 @@
     <ClCompile Include="position.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="axisalignedboundingbox.cpp" />
+    <ClCompile Include="axisalignedboundingbox.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="enemyspawner.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="animatedsprite.h">
@@ -145,7 +150,12 @@
     <ClInclude Include="position.h">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="axisalignedboundingbox.h" />
+    <ClInclude Include="axisalignedboundingbox.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="enemyspawner.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Headers">

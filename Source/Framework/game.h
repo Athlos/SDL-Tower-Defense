@@ -13,6 +13,7 @@ class Enemy;
 class Tower;
 class Position;
 class QuadTree;
+class EnemySpawner;
 
 #include "fmod.hpp";
 
@@ -38,6 +39,7 @@ public:
 
 	void StartWave();
 	void SpawnEnemies(int amount);
+	void AddEnemy(Enemy* enemy);
 
 	void PlaceTower(int x, int y);
 	
@@ -48,6 +50,8 @@ protected:
 	void DrawUI(BackBuffer& backBuffer);
 
 	void UpdateLives(int amount);
+	void UpdateWaves();
+	void UpdateCurrency(int amount);
 
 private:
 	Game(const Game& game);
@@ -59,8 +63,6 @@ private:
 
 	// Member Data:
 public:
-
-	std::vector<Position*> path;
 
 	const static int m_screenWidth = 800;
 	const static int m_screenHeight = 600;
@@ -86,23 +88,27 @@ protected:
 	bool m_paused;
 
 	//UI ELEMENTS
-	Label* m_debug_fps;
-	Label* m_lifeCounter;
+	Label* m_debug_fps; // FPS counter
+	Label* m_lifeCounter; // Life counter
+	Label* m_waveCounter; // Current wave counter
+	Label* m_currencyCounter; // Currency amount counter
 
 	//GAME ENTITIES
-	Grid* m_map;
-	Pathfinding* m_pathfinding;
-	std::vector<Enemy*> m_enemies;
-	std::vector<Tower*> m_towers;
+	Grid* m_map; // Grid of map tiles
+	Pathfinding* m_pathfinding; // Pathfinding class
+	std::vector<Enemy*> m_enemies; // Container of enemies on map
+	std::vector<Tower*> m_towers; // Container of towers in game
+
+	EnemySpawner* m_enemySpawner; // Spawner for enemies
 
 	ParticleEmitter* m_particles; // Particle emitter
 
 	//WAVES
-	int m_waveNumber;
-	bool m_waveActive;
-
 	int m_currentLives;
 	int m_totalLives;
+
+	//GAME COUNTERS
+	int m_currency;
 
 	//AUDIO
 	FMOD::System *system;

@@ -4,6 +4,7 @@
 #include "entity.h"
 
 #include <vector>
+#include <queue>
 
 class Tile;
 class Grid;
@@ -35,7 +36,7 @@ public:
 	void SetTilePosition(Tile* tile);
 	Tile* GetTilePosition();
 
-	void SetPath(std::vector<Position*> path);
+	void SetPath(std::queue<Position*> path);
 
 	void MoveToWaypoints(float deltaTime);
 
@@ -64,8 +65,8 @@ protected:
 
 	Tile* m_tilePosition;
 
-	std::vector<Position*> m_waypoints;
-	int m_waypointIndex;
+	std::queue<Position*> m_waypoints;
+	Position* m_currentWaypoint;
 
 	bool m_reachedEnd;
 

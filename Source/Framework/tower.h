@@ -23,7 +23,7 @@ class Tower : public Entity
 {
 	//Member Methods:
 public:
-	Tower(int range, float firingSpeed, int damage);
+	Tower(int range, float firingSpeed, int damage, int cost);
 	~Tower();
 
 	void Process(float deltaTime);
@@ -40,6 +40,8 @@ public:
 	void SetCurrentTarget(Enemy* target);
 	void EvaluateTarget();
 
+	int GetTowerCost();
+
 	//Member Data:
 protected:
 	Tile* m_tilePosition;
@@ -52,6 +54,7 @@ protected:
 	float m_firingSpeed;
 	float m_timeElapsed;
 	int m_damage;
+	int m_cost;
 
 	AxisAlignedBoundingBox* m_towerRangeArea;
 };

@@ -3,6 +3,7 @@
 #include "sprite.h"
 #include "backbuffer.h"
 #include "texture.h"
+
 #include <cassert>
 
 Label::Label(std::string text)
@@ -14,9 +15,8 @@ Label::Label(std::string text)
 	SetBounds(0, 0, 100, 30);
 
 	TTF_Init();
-	m_font = TTF_OpenFont("assets/currentfont.TTF", 48);
-
-	TTF_SizeText(m_font, m_text.c_str(), &m_bounds.w, &m_bounds.h);
+	m_fontSize = 24;
+	m_font = TTF_OpenFont("assets/currentfont.TTF", m_fontSize);
 }
 
 Label::~Label()
@@ -80,9 +80,20 @@ void Label::Draw(BackBuffer& backBuffer)
 	{
 		m_requiredUpdate = false;
 		m_textTexture = backBuffer.CreateText(m_text, m_colour);
+
+		//Resize bounds to fit text;
+		TTF_SizeText(m_font, m_text.c_str(), &m_currentBounds.w, &m_currentBounds.h);
+
+		while (m_currentBounds.w > m_bounds.w && m_currentBounds.h > m_bounds.h)
+		{
+			m_fontSize *= 0.75f;
+			m_font = TTF_OpenFont("assets/currentfont.TTF", m_fontSize);
+
+			TTF_SizeText(m_font, m_text.c_str(), &m_currentBounds.w, &m_currentBounds.h);
+		}
 	}
 
-	backBuffer.DrawText(m_textTexture, m_bounds);
+	backBuffer.DrawText(m_textTexture, m_currentBounds);
 	//m_textTexture = TTF_RenderText_Blended_Wrapped(m_font, "this is \n 2 lines", m_colour, 50);
 }
 
@@ -92,6 +103,8 @@ void Label::SetBounds(int x, int y, int w, int h)
 	m_bounds.y = y;
 	m_bounds.w = w;
 	m_bounds.h = h;
+
+	m_currentBounds = m_bounds;
 }
 
 SDL_Rect Label::GetBounds()

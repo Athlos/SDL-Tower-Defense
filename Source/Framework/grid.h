@@ -20,6 +20,7 @@ public:
 	std::vector<Tile*> GetNeighboursDiagonal(Tile* tile); // Get all the neighbouring tiles to a Tile including diagonal tiles
 	std::vector<Tile*> GetNeighbours(Tile* tile); // Get all the neighbouring tiles to a Tile including diagonal tiles
 	Tile* GetTileFromPixelCoord(int x, int y); // Get a tile based on screen coordinates
+	Tile* GetTile(int x, int y); // Get a tile based on grid coordinates
 
 	int GetGridSizeX(); // Returns the grid width
 	int GetGridSizeY(); // Returns the grid height
@@ -29,7 +30,7 @@ public:
 	Tile* GetGridStart(); // Returns the start of the grid, where enemies should spawn
 	Tile* GetGridEnd(); // Returns the end point of the grid, where enemies should try to reach
 
-	bool UpdatePath();
+	bool UpdatePath(); // Updates the path on the map for enemies, returns false if there is no path
 
 	std::vector<Tile*> GetGridPath(); // Gets the path through the grind from gridStart to gridEnd
 

@@ -17,6 +17,7 @@
 #include "tower.h"
 #include "position.h"
 #include "quadtree.h"
+#include "enemyspawner.h"
 
 // Library includes:
 #include <cassert>
@@ -115,12 +116,7 @@ bool Game::Initialise()
 	m_map->CreateGrid(*m_pBackBuffer);
 	m_map->UpdatePath();
 
-	path = m_pathfinding->SimplifyPath(m_map->GetGridPath());
-
 	m_particles = new ParticleEmitter();
-
-	m_waveNumber = 1;
-	m_waveActive = false;
 
 	Position* topLeftPos = new Position( m_screenHeight / 2, m_screenHeight / 2 );
 	AxisAlignedBoundingBox* gridBounds = new AxisAlignedBoundingBox (topLeftPos, m_screenHeight / 2 );
@@ -129,19 +125,36 @@ bool Game::Initialise()
 	m_totalLives = 100;
 	m_currentLives = m_totalLives;
 
+	m_currency = 5000;
+
+	m_enemySpawner = new EnemySpawner(0.5f, m_pBackBuffer);
+
 	//SET UP UI
 
 	m_debug_fps = new Label("");
 	m_debug_fps->SetBounds(m_screenWidth - 48, 0, 48, 24);
 	m_debug_fps->SetColour(0, 255, 0, 50);
 
-	std::stringstream lifeMessage;
-	lifeMessage << "Lives: " << m_currentLives;
-	m_lifeCounter = new Label(lifeMessage.str());
+	m_lifeCounter = new Label("");
 
 	m_lifeCounter->SetBounds(m_screenWidth * 0.8f, 30, m_screenWidth * 0.15f, 32);
 	m_lifeCounter->SetColour(255, 0, 0, 50);
 
+	UpdateLives(0);
+
+	m_waveCounter = new Label("");
+
+	m_waveCounter->SetBounds(m_screenWidth * 0.8f, 5, m_screenWidth * 0.15f, 25);
+	m_waveCounter->SetColour(0, 0, 255, 50);
+
+	UpdateWaves();
+
+	m_currencyCounter = new Label("");
+
+	m_currencyCounter->SetBounds(m_screenWidth * 0.8f, 65, m_screenWidth * 0.15f, 30);
+	m_currencyCounter->SetColour(255, 215, 0, 50);
+
+	UpdateCurrency(0);
 
 	//SET UP AUDIO
 	system = NULL;
@@ -263,6 +276,8 @@ void Game::Process(float deltaTime)
 
 	m_particles->Process(deltaTime); // Process particles
 
+	m_enemySpawner->Process(deltaTime);
+
 	std::vector<Enemy*>::iterator enemyIter = m_enemies.begin();
 
 	while (enemyIter != m_enemies.end())
@@ -275,6 +290,10 @@ void Game::Process(float deltaTime)
 			{
 				UpdateLives(-1);
 			}
+			else
+			{
+				UpdateCurrency(current->GetReward());
+			}
 
 			enemyIter = m_enemies.erase(enemyIter);
 
@@ -283,7 +302,8 @@ void Game::Process(float deltaTime)
 
 			if (m_enemies.empty())
 			{
-				m_waveActive = false;
+				m_enemySpawner->EndWave();
+				UpdateWaves();
 			}
 		}
 		else
@@ -345,13 +365,6 @@ void Game::Draw(BackBuffer& backBuffer)
 
 	DrawUI(backBuffer);
 
-	//Draw Map Path
-	backBuffer.SetDrawColour(0, 255, 0);
-	for (int i = 1; i < path.size(); ++i)
-	{
-		backBuffer.DrawLine(path[i - 1]->m_x, path[i - 1]->m_y, path[i]->m_x, path[i]->m_y);
-	}
-
 	//m_quadTree->Draw(backBuffer);
 
 	backBuffer.Present();
@@ -362,6 +375,8 @@ void Game::DrawUI(BackBuffer& backBuffer)
 	//Draw UI
 	//m_debug_fps->Draw(backBuffer);
 	m_lifeCounter->Draw(backBuffer);
+	m_waveCounter->Draw(backBuffer);
+	m_currencyCounter->Draw(backBuffer);
 }
 
 void Game::UpdateLives(int amount)
@@ -372,6 +387,22 @@ void Game::UpdateLives(int amount)
 	lifeMessage << "Lives: " << m_currentLives;
 
 	m_lifeCounter->SetText(lifeMessage.str());
+}
+
+void Game::UpdateWaves()
+{
+	std::stringstream waveMessage;
+	waveMessage << "Wave: " << m_enemySpawner->GetWaveNumber();
+	m_waveCounter->SetText(waveMessage.str());
+}
+
+void Game::UpdateCurrency(int amount)
+{
+	m_currency += amount;
+
+	std::stringstream currencyMessage;
+	currencyMessage << "$" << m_currency;
+	m_currencyCounter->SetText(currencyMessage.str());
 }
 
 void Game::Quit()
@@ -395,7 +426,7 @@ void Game::OnLeftMouseClick(int x, int y)
 	//TestQuadTree(x, y);
 	//return;
 
-	if (m_waveActive)
+	if (m_enemySpawner->IsWaveActive())
 	{
 		for each (Enemy* e in m_enemies)
 		{
@@ -411,19 +442,21 @@ void Game::OnLeftMouseClick(int x, int y)
 
 		if (clicked != 0)
 		{
-			if (clicked->GetState() == EMPTY)
+			if (clicked->GetState() == EMPTY && m_currency >= 10)
 			{
-				clicked->SetState(BLOCKED);
+				clicked->SetWall(true);
+				clicked->SetOccupied(true);
 
 				//TODO stop tile placement if path is obstructed
 
 				if (!m_map->UpdatePath())
 				{
-					clicked->SetState(EMPTY);
+					clicked->SetOccupied(false);
+					clicked->SetWall(false);
 				}
 				else
 				{
-					path = m_pathfinding->SimplifyPath(m_map->GetGridPath());
+					UpdateCurrency(-10);
 				}
 			}
 		}
@@ -448,56 +481,56 @@ void Game::OnRightMouseClick(int x, int y)
 
 void Game::StartWave()
 {
-	if (!m_waveActive)
-	{
-		SpawnEnemies(10);
+	m_map->UpdatePath();
 
-		m_map->UpdatePath();
+	std::queue<Position*> path = m_pathfinding->SimplifyPath(m_map->GetGridPath());
 
-		path = m_pathfinding->SimplifyPath(m_map->GetGridPath());
-
-		for each (Enemy* enemy in m_enemies)
-		{
-			enemy->SetPath(path);
-		}
-
-		m_waveActive = true;
-	}
+	m_enemySpawner->StartWave(path);
 }
 
 void Game::SpawnEnemies(int amount)
 {
 	for (int i = 0; i < amount; ++i)
 	{
-		Enemy* testEnemy = new Enemy();
 
-		Sprite* testEnemySprite = m_pBackBuffer->CreateSprite("assets\\enemy.png");
-
-		testEnemy->Initialise(testEnemySprite);
-		
-		testEnemy->SetData(3, rand() % 101 + 50, 1);
-
-		testEnemy->SetTilePosition(m_map->GetGridStart());
-
-		testEnemy->m_grid = m_map;
-
-		testEnemy->SetPosition(1, 1);
-
-		m_enemies.push_back(testEnemy);
-
-		m_quadTree->Insert(testEnemy);
 	}
+}
+
+void Game::AddEnemy(Enemy* enemy)
+{
+	enemy->SetTilePosition(m_map->GetGridStart());
+
+	enemy->m_grid = m_map;
+
+	m_quadTree->Insert(enemy);
+
+	m_enemies.push_back(enemy);
 }
 
 void Game::PlaceTower(int x, int y)
 {
-	if (m_waveActive)
+	if (m_enemySpawner->IsWaveActive())
 	{
 		return;
 	}
 
 	Tile* currentTile = m_map->GetTileFromPixelCoord(x, y);
-	Tower* newTower = new Tower(1, 1, 1);
+
+	if (m_currency < 100 || currentTile->GetState() == BLOCKED)
+	{
+		return;
+	}
+
+	currentTile->SetOccupied(true);
+
+	if (!m_map->UpdatePath())
+	{
+		currentTile->SetOccupied(false);
+
+		return;
+	}
+
+	Tower* newTower = new Tower(1, 1, 1, 100);
 
 	Sprite* newTowerSprite = m_pBackBuffer->CreateSprite("assets\\tower_base.png");
 
@@ -509,10 +542,11 @@ void Game::PlaceTower(int x, int y)
 
 	newTower->SetTilePosition(currentTile);
 
-	currentTile->SetOccupied(true);
+	
 
 	m_towers.push_back(newTower);
 
 	m_map->UpdatePath();
-	path = m_pathfinding->SimplifyPath(m_map->GetGridPath());
+
+	UpdateCurrency(-newTower->GetTowerCost());
 }

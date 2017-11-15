@@ -3,6 +3,7 @@
 #include "tile.h"
 
 #include <vector>
+#include <queue>
 
 class Grid;
 class Tile;
@@ -30,9 +31,10 @@ public:
 
 	std::vector<Tile*> FindPath(int xStart, int yStart, int xEnd, int yEnd, bool drawPath);
 
-	std::vector<Position*> SimplifyPath(std::vector<Tile*> path); // Turns path of tiles into positions, removes uneccessary points if direction does not change
+	std::queue<Position*> SimplifyPath(std::vector<Tile*> path); // Turns path of tiles into positions, removes uneccessary points if direction does not change
 
 	int GetDistance(Tile* a, Tile* b);
+	int GetDistanceDiagonal(Tile* a, Tile* b);
 
 	std::vector<Tile*> RetracePath(Tile* start, Tile* end, bool drawPath);
 

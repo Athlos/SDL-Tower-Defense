@@ -11,11 +11,8 @@ enum TileState
 {
 	EMPTY,
 	BLOCKED,
-	FRINGE,
-	EXPLORED,
 	START,
-	END,
-	PATH
+	END
 };
 
 class Tile
@@ -61,6 +58,8 @@ public:
 	bool IsOccupied();
 	void SetOccupied(bool occupied);
 
+	void SetWall(bool hasWall);
+
 private:
 	void SetSpriteDefault(Sprite* sprite);
 
@@ -89,5 +88,6 @@ private:
 	std::vector<Sprite*> m_tileSprites;
 
 	bool m_occupied;
+	bool m_hasWall;
 };
 

@@ -6,6 +6,7 @@
 #include "position.h"
 
 #include <math.h>
+#include <queue>
 
 Grid::Grid(int x, int y)
 {
@@ -55,6 +56,30 @@ void Grid::Draw(BackBuffer& backBuffer)
 			m_grid.at(x)->at(y)->Draw(backBuffer);
 		}
 	}
+
+	//Draw Map Path
+	//backBuffer.SetDrawColour(0, 255, 0);
+
+	//std::queue<Position*> path = m_pathFinding->SimplifyPath(m_gridPath);
+
+	//Position* current = 0;
+
+	//if (!path.empty())
+	//{
+	//	current = path.front();
+	//	path.pop();
+	//}
+
+	//while (!path.empty())
+	//{
+	//	Position* next = path.front();
+	//	path.pop();
+
+	//	backBuffer.DrawLine(current->m_x, current->m_y, next->m_x, next->m_y);
+
+	//	current = next;
+	//}
+
 }
 
 std::vector<Tile*> Grid::GetNeighboursDiagonal(Tile* tile)
@@ -126,6 +151,18 @@ Tile* Grid::GetTileFromPixelCoord(int x, int y)
 	}
 }
 
+Tile* Grid::GetTile(int x, int y)
+{
+	if (x >= 0 && x < m_gridSizeX && y >= 0 && y < m_gridSizeY)
+	{
+		return m_grid.at(x)->at(y);
+	}
+	else
+	{
+		return 0;
+	}
+}
+
 int Grid::GetGridSizeX()
 {
 	return m_gridSizeX;
@@ -162,9 +199,14 @@ Tile* Grid::GetGridEnd()
 
 bool Grid::UpdatePath()
 {
-	m_gridPath = m_pathFinding->FindPath(GetGridStart()->GetCenter().m_x, GetGridStart()->GetCenter().m_y, GetGridEnd()->GetCenter().m_x, GetGridEnd()->GetCenter().m_y, 0);
+	std::vector<Tile*> newPath = m_pathFinding->FindPath(GetGridStart()->GetCenter().m_x, GetGridStart()->GetCenter().m_y, GetGridEnd()->GetCenter().m_x, GetGridEnd()->GetCenter().m_y, 0);
 
-	return !m_gridPath.empty();
+	if (!newPath.empty())
+	{
+		m_gridPath = newPath;
+	}
+
+	return !newPath.empty();
 }
 
 std::vector<Tile*> Grid::GetGridPath()

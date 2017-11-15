@@ -75,17 +75,23 @@ std::vector<Tile*> Pathfinding::FindPath(int xStart, int yStart, int xEnd, int y
 		bool allowDiagonal = true;
 
 		//Handle choosing if a diagonal tile is allowed
-		for (int x = -1; x <= 1; ++x)
+		for (int shift = -1; shift <= 1; ++shift)
 		{
-			for (int y = -1; y <= 1; ++y)
+			if (m_grid->GetTile(currentTile->GetGridX() + shift, currentTile->GetGridY()) != 0)
 			{
-				if (m_grid->GetTile(currentTile->GetGridX() + x, currentTile->GetGridY() + y) != 0)
+				if (m_grid->GetTile(currentTile->GetGridX() + shift, currentTile->GetGridY())->IsOccupied()) // if tile has blocked neighbours, do not allow diagonal movement
 				{
-					if (m_grid->GetTile(currentTile->GetGridX() + x, currentTile->GetGridY() + y)->IsOccupied()) // if tile has blocked neighbours, do not allow diagonal movement
-					{
-						allowDiagonal = false;
-						break;
-					}
+					allowDiagonal = false;
+					break;
+				}
+			}
+
+			if (m_grid->GetTile(currentTile->GetGridX(), currentTile->GetGridY() + shift) != 0)
+			{
+				if (m_grid->GetTile(currentTile->GetGridX(), currentTile->GetGridY() + shift)->IsOccupied()) // if tile has blocked neighbours, do not allow diagonal movement
+				{
+					allowDiagonal = false;
+					break;
 				}
 			}
 		}
@@ -144,49 +150,6 @@ std::vector<Tile*> Pathfinding::FindPath(int xStart, int yStart, int xEnd, int y
 			}
 		}
 	}
-
-
-
-	//	for each(Tile* neighbour in m_grid->GetNeighboursDiagonal(currentTile)) // Process neighbouring tiles
-	//	{
-	//		if (neighbour->IsOccupied() || closedSet.find(neighbour) != closedSet.end()) // check if valid neighbour
-	//		{
-	//			continue;
-	//		}
-
-	//		//Evaluate diagonals
-	//		int distance = 0;
-
-	//		if (neighbour->GetGridX() != currentTile->GetGridX() && neighbour->GetGridY() != currentTile->GetGridY())
-	//		{
-	//			distance = GetDistanceDiagonal(currentTile, neighbour);
-	//		}
-	//		else
-	//		{
-	//			distance = GetDistance(currentTile, neighbour);
-	//		}
-
-	//		int newCostToNeighbour = currentTile->GetGCost() + distance;
-
-	//		if (newCostToNeighbour < neighbour->GetGCost() || !openSet->Contains(neighbour))
-	//		{
-	//			neighbour->m_gCost = newCostToNeighbour;
-	//			neighbour->m_hCost = distance;
-
-	//			neighbour->m_parent = currentTile;
-
-	//			if (!openSet->Contains(neighbour)) // If open set does not contain neighbour, push it
-	//			{
-	//				if (drawPath)
-	//				{
-	//					//neighbour->SetState(FRINGE);
-	//				}
-
-	//				openSet->Add(neighbour);
-	//			}
-	//		}
-	//	}
-	//}
 
 	return waypoints;
 }

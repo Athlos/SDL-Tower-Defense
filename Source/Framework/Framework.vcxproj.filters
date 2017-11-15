@@ -79,6 +79,7 @@
     <ClCompile Include="enemyspawner.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="button.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="animatedsprite.h">
@@ -156,6 +157,7 @@
     <ClInclude Include="enemyspawner.h">
       <Filter>Headers</Filter>
     </ClInclude>
+    <ClInclude Include="button.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Headers">

@@ -14,6 +14,7 @@ class Label
 	// Member Methods:
 public:
 	Label(std::string text);
+	Label();
 	~Label();
 
 	//Set the text image, if the text is the same it returns, you can call this in the process loop safely
@@ -39,6 +40,8 @@ public:
 
 	//Check if label was clicked on, basic button functionality
 	bool WasClickedOn(int x, int y);
+
+	void SetFontSize(int size);
 
 	// Member Data:
 protected:

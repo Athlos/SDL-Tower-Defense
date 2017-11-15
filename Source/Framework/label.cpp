@@ -19,6 +19,11 @@ Label::Label(std::string text)
 	m_font = TTF_OpenFont("assets/currentfont.TTF", m_fontSize);
 }
 
+Label::Label()
+{
+
+}
+
 Label::~Label()
 {
 }
@@ -115,4 +120,11 @@ SDL_Rect Label::GetBounds()
 bool Label::WasClickedOn(int x, int y)
 {
 	return ((x > m_bounds.x) && (x < m_bounds.x + m_bounds.w) && (y > m_bounds.y) && (y < m_bounds.y + m_bounds.h));
+}
+
+void Label::SetFontSize(int size)
+{
+	m_fontSize = size;
+
+	m_font = TTF_OpenFont("assets/currentfont.TTF", m_fontSize);
 }

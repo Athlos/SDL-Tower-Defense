@@ -86,6 +86,7 @@
     <ClInclude Include="animatedsprite.h" />
     <ClInclude Include="axisalignedboundingbox.h" />
     <ClInclude Include="backbuffer.h" />
+    <ClInclude Include="button.h" />
     <ClInclude Include="enemyspawner.h" />
     <ClInclude Include="grid.h" />
     <ClInclude Include="label.h" />
@@ -113,6 +114,7 @@
     <ClCompile Include="animatedsprite.cpp" />
     <ClCompile Include="axisalignedboundingbox.cpp" />
     <ClCompile Include="backbuffer.cpp" />
+    <ClCompile Include="button.cpp" />
     <ClCompile Include="enemyspawner.cpp" />
     <ClCompile Include="grid.cpp" />
     <ClCompile Include="label.cpp" />

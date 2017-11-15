@@ -41,6 +41,8 @@ int Tile::GetGCost() const
 
 void Tile::Draw(BackBuffer& backBuffer)
 {
+	backBuffer.DrawSprite(*m_tileSprites.at(EMPTY));
+
 	if (m_state == START || m_state == END)
 	{
 		backBuffer.SetDrawColour(m_colour.r, m_colour.g, m_colour.b);
@@ -55,10 +57,6 @@ void Tile::Draw(BackBuffer& backBuffer)
 	{
 		backBuffer.DrawSprite(*m_tileSprites.at(BLOCKED));
 	}
-	else
-	{
-		backBuffer.DrawSprite(*m_tileSprites.at(EMPTY));
-	}
 }
 
 void Tile::Initialise(BackBuffer& backBuffer)
@@ -70,7 +68,7 @@ void Tile::Initialise(BackBuffer& backBuffer)
 
 	//Load wall base
 
-	Sprite* wallSprite = backBuffer.CreateSprite("assets\\wall_center.png");
+	Sprite* wallSprite = backBuffer.CreateSprite("assets\\wall_base.png");
 
 	SetSpriteDefault(wallSprite);
 }

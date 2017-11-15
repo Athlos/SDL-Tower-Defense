@@ -90,6 +90,9 @@ void Sprite::SetCenter(int x, int y)
 {
 	m_centerX = x;
 	m_centerY = y;
+
+	m_x = m_centerX - (m_width / 2);
+	m_y = m_centerY - (m_height / 2);
 }
 
 void Sprite::SetHandleCenter()

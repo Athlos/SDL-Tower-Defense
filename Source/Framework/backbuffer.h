@@ -33,6 +33,8 @@ public:
 
 	void DrawSprite(Sprite& sprite);
 	void DrawRectangle(int x1, int y1, int x2, int y2, bool fill);
+	void DrawRectangle(SDL_Rect* bounds, bool fill);
+
 	void DrawLine(int x1, int y1, int x2, int y2);
 
 	void DrawText(SDL_Texture* textOnScreen, SDL_Rect bounds);

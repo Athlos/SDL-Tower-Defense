@@ -6,6 +6,7 @@ class BackBuffer;
 class InputHandler;
 class Sprite;
 class Label;
+class Button;
 class ParticleEmitter;
 class Grid;
 class Pathfinding;
@@ -18,6 +19,13 @@ class EnemySpawner;
 #include "fmod.hpp";
 
 #include <vector>;
+
+enum BuildingTypeSelected
+{
+	WALL,
+	TOWER,
+	NOTHING
+};
 
 class Game
 {
@@ -38,10 +46,12 @@ public:
 	void OnRightMouseClick(int x, int y);
 
 	void StartWave();
-	void SpawnEnemies(int amount);
 	void AddEnemy(Enemy* enemy);
 
 	void PlaceTower(int x, int y);
+	void PlaceWall(int x, int y);
+
+	void UpdateCursorPosition(int x, int y);
 	
 protected:
 	void Process(float deltaTime);
@@ -93,6 +103,14 @@ protected:
 	Label* m_waveCounter; // Current wave counter
 	Label* m_currencyCounter; // Currency amount counter
 
+	Label* m_towerText;
+	
+	Button* m_wallButton;
+	Button* m_towerButton;
+
+	Sprite* m_cursorSprite;
+	BuildingTypeSelected m_selected;
+
 	//GAME ENTITIES
 	Grid* m_map; // Grid of map tiles
 	Pathfinding* m_pathfinding; // Pathfinding class
@@ -116,7 +134,6 @@ protected:
 	FMOD_RESULT result;
 	FMOD::Channel* channel;
 	FMOD::Channel* m_musicChannel;
-
 };
 
 #endif // __GAME_H__

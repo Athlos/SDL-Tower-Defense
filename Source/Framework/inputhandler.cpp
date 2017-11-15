@@ -27,30 +27,27 @@ void InputHandler::ProcessInput(Game& game)
 	// Receive Input Events below...
 	SDL_Event e;
 
-	static bool mouseDown;
-
 	while (SDL_PollEvent(&e) != 0)
 	{
 		
 		if (e.type == SDL_MOUSEBUTTONDOWN) // Mouse pressed
 		{
-			mouseDown = true;
+			if (e.button.button == SDL_BUTTON_LEFT)
+			{
+				game.OnLeftMouseClick(e.button.x, e.button.y);
+			}
+			else
+			{
+				game.OnRightMouseClick(e.button.x, e.button.y);
+			}
 		}
 
-		if (e.type == SDL_MOUSEBUTTONUP)
-		{
-			mouseDown = false;
-		}
+		int xPos;
+		int yPos;
 
-		if (mouseDown)
-		{
-			int xPos;
-			int yPos;
+		SDL_GetMouseState(&xPos, &yPos);
 
-			SDL_GetMouseState(&xPos, &yPos);
-
-			game.OnLeftMouseClick(xPos, yPos);
-		}
+		game.UpdateCursorPosition(xPos, yPos);
 		
 		switch (e.type)
 		{

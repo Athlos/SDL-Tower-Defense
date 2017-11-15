@@ -214,6 +214,18 @@ void BackBuffer::DrawRectangle(int x1, int y1, int x2, int y2, bool fill)
 	}
 }
 
+void BackBuffer::DrawRectangle(SDL_Rect* bounds, bool fill)
+{
+	if (fill)
+	{
+		SDL_RenderFillRect(m_pRenderer, bounds);
+	}
+	else
+	{
+		SDL_RenderDrawRect(m_pRenderer, bounds);
+	}
+}
+
 void BackBuffer::DrawLine(int x1, int y1, int x2, int y2)
 {
 	SDL_RenderDrawLine(m_pRenderer, x1, y1, x2, y2);

@@ -9,6 +9,7 @@
 #include "animatedsprite.h"
 #include "fmod.hpp"
 #include "label.h"
+#include "button.h"
 #include "particleemitter.h"
 #include "grid.h"
 #include "tile.h"
@@ -125,7 +126,7 @@ bool Game::Initialise()
 	m_totalLives = 100;
 	m_currentLives = m_totalLives;
 
-	m_currency = 5000;
+	m_currency = 500;
 
 	m_enemySpawner = new EnemySpawner(0.5f, m_pBackBuffer);
 
@@ -137,21 +138,42 @@ bool Game::Initialise()
 
 	m_lifeCounter = new Label("");
 
-	m_lifeCounter->SetBounds(m_screenWidth * 0.8f, 30, m_screenWidth * 0.15f, 32);
+	m_lifeCounter->SetBounds(m_screenWidth * 0.8f, m_screenHeight * 0.01f, m_screenWidth * 0.15f, m_screenHeight * 0.05f);
 	m_lifeCounter->SetColour(255, 0, 0, 50);
 
 	UpdateLives(0);
 
 	m_waveCounter = new Label("");
 
-	m_waveCounter->SetBounds(m_screenWidth * 0.8f, 5, m_screenWidth * 0.15f, 25);
+	m_waveCounter->SetBounds(m_screenWidth * 0.8f, m_screenHeight * 0.07f, m_screenWidth * 0.15f, m_screenHeight * 0.05f);
 	m_waveCounter->SetColour(0, 0, 255, 50);
 
 	UpdateWaves();
 
+	m_towerText = new Label("Buildings");
+
+	m_towerText->SetBounds(m_screenWidth * 0.76f, m_screenHeight * 0.20f, m_screenWidth * 0.23f, m_screenHeight * 0.07f);
+	m_towerText->SetColour(255, 0, 0, 50);
+	m_towerText->SetFontSize(32);
+
+	m_wallButton = new Button("");
+	m_wallButton->SetBounds(m_screenWidth * 0.77f, m_screenHeight * 0.28f, m_screenWidth * 0.05f, m_screenWidth * 0.05f);
+	Sprite* wallSprite = m_pBackBuffer->CreateSprite("assets\\wall_base.png");
+	m_wallButton->SetCustomSprite(wallSprite);
+
+	m_towerButton = new Button("");
+	m_towerButton->SetBounds(m_screenWidth * 0.84f, m_screenHeight * 0.28f, m_screenWidth * 0.05f, m_screenWidth * 0.05f);
+
+	Sprite* newTowerSprite = m_pBackBuffer->CreateSprite("assets\\tower_base.png");
+	m_towerButton->SetCustomSprite(newTowerSprite);
+
+	m_selected = NOTHING;
+
+	m_cursorSprite = 0;
+
 	m_currencyCounter = new Label("");
 
-	m_currencyCounter->SetBounds(m_screenWidth * 0.8f, 65, m_screenWidth * 0.15f, 30);
+	m_currencyCounter->SetBounds(m_screenWidth * 0.8f, m_screenHeight * 0.13f, m_screenWidth * 0.15f, m_screenHeight * 0.05f);
 	m_currencyCounter->SetColour(255, 215, 0, 50);
 
 	UpdateCurrency(0);
@@ -377,6 +399,20 @@ void Game::DrawUI(BackBuffer& backBuffer)
 	m_lifeCounter->Draw(backBuffer);
 	m_waveCounter->Draw(backBuffer);
 	m_currencyCounter->Draw(backBuffer);
+
+	backBuffer.SetDrawColour(192, 192, 192);
+	backBuffer.DrawRectangle(m_screenWidth * 0.76f, m_screenHeight * 0.20f, m_screenWidth * 0.99f, m_screenHeight * 0.5f, 1);
+
+	m_towerText->Draw(backBuffer);
+
+	m_towerButton->Draw(backBuffer);
+	m_wallButton->Draw(backBuffer);
+
+	//Draw cursor
+	if (m_cursorSprite != 0)
+	{
+		m_pBackBuffer->DrawSprite(*m_cursorSprite);
+	}
 }
 
 void Game::UpdateLives(int amount)
@@ -403,6 +439,25 @@ void Game::UpdateCurrency(int amount)
 	std::stringstream currencyMessage;
 	currencyMessage << "$" << m_currency;
 	m_currencyCounter->SetText(currencyMessage.str());
+
+	//Update buttons
+	if (m_currency >= 10)
+	{
+		m_wallButton->SetBackgroundColour(34, 139, 34);
+	}
+	else
+	{
+		m_wallButton->SetBackgroundColour(178, 34, 34);
+	}
+
+	if (m_currency >= 100)
+	{
+		m_towerButton->SetBackgroundColour(34, 139, 34);
+	}
+	else
+	{
+		m_towerButton->SetBackgroundColour(178, 34, 34);
+	}
 }
 
 void Game::Quit()
@@ -423,41 +478,46 @@ bool Game::IsPaused()
 
 void Game::OnLeftMouseClick(int x, int y)
 {
-	//TestQuadTree(x, y);
-	//return;
-
-	if (m_enemySpawner->IsWaveActive())
+	if (m_towerButton->WasClickedOn(x, y))
 	{
-		for each (Enemy* e in m_enemies)
-		{
-			if (e->IsClickedOn(x, y))
-			{
-				e->TakeDamage(1);
-			}
-		}
+		delete(m_cursorSprite);
+
+		Sprite* newTowerSprite = m_pBackBuffer->CreateSprite("assets\\tower_base.png");
+		m_cursorSprite = newTowerSprite;
+
+		m_selected = TOWER;
+	}
+	else if (m_wallButton->WasClickedOn(x, y))
+	{
+		delete(m_cursorSprite);
+
+		Sprite* wallSprite = m_pBackBuffer->CreateSprite("assets\\wall_base.png");
+
+		m_cursorSprite = wallSprite;
+
+		m_selected = WALL;
 	}
 	else
 	{
-		Tile* clicked = m_map->GetTileFromPixelCoord(x, y);
-
-		if (clicked != 0)
+		if (m_enemySpawner->IsWaveActive())
 		{
-			if (clicked->GetState() == EMPTY && m_currency >= 10)
+			for each (Enemy* e in m_enemies)
 			{
-				clicked->SetWall(true);
-				clicked->SetOccupied(true);
-
-				//TODO stop tile placement if path is obstructed
-
-				if (!m_map->UpdatePath())
+				if (e->IsClickedOn(x, y))
 				{
-					clicked->SetOccupied(false);
-					clicked->SetWall(false);
+					e->TakeDamage(1);
 				}
-				else
-				{
-					UpdateCurrency(-10);
-				}
+			}
+		}
+		else
+		{
+			if (m_selected == TOWER)
+			{
+				PlaceTower(x, y);
+			}
+			else if (m_selected == WALL)
+			{
+				PlaceWall(x, y);
 			}
 		}
 	}
@@ -471,12 +531,9 @@ void Game::TestQuadTree(int x, int y)
 
 void Game::OnRightMouseClick(int x, int y)
 {
-	Tile* clicked = m_map->GetTileFromPixelCoord(x, y);
-
-	if (clicked->GetState() == BLOCKED)
-	{
-		clicked->SetState(EMPTY);
-	}
+	delete(m_cursorSprite);
+	m_cursorSprite = 0;
+	m_selected = NOTHING;
 }
 
 void Game::StartWave()
@@ -486,14 +543,10 @@ void Game::StartWave()
 	std::queue<Position*> path = m_pathfinding->SimplifyPath(m_map->GetGridPath());
 
 	m_enemySpawner->StartWave(path);
-}
 
-void Game::SpawnEnemies(int amount)
-{
-	for (int i = 0; i < amount; ++i)
-	{
-
-	}
+	delete(m_cursorSprite);
+	m_cursorSprite = 0;
+	m_selected = NOTHING;
 }
 
 void Game::AddEnemy(Enemy* enemy)
@@ -516,7 +569,12 @@ void Game::PlaceTower(int x, int y)
 
 	Tile* currentTile = m_map->GetTileFromPixelCoord(x, y);
 
-	if (m_currency < 100 || currentTile->GetState() == BLOCKED)
+	if (m_currency < 100 || currentTile == 0)
+	{
+		return;
+	}
+
+	if (currentTile->GetState() == BLOCKED)
 	{
 		return;
 	}
@@ -542,11 +600,43 @@ void Game::PlaceTower(int x, int y)
 
 	newTower->SetTilePosition(currentTile);
 
-	
-
 	m_towers.push_back(newTower);
 
 	m_map->UpdatePath();
 
 	UpdateCurrency(-newTower->GetTowerCost());
+}
+
+void Game::PlaceWall(int x, int y)
+{
+	Tile* clicked = m_map->GetTileFromPixelCoord(x, y);
+
+	if (clicked != 0)
+	{
+		if (clicked->GetState() == EMPTY && m_currency >= 10)
+		{
+			clicked->SetWall(true);
+			clicked->SetOccupied(true);
+
+			//TODO stop tile placement if path is obstructed
+
+			if (!m_map->UpdatePath())
+			{
+				clicked->SetOccupied(false);
+				clicked->SetWall(false);
+			}
+			else
+			{
+				UpdateCurrency(-10);
+			}
+		}
+	}
+}
+
+void Game::UpdateCursorPosition(int x, int y)
+{
+	if (m_cursorSprite != 0)
+	{
+		m_cursorSprite->SetCenter(x, y);
+	}
 }

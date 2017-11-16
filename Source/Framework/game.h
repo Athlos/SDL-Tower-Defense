@@ -28,6 +28,14 @@ enum BuildingTypeSelected
 	NOTHING
 };
 
+enum GameState
+{
+	MENU,
+	PLAYING,
+	WON,
+	LOST
+};
+
 class Game
 {
 	// Member Methods:
@@ -104,6 +112,8 @@ protected:
 	bool m_drawDebugInfo;
 	
 	bool m_paused;
+
+	GameState m_gameState;
 
 	//UI ELEMENTS
 	Label* m_debug_fps; // FPS counter

@@ -15,7 +15,7 @@ public:
 
 	void SetCustomSprite(Sprite* sprite);
 
-	void SetBackgroundColour(int r, int g, int b);
+	void SetBackgroundColour(Uint8 r, Uint8 g, Uint8 b);
 
 	Sprite* GetCustomSprite();
 

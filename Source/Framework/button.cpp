@@ -58,7 +58,7 @@ void Button::SetCustomSprite(Sprite* sprite)
 	m_customSprite = true;
 }
 
-void Button::SetBackgroundColour(int r, int g, int b)
+void Button::SetBackgroundColour(Uint8 r, Uint8 g, Uint8 b)
 {
 	m_backgroundColour = { r, g, b };
 }

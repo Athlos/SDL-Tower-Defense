@@ -131,7 +131,7 @@ bool Game::Initialise()
 	m_totalLives = 100;
 	m_currentLives = m_totalLives;
 
-	m_currency = 5000;
+	m_currency = 500;
 
 	m_enemySpawner = new EnemySpawner(0.5f, m_pBackBuffer);
 
@@ -302,6 +302,8 @@ bool Game::DoGameLoop()
 
 	//std::chrono::duration<double> elapsed_secondsHeap = endHeap - startHeap;
 
+	m_gameState = PLAYING;
+
 	const float stepSize = 1.0f / 60.0f; // calculate step size
 
 	// Check input
@@ -433,6 +435,11 @@ void Game::ProcessEnemies(float deltaTime)
 				UpdateWaves();
 
 				m_startWave->SetBackgroundColour(34, 139, 34);
+
+				if (m_enemySpawner->GetWaveNumber() == m_enemySpawner->GetTotalWaveNumber())
+				{
+					m_gameState = WON;
+				}
 			}
 		}
 		else
@@ -599,6 +606,13 @@ void Game::DrawSelectionUI(BackBuffer& backBuffer)
 void Game::UpdateLives(int amount)
 {
 	m_currentLives += amount;
+
+	if (m_currentLives <= 0)
+	{
+		m_currentLives = 0;
+
+		m_gameState = LOST;
+	}
 
 	std::stringstream lifeMessage;
 	lifeMessage << "Lives: " << m_currentLives;

@@ -50,7 +50,7 @@ void EnemySpawner::LoadWave()
 	//TODO
 	m_waveLoaded = true;
 
-	for (int i = 0; i < m_waveNumber * 3; ++i)
+	for (int i = 0; i < m_waveNumber * 4; ++i)
 	{
 		int type = rand() % 3;
 
@@ -62,7 +62,7 @@ void EnemySpawner::LoadWave()
 			case 0: // Large enemy, high health and low speed
 			{
 				testEnemySprite = m_backBuffer->CreateSprite("assets\\enemy.png");
-				testEnemy->SetData(7 * m_waveNumber, rand() % 31 + 20, 1);
+				testEnemy->SetData(8 * m_waveNumber, rand() % 31 + 20, 1);
 			}
 				break;
 			case 1: // Medium enemy, normal health, normal speed

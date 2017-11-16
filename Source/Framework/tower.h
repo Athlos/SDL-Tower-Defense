@@ -35,6 +35,7 @@ public:
 	void Shoot();
 
 	void SetTilePosition(Tile* tile);
+	Tile* GetTilePosition() const;
 
 	void SetEnemiesInRange(std::vector<Entity*> enemies);
 
@@ -44,6 +45,17 @@ public:
 	void EvaluateTarget();
 
 	int GetTowerCost();
+
+	int GetTowerRange() const;
+	int GetTowerDamage() const;
+	float GetTowerFireRate() const;
+
+	int GetTowerValue() const;
+
+	int GetTowerUpgradeCost() const;
+	void UpgradeTower();
+
+	bool IsMaxLevel();
 
 	//Member Data:
 protected:
@@ -58,6 +70,9 @@ protected:
 	float m_timeElapsed;
 	int m_damage;
 	int m_cost;
+
+	int m_currentLevel;
+	int m_maxLevel;
 
 	AxisAlignedBoundingBox* m_towerRangeArea;
 

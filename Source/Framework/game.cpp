@@ -28,6 +28,7 @@
 #include <cmath>
 #include <ctime>
 #include <vector>
+#include <iomanip>
 
 //TESTING
 #include <chrono>
@@ -123,12 +124,18 @@ bool Game::Initialise()
 	AxisAlignedBoundingBox* gridBounds = new AxisAlignedBoundingBox (topLeftPos, m_screenHeight / 2 );
 	m_quadTree = new QuadTree(gridBounds);
 
+	Position* towerTopLeft = new Position(m_screenHeight / 2, m_screenHeight / 2);
+	AxisAlignedBoundingBox* towerGridBounds = new AxisAlignedBoundingBox(towerTopLeft, m_screenHeight / 2);
+	m_towerQuadTree = new QuadTree(towerGridBounds);
+
 	m_totalLives = 100;
 	m_currentLives = m_totalLives;
 
-	m_currency = 500;
+	m_currency = 5000;
 
 	m_enemySpawner = new EnemySpawner(0.5f, m_pBackBuffer);
+
+	m_selectedTower = 0;
 
 	//SET UP UI
 
@@ -138,14 +145,14 @@ bool Game::Initialise()
 
 	m_lifeCounter = new Label("");
 
-	m_lifeCounter->SetBounds(m_screenWidth * 0.8f, m_screenHeight * 0.01f, m_screenWidth * 0.15f, m_screenHeight * 0.05f);
+	m_lifeCounter->SetBounds(m_screenWidth * 0.76f, m_screenHeight * 0.01f, m_screenWidth * 0.15f, m_screenHeight * 0.05f);
 	m_lifeCounter->SetColour(255, 0, 0, 50);
 
 	UpdateLives(0);
 
 	m_waveCounter = new Label("");
 
-	m_waveCounter->SetBounds(m_screenWidth * 0.8f, m_screenHeight * 0.07f, m_screenWidth * 0.15f, m_screenHeight * 0.05f);
+	m_waveCounter->SetBounds(m_screenWidth * 0.76f, m_screenHeight * 0.07f, m_screenWidth * 0.15f, m_screenHeight * 0.05f);
 	m_waveCounter->SetColour(0, 0, 255, 50);
 
 	UpdateWaves();
@@ -176,7 +183,7 @@ bool Game::Initialise()
 	m_startWave = new Button("Start Wave");
 	m_startWave->SetBounds(m_screenWidth * 0.76f, m_screenHeight * 0.93f, m_screenWidth * 0.23f, m_screenWidth * 0.05f);
 	m_startWave->SetFontSize(28);
-	m_startWave->SetBackgroundColour(139, 0, 0);
+	m_startWave->SetBackgroundColour(34, 139, 34);
 	m_startWave->SetColour(255, 255, 255, 255);
 
 	m_selected = NOTHING;
@@ -185,10 +192,56 @@ bool Game::Initialise()
 
 	m_currencyCounter = new Label("");
 
-	m_currencyCounter->SetBounds(m_screenWidth * 0.8f, m_screenHeight * 0.13f, m_screenWidth * 0.15f, m_screenHeight * 0.05f);
+	m_currencyCounter->SetBounds(m_screenWidth * 0.76f, m_screenHeight * 0.13f, m_screenWidth * 0.15f, m_screenHeight * 0.05f);
 	m_currencyCounter->SetColour(255, 215, 0, 50);
 
 	UpdateCurrency(0);
+
+	//SET UP SELECTED UI
+//	backBuffer.DrawRectangle(m_screenWidth * 0.76f, m_screenHeight * 0.52f, m_screenWidth * 0.99f, m_screenHeight * 0.92f, 1); // Background
+
+	m_towerRange = new Button("");
+
+	m_towerRange->SetBounds(m_screenWidth * 0.82f, m_screenHeight * 0.61f, m_screenWidth * 0.15f, m_screenHeight * 0.07f);
+	m_towerRange->SetColour(178, 34, 34, 0);
+	m_towerRange->SetFontSize(20);
+
+	m_towerFireRate = new Button("");
+
+	m_towerFireRate->SetBounds(m_screenWidth * 0.82f, m_screenHeight * 0.69f, m_screenWidth * 0.15f, m_screenHeight * 0.07f);
+	m_towerFireRate->SetColour(178, 34, 34, 0);
+	m_towerFireRate->SetFontSize(20);
+
+	m_towerDamage = new Button("");
+
+	m_towerDamage->SetBounds(m_screenWidth * 0.82f, m_screenHeight * 0.77f, m_screenWidth * 0.15f, m_screenHeight * 0.07f);
+	m_towerDamage->SetColour(178, 34, 34, 0);
+	m_towerDamage->SetFontSize(20);
+
+	m_sell = new Button("");
+
+	m_sell->SetBounds(m_screenWidth * 0.76f, m_screenHeight * 0.87f, m_screenWidth * 0.23f, m_screenHeight * 0.05f);
+	m_sell->SetColour(240, 230, 140, 0);
+	m_sell->SetBackgroundColour(100, 100, 100);
+	m_sell->SetFontSize(20);
+
+	m_upgradeTower = new Button("");
+
+	m_upgradeTower->SetBounds(m_screenWidth * 0.76f, m_screenHeight * 0.82f, m_screenWidth * 0.23f, m_screenHeight * 0.05f);
+	m_upgradeTower->SetColour(0, 0, 0, 0);
+	m_upgradeTower->SetFontSize(20);
+
+	m_rangeSprite = m_pBackBuffer->CreateSprite("assets\\range_icon.png");
+	m_rangeSprite->SetX(m_screenWidth * 0.76f);
+	m_rangeSprite->SetY(m_screenHeight * 0.60f);
+
+	m_speedSprite = m_pBackBuffer->CreateSprite("assets\\time_icon.png");
+	m_speedSprite->SetX(m_screenWidth * 0.76f);
+	m_speedSprite->SetY(m_screenHeight * 0.68f);
+
+	m_damageSprite = m_pBackBuffer->CreateSprite("assets\\damage_icon.png");
+	m_damageSprite->SetX(m_screenWidth * 0.76f);
+	m_damageSprite->SetY(m_screenHeight * 0.76f);
 
 	//SET UP AUDIO
 	system = NULL;
@@ -344,6 +397,14 @@ void Game::Process(float deltaTime)
 		}
 	}
 
+	ProcessEnemies(deltaTime);
+	ProcessTowers(deltaTime);
+
+	system->update(); // Update system
+}
+
+void Game::ProcessEnemies(float deltaTime)
+{
 	std::vector<Enemy*>::iterator enemyIter = m_enemies.begin();
 
 	while (enemyIter != m_enemies.end())
@@ -366,10 +427,12 @@ void Game::Process(float deltaTime)
 			delete current;
 			current = 0;
 
-			if (m_enemies.empty())
+			if (m_enemies.empty() && m_enemySpawner->WaveSpawned())
 			{
 				m_enemySpawner->EndWave();
 				UpdateWaves();
+
+				m_startWave->SetBackgroundColour(34, 139, 34);
 			}
 		}
 		else
@@ -391,22 +454,53 @@ void Game::Process(float deltaTime)
 	{
 		m_quadTree->Insert(enemy);
 	}
+}
 
-	for each (Tower* tower in m_towers)
+void Game::ProcessTowers(float deltaTime)
+{
+	//std::vector<Tower*>::iterator towerIter = m_towers.begin();
+
+	//while (towerIter != m_towers.end())
+	//{
+	//	Tower* current = *towerIter;
+
+	//	if (current->IsSold())
+	//	{
+	//		towerIter = m_towers.erase(towerIter);
+
+	//		delete current;
+	//		current = 0;
+	//	}
+	//	else
+	//	{
+	//		std::vector<Entity*> entitiesInRange = m_quadTree->QueryRange(current->GetRangeBounds());
+
+	//		current->SetEnemiesInRange(entitiesInRange);
+
+	//		for each (Enemy* enemy in entitiesInRange)
+	//		{
+	//			enemy->m_targetted = true;
+	//		}
+
+	//		current->Process(deltaTime);
+
+	//		++towerIter;
+	//	}
+	//}
+
+	for each (Tower* current in m_towers)
 	{
-		std::vector<Entity*> entitiesInRange = m_quadTree->QueryRange(tower->GetRangeBounds());
+		std::vector<Entity*> entitiesInRange = m_quadTree->QueryRange(current->GetRangeBounds());
 
-		tower->SetEnemiesInRange(entitiesInRange);
+		current->SetEnemiesInRange(entitiesInRange);
 
 		for each (Enemy* enemy in entitiesInRange)
 		{
 			enemy->m_targetted = true;
 		}
 
-		tower->Process(deltaTime);
+		current->Process(deltaTime);
 	}
-
-	system->update(); // Update system
 }
 
 void Game::Draw(BackBuffer& backBuffer)
@@ -460,10 +554,7 @@ void Game::DrawUI(BackBuffer& backBuffer)
 	m_wallButton->Draw(backBuffer);
 
 	//Draw Selected UI
-	backBuffer.SetDrawColour(192, 192, 192);
-	backBuffer.DrawRectangle(m_screenWidth * 0.76f, m_screenHeight * 0.52f, m_screenWidth * 0.99f, m_screenHeight * 0.92f, 1); // Background
-
-	m_highlighted->Draw(backBuffer); // Selected title
+	DrawSelectionUI(backBuffer);
 
 	//Start wave
 	m_startWave->Draw(backBuffer);
@@ -477,7 +568,32 @@ void Game::DrawUI(BackBuffer& backBuffer)
 
 void Game::DrawSelectionUI(BackBuffer& backBuffer)
 {
+	backBuffer.SetDrawColour(192, 192, 192);
+	backBuffer.DrawRectangle(m_screenWidth * 0.76f, m_screenHeight * 0.52f, m_screenWidth * 0.99f, m_screenHeight * 0.92f, 1); // Background
 
+	m_highlighted->Draw(backBuffer); // Selected title
+
+	if (m_selectedTower != 0)
+	{
+		m_towerRange->Draw(backBuffer);
+		m_towerFireRate->Draw(backBuffer);
+		m_towerDamage->Draw(backBuffer);
+		m_sell->Draw(backBuffer);
+		m_upgradeTower->Draw(backBuffer);
+
+		m_rangeSprite->Draw(backBuffer);
+		m_damageSprite->Draw(backBuffer);
+		m_speedSprite->Draw(backBuffer);
+
+		if (m_currency >= m_selectedTower->GetTowerUpgradeCost())
+		{
+			m_upgradeTower->SetBackgroundColour(34, 139, 34);
+		}
+		else
+		{
+			m_upgradeTower->SetBackgroundColour(178, 34, 34);
+		}
+	}
 }
 
 void Game::UpdateLives(int amount)
@@ -493,7 +609,7 @@ void Game::UpdateLives(int amount)
 void Game::UpdateWaves()
 {
 	std::stringstream waveMessage;
-	waveMessage << "Wave: " << m_enemySpawner->GetWaveNumber();
+	waveMessage << "Wave: " << m_enemySpawner->GetWaveNumber() << "/" << m_enemySpawner->GetTotalWaveNumber();
 	m_waveCounter->SetText(waveMessage.str());
 }
 
@@ -522,6 +638,54 @@ void Game::UpdateCurrency(int amount)
 	else
 	{
 		m_towerButton->SetBackgroundColour(178, 34, 34);
+	}
+}
+
+void Game::UpdateSelected()
+{
+	if (m_selectedTower != 0)
+	{
+		std::stringstream message;
+		message << "Range: " << m_selectedTower->GetTowerRange();
+
+		m_towerRange->SetText(message.str());
+		message.str("");
+
+		message << std::setprecision(2);
+		message << "Speed: " << 1.0f / m_selectedTower->GetTowerFireRate();
+
+		m_towerFireRate->SetText(message.str());
+		message.str("");
+
+		message << "Damage: " << m_selectedTower->GetTowerDamage();
+
+		m_towerDamage->SetText(message.str());
+		message.str("");
+
+		message << "Sell $" << m_selectedTower->GetTowerValue();
+
+		m_sell->SetText(message.str());
+		message.str("");
+		
+		if (m_selectedTower->IsMaxLevel())
+		{
+			message << "Maxed";
+		}
+		else
+		{
+			message << "Upgrade $" << m_selectedTower->GetTowerUpgradeCost();
+		}
+
+		m_upgradeTower->SetText(message.str());
+		message.str("");
+	}
+	else
+	{
+		m_towerRange->SetText("");
+		m_towerFireRate->SetText("");
+		m_towerDamage->SetText("");
+		m_sell->SetText("");
+
 	}
 }
 
@@ -566,31 +730,59 @@ void Game::OnLeftMouseClick(int x, int y)
 	{
 		StartWave();
 	}
+	else if (m_sell->WasClickedOn(x, y))
+	{
+		if (m_selectedTower != 0)
+		{
+			SellTower(m_selectedTower);
+			m_selectedTower = 0;
+			UpdateSelected();
+		}
+	}
+	else if (m_upgradeTower->WasClickedOn(x, y))
+	{
+		if (m_currency >= m_selectedTower->GetTowerUpgradeCost() && !m_selectedTower->IsMaxLevel())
+		{
+			UpdateCurrency(-m_selectedTower->GetTowerUpgradeCost());
+
+			m_selectedTower->UpgradeTower();
+
+			UpdateSelected();
+		}
+	}
 	else
 	{
-		if (m_enemySpawner->IsWaveActive())
+		Position pos = Position(x, y);
+
+		std::vector<Entity*> clickedOn = m_quadTree->QueryPoint(&pos);
+
+		for each (Entity* e in clickedOn)
 		{
-			Position pos = Position(x, y);
+			reinterpret_cast<Enemy*>(e)->TakeDamage(1);
+		}
 
-			std::vector<Entity*> clickedOn = m_quadTree->QueryPoint(&pos);
-
-			for each (Entity* e in clickedOn)
-			{
-				reinterpret_cast<Enemy*>(e)->TakeDamage(1);
-			}
+		if (m_selected == TOWER)
+		{
+			PlaceTower(x, y);
+		}
+		else if (m_selected == WALL)
+		{
+			PlaceWall(x, y);
 		}
 		else
 		{
-			if (m_selected == TOWER)
+			Position pos = Position(x, y);
+
+			std::vector<Entity*> clickedOn = m_towerQuadTree->QueryPoint(&pos);
+
+			for each (Tower* t in clickedOn) // There should only ever be 1 tower in the vector
 			{
-				PlaceTower(x, y);
-			}
-			else if (m_selected == WALL)
-			{
-				PlaceWall(x, y);
+				m_selectedTower = t;
+				UpdateSelected();
 			}
 		}
 	}
+	
 }
 
 void Game::TestQuadTree(int x, int y)
@@ -622,6 +814,8 @@ void Game::StartWave()
 	delete(m_cursorSprite);
 	m_cursorSprite = 0;
 	m_selected = NOTHING;
+
+	m_startWave->SetBackgroundColour(100, 100, 100);
 }
 
 void Game::AddEnemy(Enemy* enemy)
@@ -683,6 +877,46 @@ void Game::PlaceTower(int x, int y)
 	m_map->UpdatePath();
 
 	UpdateCurrency(-newTower->GetTowerCost());
+
+	m_towerQuadTree->Insert(newTower);
+}
+
+void Game::SellTower(Tower* tower)
+{
+	UpdateCurrency(tower->GetTowerValue());
+
+	tower->GetTilePosition()->SetOccupied(false);
+
+	std::vector<Tower*>::iterator towerIter = m_towers.begin();
+
+	while (towerIter != m_towers.end())
+	{
+		Tower* current = *towerIter;
+
+		if (current == tower)
+		{
+			m_towers.erase(towerIter);
+			break;
+		}
+		else
+		{
+			++towerIter;
+		}
+	}
+
+	//Redo quad tree
+	delete(m_towerQuadTree);
+
+	Position* topLeftPos = new Position(m_screenHeight / 2, m_screenHeight / 2);
+	AxisAlignedBoundingBox* gridBounds = new AxisAlignedBoundingBox(topLeftPos, m_screenHeight / 2);
+	m_towerQuadTree = new QuadTree(gridBounds);
+
+	for each (Tower* tower in m_towers)
+	{
+		m_towerQuadTree->Insert(tower);
+	}
+
+	m_map->UpdatePath();
 }
 
 void Game::PlaceWall(int x, int y)

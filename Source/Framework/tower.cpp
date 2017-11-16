@@ -19,6 +19,8 @@ Tower::Tower(int range, float firingSpeed, int damage, int cost)
 
 	m_currentTarget = 0;
 	m_timeElapsed = 0;
+	m_currentLevel = 1;
+	m_maxLevel = 4;
 }
 
 Tower::~Tower()
@@ -93,6 +95,11 @@ void Tower::SetTilePosition(Tile* tile)
 	m_towerRangeArea = new AxisAlignedBoundingBox(m_pos, m_tileRange * tile->GetTileWidth() + (tile->GetTileWidth() / 2));
 }
 
+Tile* Tower::GetTilePosition() const
+{
+	return m_tilePosition;
+}
+
 void Tower::SetEnemiesInRange(std::vector<Entity*> enemies)
 {
 	//if (m_currentTarget != 0 )
@@ -165,4 +172,60 @@ void Tower::EvaluateTarget()
 int Tower::GetTowerCost()
 {
 	return m_cost;
+}
+
+int Tower::GetTowerRange() const
+{
+	return m_tileRange;
+}
+
+int Tower::GetTowerDamage() const
+{
+	return m_damage;
+}
+
+float Tower::GetTowerFireRate() const
+{
+	return m_firingSpeed;
+}
+
+int Tower::GetTowerValue() const
+{
+	int value = 0;
+
+	value += m_damage * 15;
+	value += (1.0f / m_firingSpeed) * 15;
+	value += m_tileRange * 10;
+
+	value *= m_currentLevel;
+
+	return value;
+}
+
+int Tower::GetTowerUpgradeCost() const
+{
+	int upgradeCost = 150;
+
+	upgradeCost *= (m_currentLevel * m_currentLevel);
+
+	return upgradeCost;
+}
+
+void Tower::UpgradeTower()
+{
+	if (m_currentLevel < m_maxLevel)
+	{
+		m_damage *= 2.5f;
+
+		m_firingSpeed *= 0.75f;
+
+		m_tileRange += 0;
+
+		++m_currentLevel;
+	}
+}
+
+bool Tower::IsMaxLevel()
+{
+	return m_currentLevel == m_maxLevel;
 }

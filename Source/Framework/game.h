@@ -51,12 +51,16 @@ public:
 	void AddProjectile(Projectile* projectile);
 
 	void PlaceTower(int x, int y);
+	void SellTower(Tower* tower);
 	void PlaceWall(int x, int y);
 
 	void UpdateCursorPosition(int x, int y);
 	
 protected:
 	void Process(float deltaTime);
+	void ProcessEnemies(float deltaTime);
+	void ProcessTowers(float deltaTime);
+
 	void Draw(BackBuffer& backBuffer);
 
 	void DrawUI(BackBuffer& backBuffer);
@@ -65,6 +69,7 @@ protected:
 	void UpdateLives(int amount);
 	void UpdateWaves();
 	void UpdateCurrency(int amount);
+	void UpdateSelected();
 
 private:
 	Game(const Game& game);
@@ -116,6 +121,18 @@ protected:
 	Sprite* m_cursorSprite;
 	BuildingTypeSelected m_selected;
 
+	Button* m_towerRange;
+	Sprite* m_rangeSprite;
+
+	Button* m_towerFireRate;
+	Sprite* m_speedSprite;
+
+	Button* m_towerDamage;
+	Sprite* m_damageSprite;
+
+	Button* m_sell;
+	Button* m_upgradeTower;
+
 	//GAME ENTITIES
 	Grid* m_map; // Grid of map tiles
 	Pathfinding* m_pathfinding; // Pathfinding class
@@ -126,6 +143,9 @@ protected:
 	EnemySpawner* m_enemySpawner; // Spawner for enemies
 
 	ParticleEmitter* m_particles; // Particle emitter
+
+	QuadTree* m_towerQuadTree;
+	Tower* m_selectedTower;
 
 	//WAVES
 	int m_currentLives;

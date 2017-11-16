@@ -19,10 +19,13 @@ public:
 	void LoadWave();
 
 	int GetWaveNumber() const;
+	int GetTotalWaveNumber() const;
 
 	bool IsWaveActive() const;
 	void StartWave(std::queue<Position*> path);
 	void EndWave();
+
+	bool WaveSpawned() const; // Return true if there are no enemies left to spawn this wave
 
 	//Member Data:
 private:
@@ -34,6 +37,7 @@ private:
 
 	bool m_waveActive; // Flag for wave active, while wave is active, enemies will be spawned from the queue
 	int m_waveNumber; // Current wave that is either active or loaded
+	int m_maxWaves; // Total amount of ways that can spawn
 
 	//Data needed for enemies that will be spawned
 	std::queue<Position*> m_mapPath; // Path to set for the enemies as they spawn;

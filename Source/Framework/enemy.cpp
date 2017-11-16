@@ -15,6 +15,7 @@ Enemy::Enemy()
  : m_reachedEnd(false)
  , m_directionX(0.0f)
  , m_directionY(0.0f)
+ , m_distanceToNextWaypoint(0.0f)
 {
 	Entity::Entity();
 	m_targetted = false;
@@ -191,6 +192,8 @@ void Enemy::MoveToWaypoints(float deltaTime)
 	m_y += deltaTime * m_directionY * m_speed;
 
 	SetPosition(m_x, m_y);
+
+	m_distanceToNextWaypoint = sqrt((m_currentWaypoint->m_x - m_pos->m_x) * (m_currentWaypoint->m_x - m_pos->m_x) + (m_currentWaypoint->m_y - m_pos->m_y) * (m_currentWaypoint->m_y - m_pos->m_y));
 }
 
 void Enemy::UpdateDirection()
@@ -214,8 +217,17 @@ void Enemy::UpdateDirection()
 	}
 }
 
-
 bool Enemy::ReachedEnd() const
 {
 	return m_reachedEnd;
+}
+
+int Enemy::WaypointsToGo() const
+{
+	return m_waypoints.size();
+}
+
+float Enemy::DistanceToNextWaypoint() const
+{
+	return m_distanceToNextWaypoint;
 }

@@ -16,11 +16,12 @@ public:
 	~QuadTree();
 
 	void Subdivide(); // Divide quad tree into four children
-	std::vector<Entity*> QueryRange(AxisAlignedBoundingBox* range);
+	std::vector<Entity*> QueryRange(AxisAlignedBoundingBox* range); // Get all entities colliding with a bounding box
+	std::vector<Entity*> QueryPoint(Position* point); // Get all entities colliding with a specific point
 
-	bool Insert(Entity* pos);
+	bool Insert(Entity* pos); // Insert a new entity into the quad tree
 
-	void Draw(BackBuffer& backBuffer);
+	void Draw(BackBuffer& backBuffer); // Draw quad tree
 
 	//Member Data:
 private:

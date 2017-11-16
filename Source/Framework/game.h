@@ -60,6 +60,7 @@ protected:
 	void Draw(BackBuffer& backBuffer);
 
 	void DrawUI(BackBuffer& backBuffer);
+	void DrawSelectionUI(BackBuffer& backBuffer);
 
 	void UpdateLives(int amount);
 	void UpdateWaves();

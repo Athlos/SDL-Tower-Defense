@@ -83,13 +83,6 @@ void Tower::Shoot()
 	firedProjectile->SetTarget(m_currentTarget->GetPosition());
 
 	Game::GetInstance().AddProjectile(firedProjectile);
-
-	//m_currentTarget->TakeDamage(m_damage);
-
-	//if (m_currentTarget->IsDead())
-	//{
-	//	EvaluateTarget();
-	//}
 }
 
 void Tower::SetTilePosition(Tile* tile)
@@ -143,24 +136,30 @@ void Tower::EvaluateTarget()
 	}
 
 	m_currentTarget = m_targetsInRange[0];
-	m_targetsInRange.erase(m_targetsInRange.begin());
 
-	/*int targetIndex = 0;
+	int eraseTargetCounter = 0;
 
-	float closest = sqrt((m_currentTarget->GetCenterX() - GetCenterX()) * (m_currentTarget->GetCenterX() - GetCenterX()) + (m_currentTarget->GetCenterY() - GetCenterY()) * (m_currentTarget->GetCenterY() - GetCenterY())) > m_tileRange * m_tilePosition->GetTileWidth();
-
-	for (targetIndex = 1; targetIndex < m_targetsInRange.size(); ++targetIndex)
+	for (int i = 1; i < m_targetsInRange.size(); ++i) // Evaluate all remaining targets
 	{
-		float currentDistance = sqrt((m_targetsInRange[targetIndex]->GetCenterX() - GetCenterX()) * (m_targetsInRange[targetIndex]->GetCenterX() - GetCenterX()) + (m_targetsInRange[targetIndex]->GetCenterY() - GetCenterY()) * (m_targetsInRange[targetIndex]->GetCenterY() - GetCenterY())) > m_tileRange * m_tilePosition->GetTileWidth();
-
-		if (currentDistance < closest)
+		if (m_targetsInRange[i]->WaypointsToGo() <= m_currentTarget->WaypointsToGo()) // Has target gone through more or equal amount of waypoints through the map
 		{
-			m_currentTarget = m_targetsInRange[targetIndex];
-			closest = currentDistance;
+			if (m_targetsInRange[i]->WaypointsToGo() == m_currentTarget->WaypointsToGo()) // If they are both going to the same waypoint, check which is closer
+			{
+				if (m_targetsInRange[i]->DistanceToNextWaypoint() < m_currentTarget->DistanceToNextWaypoint()) // Check which is closer to the matching waypoint
+				{
+					m_currentTarget = m_targetsInRange[i];
+					eraseTargetCounter = i;
+				}
+			}
+			else // New enemy is at a farther waypoint, its now the closest target
+			{
+				m_currentTarget = m_targetsInRange[i];
+				eraseTargetCounter = i;
+			}
 		}
 	}
 
-	m_targetsInRange.erase(m_targetsInRange.begin() + targetIndex - 1);*/
+	m_targetsInRange.erase(m_targetsInRange.begin() + eraseTargetCounter);
 }
 
 int Tower::GetTowerCost()

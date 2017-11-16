@@ -42,6 +42,9 @@ public:
 
 	bool ReachedEnd() const;
 
+	int WaypointsToGo() const;
+	float DistanceToNextWaypoint() const;
+
 private:
 	void UpdateDirection();
 
@@ -69,7 +72,7 @@ protected:
 	Position* m_currentWaypoint;
 
 	bool m_reachedEnd;
-
+	float m_distanceToNextWaypoint;
 };
 #endif //__ENEMY_H__
 

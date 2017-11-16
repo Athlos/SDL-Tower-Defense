@@ -60,11 +60,6 @@ std::vector<Entity*> QuadTree::QueryRange(AxisAlignedBoundingBox* range)
 	//Check all points and add those that are within the range
 	for (int i = 0; i < m_points.size(); ++i)
 	{
-		/*if (range->containsPosition(m_points[i]->GetPosition()))
-		{
-			entitiesInRange.push_back(m_points[i]);
-		}*/
-
 		if (range->intersects(m_points[i]->GetCollisionBounds()))
 		{
 			entitiesInRange.push_back(m_points[i]);
@@ -78,6 +73,45 @@ std::vector<Entity*> QuadTree::QueryRange(AxisAlignedBoundingBox* range)
 		std::vector<Entity*> topRight = m_topRight->QueryRange(range);
 		std::vector<Entity*> bottomLeft = m_bottomLeft->QueryRange(range);
 		std::vector<Entity*> bottomRight = m_bottomRight->QueryRange(range);
+
+		entitiesInRange.insert(entitiesInRange.begin(), topLeft.begin(), topLeft.end());
+		entitiesInRange.insert(entitiesInRange.begin(), topRight.begin(), topRight.end());
+		entitiesInRange.insert(entitiesInRange.begin(), bottomLeft.begin(), bottomLeft.end());
+		entitiesInRange.insert(entitiesInRange.begin(), bottomRight.begin(), bottomRight.end());
+	}
+
+	return entitiesInRange;
+}
+
+std::vector<Entity*> QuadTree::QueryPoint(Position* point)
+{
+	std::vector<Entity*> entitiesInRange = std::vector<Entity*>();
+
+	if (!m_bounds->containsPosition(point))
+	{
+		return entitiesInRange; // if point does not intersect bounds, return empty list
+	}
+
+	for (int i = 0; i < m_points.size(); ++i)
+	{
+		/*if (range->containsPosition(m_points[i]->GetPosition()))
+		{
+		entitiesInRange.push_back(m_points[i]);
+		}*/
+
+		if (m_points[i]->GetCollisionBounds()->containsPosition(point))
+		{
+			entitiesInRange.push_back(m_points[i]);
+		}
+	}
+
+	//check children for other points
+	if (m_topLeft != 0)
+	{
+		std::vector<Entity*> topLeft = m_topLeft->QueryPoint(point);
+		std::vector<Entity*> topRight = m_topRight->QueryPoint(point);
+		std::vector<Entity*> bottomLeft = m_bottomLeft->QueryPoint(point);
+		std::vector<Entity*> bottomRight = m_bottomRight->QueryPoint(point);
 
 		entitiesInRange.insert(entitiesInRange.begin(), topLeft.begin(), topLeft.end());
 		entitiesInRange.insert(entitiesInRange.begin(), topRight.begin(), topRight.end());

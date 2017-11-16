@@ -475,6 +475,11 @@ void Game::DrawUI(BackBuffer& backBuffer)
 	}
 }
 
+void Game::DrawSelectionUI(BackBuffer& backBuffer)
+{
+
+}
+
 void Game::UpdateLives(int amount)
 {
 	m_currentLives += amount;
@@ -565,12 +570,13 @@ void Game::OnLeftMouseClick(int x, int y)
 	{
 		if (m_enemySpawner->IsWaveActive())
 		{
-			for each (Enemy* e in m_enemies)
+			Position pos = Position(x, y);
+
+			std::vector<Entity*> clickedOn = m_quadTree->QueryPoint(&pos);
+
+			for each (Entity* e in clickedOn)
 			{
-				if (e->IsClickedOn(x, y))
-				{
-					e->TakeDamage(1);
-				}
+				reinterpret_cast<Enemy*>(e)->TakeDamage(1);
 			}
 		}
 		else
@@ -602,6 +608,11 @@ void Game::OnRightMouseClick(int x, int y)
 
 void Game::StartWave()
 {
+	if (m_enemySpawner->IsWaveActive()) // Cannot start a new wave while a wave is still active
+	{
+		return;
+	}
+
 	m_map->UpdatePath();
 
 	std::queue<Position*> path = m_pathfinding->SimplifyPath(m_map->GetGridPath());
@@ -657,7 +668,7 @@ void Game::PlaceTower(int x, int y)
 		return;
 	}
 
-	Tower* newTower = new Tower(2, 0.5, 1, 100);
+	Tower* newTower = new Tower(2, 0.5f, 1, 100);
 
 	newTower->Initialise(m_pBackBuffer);
 

@@ -58,7 +58,7 @@ void InputHandler::ProcessInput(Game& game)
 			{
 				case SDLK_ESCAPE: // Escape pressed
 				{
-					game.Quit();
+					game.UpdateGameState(PAUSED);
 				}
 				break;
 				case SDLK_SPACE:

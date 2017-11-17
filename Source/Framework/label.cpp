@@ -17,6 +17,8 @@ Label::Label(std::string text)
 	TTF_Init();
 	m_fontSize = 24;
 	m_font = TTF_OpenFont("assets/currentfont.TTF", m_fontSize);
+
+	m_textAlignment = LEFT;
 }
 
 Label::Label()
@@ -26,6 +28,7 @@ Label::Label()
 
 Label::~Label()
 {
+
 }
 
 std::string Label::GetText()
@@ -89,12 +92,9 @@ void Label::Draw(BackBuffer& backBuffer)
 		//Resize bounds to fit text;
 		TTF_SizeText(m_font, m_text.c_str(), &m_currentBounds.w, &m_currentBounds.h);
 
-		while (m_currentBounds.w > m_bounds.w && m_currentBounds.h > m_bounds.h)
+		if (m_textAlignment == CENTER)
 		{
-			m_fontSize *= 0.75f;
-			m_font = TTF_OpenFont("assets/currentfont.TTF", m_fontSize);
-
-			TTF_SizeText(m_font, m_text.c_str(), &m_currentBounds.w, &m_currentBounds.h);
+			m_currentBounds.x = m_bounds.x + (float)(m_bounds.w - m_currentBounds.w) / 2.0f;
 		}
 	}
 
@@ -127,4 +127,11 @@ void Label::SetFontSize(int size)
 	m_fontSize = size;
 
 	m_font = TTF_OpenFont("assets/currentfont.TTF", m_fontSize);
+}
+
+void Label::SetTextAlignment(Alignment align)
+{
+	m_textAlignment = align;
+
+	m_requiredUpdate = true;
 }

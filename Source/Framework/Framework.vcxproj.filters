@@ -85,6 +85,9 @@
     <ClCompile Include="projectile.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="audiomanager.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="animatedsprite.h">
@@ -166,6 +169,9 @@
       <Filter>Headers</Filter>
     </ClInclude>
     <ClInclude Include="projectile.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="audiomanager.h">
       <Filter>Headers</Filter>
     </ClInclude>
   </ItemGroup>

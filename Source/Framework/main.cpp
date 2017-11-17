@@ -13,7 +13,7 @@ int main(int argc, char* argv[])
 	// Initialise game instance
 	Game& gameInstance = Game::GetInstance();
 
-	if (!gameInstance.Initialise())
+	if (!gameInstance.Initialise(1))
 	{
 		LogManager::GetInstance().Log("Game Init Failed!");
 

@@ -11,9 +11,11 @@ EnemySpawner::EnemySpawner(float spawnInterval, BackBuffer* backBuffer)
 	m_waveActive = false;
 	m_waveLoaded = false;
 	m_waveNumber = 1;
-	m_maxWaves = 10;
+	m_maxWaves = 3;
 
 	m_backBuffer = backBuffer;
+
+	m_allWavesCompleted = false;
 }
 
 EnemySpawner::~EnemySpawner()
@@ -110,7 +112,7 @@ bool EnemySpawner::IsWaveActive() const
 
 void EnemySpawner::StartWave(std::queue<Position*> path)
 {
-	if (m_waveNumber >= m_maxWaves)
+	if (m_allWavesCompleted)
 	{
 		return;
 	}
@@ -131,14 +133,27 @@ void EnemySpawner::EndWave()
 {
 	m_waveActive = false;
 
-	++m_waveNumber;
-	
-	m_waveLoaded = false;
+	if (m_waveNumber == m_maxWaves)
+	{
+		m_allWavesCompleted = true;
+	}
+	else
+	{
+		++m_waveNumber;
 
-	LoadWave();
+		m_waveLoaded = false;
+
+		LoadWave();
+
+	}
 }
 
 bool EnemySpawner::WaveSpawned() const
 {
 	return m_enemiesToSpawn.empty();
+}
+
+bool EnemySpawner::AllWavesCompleted() const
+{
+	return m_allWavesCompleted;
 }

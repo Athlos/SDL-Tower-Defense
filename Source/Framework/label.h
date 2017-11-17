@@ -9,6 +9,13 @@
 class BackBuffer;
 class SDL_Image;
 
+enum Alignment
+{
+	LEFT,
+	RIGHT,
+	CENTER
+};
+
 class Label
 {
 	// Member Methods:
@@ -43,6 +50,8 @@ public:
 
 	void SetFontSize(int size);
 
+	void SetTextAlignment(Alignment align);
+
 	// Member Data:
 protected:
 	std::string m_text;
@@ -59,5 +68,7 @@ protected:
 
 	TTF_Font* m_font;
 	int m_fontSize;
+
+	Alignment m_textAlignment;
 };
 

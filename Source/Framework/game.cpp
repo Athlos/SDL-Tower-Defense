@@ -7,7 +7,6 @@
 #include "logmanager.h"
 #include "sprite.h"
 #include "animatedsprite.h"
-#include "fmod.hpp"
 #include "label.h"
 #include "button.h"
 #include "particleemitter.h"
@@ -20,6 +19,7 @@
 #include "quadtree.h"
 #include "enemyspawner.h"
 #include "projectile.h"
+#include "audiomanager.h"
 
 // Library includes:
 #include <cassert>
@@ -67,8 +67,10 @@ Game::Game()
 , m_lastTime(0)
 , m_lag(0)
 , m_paused(0)
+, m_pathfinding(0)
 {
-
+	// Seed rand
+	srand(time(0));
 }
 
 Game::~Game()
@@ -82,37 +84,138 @@ Game::~Game()
 	delete m_pInputHandler;
 	m_pInputHandler = 0;
 
-	system->release();
+	delete m_audioManager;
+	m_audioManager = 0;
+
+	CleanUp();
 }
 
 /*
 Initialises renderer, input, audio, player and other variables needed to begin
 */
-bool Game::Initialise()
+bool Game::Initialise(bool firstTime)
 {
-	// Load backbuffer
-	m_pBackBuffer = new BackBuffer();
-	if (!m_pBackBuffer->Initialise(m_screenWidth, m_screenHeight))
+	if (firstTime)
 	{
-		LogManager::GetInstance().Log("BackBuffer Init Fail!");
-		return (false);
-	}
+		// Load backbuffer
+		m_pBackBuffer = new BackBuffer();
+		if (!m_pBackBuffer->Initialise(m_screenWidth, m_screenHeight))
+		{
+			LogManager::GetInstance().Log("BackBuffer Init Fail!");
+			return (false);
+		}
 
-	// Load input
-	m_pInputHandler = new InputHandler();
-	if (!m_pInputHandler->Initialise())
-	{
-		LogManager::GetInstance().Log("InputHandler Init Fail!");
-		return (false);
-	}
+		// Load input
+		m_pInputHandler = new InputHandler();
+		if (!m_pInputHandler->Initialise())
+		{
+			LogManager::GetInstance().Log("InputHandler Init Fail!");
+			return (false);
+		}
 
-	// Seed rand
-	srand(time(0));
+		//Create UI
+		m_debug_fps = new Label("");
+		m_debug_fps->SetBounds(m_screenWidth - 48, 0, 48, 24);
+		m_debug_fps->SetColour(0, 255, 0, 50);
+
+		m_lifeCounter = new Label("");
+		m_lifeCounter->SetBounds(m_screenWidth * 0.76f, m_screenHeight * 0.01f, m_screenWidth * 0.15f, m_screenHeight * 0.05f);
+		m_lifeCounter->SetColour(255, 0, 0, 50);
+
+		m_waveCounter = new Label("");
+		m_waveCounter->SetBounds(m_screenWidth * 0.76f, m_screenHeight * 0.07f, m_screenWidth * 0.15f, m_screenHeight * 0.05f);
+		m_waveCounter->SetColour(0, 0, 255, 50);
+
+		m_towerText = new Label("Buildings");
+		m_towerText->SetBounds(m_screenWidth * 0.76f, m_screenHeight * 0.20f, m_screenWidth * 0.23f, m_screenHeight * 0.07f);
+		m_towerText->SetColour(255, 0, 0, 50);
+		m_towerText->SetFontSize(32);
+
+		m_highlighted = new Label(" Selected");
+		m_highlighted->SetBounds(m_screenWidth * 0.76f, m_screenHeight * 0.52f, m_screenWidth * 0.23f, m_screenHeight * 0.07f);
+		m_highlighted->SetColour(240, 230, 140, 50);
+		m_highlighted->SetFontSize(32);
+
+		m_wallButton = new Button("");
+		m_wallButton->SetBounds(m_screenWidth * 0.77f, m_screenHeight * 0.28f, m_screenWidth * 0.05f, m_screenWidth * 0.05f);
+		Sprite* wallSprite = m_pBackBuffer->CreateSprite("assets\\wall_base.png");
+		m_wallButton->SetCustomSprite(wallSprite);
+
+		m_towerButton = new Button("");
+		m_towerButton->SetBounds(m_screenWidth * 0.84f, m_screenHeight * 0.28f, m_screenWidth * 0.05f, m_screenWidth * 0.05f);
+		Sprite* newTowerSprite = m_pBackBuffer->CreateSprite("assets\\tower_base.png");
+		m_towerButton->SetCustomSprite(newTowerSprite);
+
+		m_startWave = new Button("Start Wave");
+		m_startWave->SetBounds(m_screenWidth * 0.76f, m_screenHeight * 0.93f, m_screenWidth * 0.23f, m_screenWidth * 0.05f);
+		m_startWave->SetFontSize(28);
+		m_startWave->SetColour(255, 255, 255, 255);
+
+		m_currencyCounter = new Label("");
+		m_currencyCounter->SetBounds(m_screenWidth * 0.76f, m_screenHeight * 0.13f, m_screenWidth * 0.15f, m_screenHeight * 0.05f);
+		m_currencyCounter->SetColour(255, 215, 0, 50);
+
+		//SET UP SELECTED UI
+		m_towerRange = new Button("");
+		m_towerRange->SetBounds(m_screenWidth * 0.82f, m_screenHeight * 0.61f, m_screenWidth * 0.15f, m_screenHeight * 0.07f);
+		m_towerRange->SetColour(178, 34, 34, 0);
+		m_towerRange->SetFontSize(20);
+
+		m_towerFireRate = new Button("");
+		m_towerFireRate->SetBounds(m_screenWidth * 0.82f, m_screenHeight * 0.69f, m_screenWidth * 0.15f, m_screenHeight * 0.07f);
+		m_towerFireRate->SetColour(178, 34, 34, 0);
+		m_towerFireRate->SetFontSize(20);
+
+		m_towerDamage = new Button("");
+		m_towerDamage->SetBounds(m_screenWidth * 0.82f, m_screenHeight * 0.77f, m_screenWidth * 0.15f, m_screenHeight * 0.07f);
+		m_towerDamage->SetColour(178, 34, 34, 0);
+		m_towerDamage->SetFontSize(20);
+
+		m_sell = new Button("");
+		m_sell->SetBounds(m_screenWidth * 0.76f, m_screenHeight * 0.87f, m_screenWidth * 0.23f, m_screenHeight * 0.05f);
+		m_sell->SetColour(240, 230, 140, 0);
+		m_sell->SetBackgroundColour(100, 100, 100);
+		m_sell->SetFontSize(20);
+
+		m_upgradeTower = new Button("");
+		m_upgradeTower->SetBounds(m_screenWidth * 0.76f, m_screenHeight * 0.82f, m_screenWidth * 0.23f, m_screenHeight * 0.05f);
+		m_upgradeTower->SetColour(0, 0, 0, 0);
+		m_upgradeTower->SetFontSize(20);
+
+		m_rangeSprite = m_pBackBuffer->CreateSprite("assets\\range_icon.png");
+		m_rangeSprite->SetX(m_screenWidth * 0.76f);
+		m_rangeSprite->SetY(m_screenHeight * 0.60f);
+
+		m_speedSprite = m_pBackBuffer->CreateSprite("assets\\time_icon.png");
+		m_speedSprite->SetX(m_screenWidth * 0.76f);
+		m_speedSprite->SetY(m_screenHeight * 0.68f);
+
+		m_damageSprite = m_pBackBuffer->CreateSprite("assets\\damage_icon.png");
+		m_damageSprite->SetX(m_screenWidth * 0.76f);
+		m_damageSprite->SetY(m_screenHeight * 0.76f);
+
+		m_gameOver = new Label("");
+		m_gameOver->SetBounds(m_screenWidth * 0.3f, m_screenHeight * 0.3f, m_screenWidth * 0.4f, m_screenHeight * 0.1f);
+		m_gameOver->SetTextAlignment(CENTER);
+
+		m_quit = new Button("Quit");
+		m_quit->SetBounds(m_screenWidth * 0.3f, m_screenHeight * 0.6f, m_screenWidth * 0.2f, m_screenHeight * 0.1f);
+		m_quit->SetTextAlignment(CENTER);
+
+		m_restart = new Button("Restart");
+		m_restart->SetBounds(m_screenWidth * 0.5f, m_screenHeight * 0.6f, m_screenWidth * 0.2f, m_screenHeight * 0.1f);
+		m_restart->SetTextAlignment(CENTER);
+
+		//Set up data
+		m_pathfinding = new Pathfinding();
+
+		//SET UP AUDIO
+		m_audioManager = new AudioManager();
+	}
 
 	//SET UP ENTITIES AND VARIABLES
 	m_map = new Grid(15, 15);
 
-	m_pathfinding = new Pathfinding();
 	m_pathfinding->m_grid = m_map;
 
 	m_map->CreateGrid(*m_pBackBuffer);
@@ -128,7 +231,7 @@ bool Game::Initialise()
 	AxisAlignedBoundingBox* towerGridBounds = new AxisAlignedBoundingBox(towerTopLeft, m_screenHeight / 2);
 	m_towerQuadTree = new QuadTree(towerGridBounds);
 
-	m_totalLives = 100;
+	m_totalLives = 1;
 	m_currentLives = m_totalLives;
 
 	m_currency = 500;
@@ -138,172 +241,70 @@ bool Game::Initialise()
 	m_selectedTower = 0;
 
 	//SET UP UI
-
-	m_debug_fps = new Label("");
-	m_debug_fps->SetBounds(m_screenWidth - 48, 0, 48, 24);
-	m_debug_fps->SetColour(0, 255, 0, 50);
-
-	m_lifeCounter = new Label("");
-
-	m_lifeCounter->SetBounds(m_screenWidth * 0.76f, m_screenHeight * 0.01f, m_screenWidth * 0.15f, m_screenHeight * 0.05f);
-	m_lifeCounter->SetColour(255, 0, 0, 50);
-
 	UpdateLives(0);
-
-	m_waveCounter = new Label("");
-
-	m_waveCounter->SetBounds(m_screenWidth * 0.76f, m_screenHeight * 0.07f, m_screenWidth * 0.15f, m_screenHeight * 0.05f);
-	m_waveCounter->SetColour(0, 0, 255, 50);
-
+	UpdateCurrency(0);
 	UpdateWaves();
-
-	m_towerText = new Label("Buildings");
-
-	m_towerText->SetBounds(m_screenWidth * 0.76f, m_screenHeight * 0.20f, m_screenWidth * 0.23f, m_screenHeight * 0.07f);
-	m_towerText->SetColour(255, 0, 0, 50);
-	m_towerText->SetFontSize(32);
-
-	m_highlighted = new Label(" Selected");
-
-	m_highlighted->SetBounds(m_screenWidth * 0.76f, m_screenHeight * 0.52f, m_screenWidth * 0.23f, m_screenHeight * 0.07f);
-	m_highlighted->SetColour(240, 230, 140, 50);
-	m_highlighted->SetFontSize(32);
-
-	m_wallButton = new Button("");
-	m_wallButton->SetBounds(m_screenWidth * 0.77f, m_screenHeight * 0.28f, m_screenWidth * 0.05f, m_screenWidth * 0.05f);
-	Sprite* wallSprite = m_pBackBuffer->CreateSprite("assets\\wall_base.png");
-	m_wallButton->SetCustomSprite(wallSprite);
-
-	m_towerButton = new Button("");
-	m_towerButton->SetBounds(m_screenWidth * 0.84f, m_screenHeight * 0.28f, m_screenWidth * 0.05f, m_screenWidth * 0.05f);
-
-	Sprite* newTowerSprite = m_pBackBuffer->CreateSprite("assets\\tower_base.png");
-	m_towerButton->SetCustomSprite(newTowerSprite);
-
-	m_startWave = new Button("Start Wave");
-	m_startWave->SetBounds(m_screenWidth * 0.76f, m_screenHeight * 0.93f, m_screenWidth * 0.23f, m_screenWidth * 0.05f);
-	m_startWave->SetFontSize(28);
-	m_startWave->SetBackgroundColour(34, 139, 34);
-	m_startWave->SetColour(255, 255, 255, 255);
 
 	m_selected = NOTHING;
 
 	m_cursorSprite = 0;
 
-	m_currencyCounter = new Label("");
-
-	m_currencyCounter->SetBounds(m_screenWidth * 0.76f, m_screenHeight * 0.13f, m_screenWidth * 0.15f, m_screenHeight * 0.05f);
-	m_currencyCounter->SetColour(255, 215, 0, 50);
-
-	UpdateCurrency(0);
-
-	//SET UP SELECTED UI
-//	backBuffer.DrawRectangle(m_screenWidth * 0.76f, m_screenHeight * 0.52f, m_screenWidth * 0.99f, m_screenHeight * 0.92f, 1); // Background
-
-	m_towerRange = new Button("");
-
-	m_towerRange->SetBounds(m_screenWidth * 0.82f, m_screenHeight * 0.61f, m_screenWidth * 0.15f, m_screenHeight * 0.07f);
-	m_towerRange->SetColour(178, 34, 34, 0);
-	m_towerRange->SetFontSize(20);
-
-	m_towerFireRate = new Button("");
-
-	m_towerFireRate->SetBounds(m_screenWidth * 0.82f, m_screenHeight * 0.69f, m_screenWidth * 0.15f, m_screenHeight * 0.07f);
-	m_towerFireRate->SetColour(178, 34, 34, 0);
-	m_towerFireRate->SetFontSize(20);
-
-	m_towerDamage = new Button("");
-
-	m_towerDamage->SetBounds(m_screenWidth * 0.82f, m_screenHeight * 0.77f, m_screenWidth * 0.15f, m_screenHeight * 0.07f);
-	m_towerDamage->SetColour(178, 34, 34, 0);
-	m_towerDamage->SetFontSize(20);
-
-	m_sell = new Button("");
-
-	m_sell->SetBounds(m_screenWidth * 0.76f, m_screenHeight * 0.87f, m_screenWidth * 0.23f, m_screenHeight * 0.05f);
-	m_sell->SetColour(240, 230, 140, 0);
-	m_sell->SetBackgroundColour(100, 100, 100);
-	m_sell->SetFontSize(20);
-
-	m_upgradeTower = new Button("");
-
-	m_upgradeTower->SetBounds(m_screenWidth * 0.76f, m_screenHeight * 0.82f, m_screenWidth * 0.23f, m_screenHeight * 0.05f);
-	m_upgradeTower->SetColour(0, 0, 0, 0);
-	m_upgradeTower->SetFontSize(20);
-
-	m_rangeSprite = m_pBackBuffer->CreateSprite("assets\\range_icon.png");
-	m_rangeSprite->SetX(m_screenWidth * 0.76f);
-	m_rangeSprite->SetY(m_screenHeight * 0.60f);
-
-	m_speedSprite = m_pBackBuffer->CreateSprite("assets\\time_icon.png");
-	m_speedSprite->SetX(m_screenWidth * 0.76f);
-	m_speedSprite->SetY(m_screenHeight * 0.68f);
-
-	m_damageSprite = m_pBackBuffer->CreateSprite("assets\\damage_icon.png");
-	m_damageSprite->SetX(m_screenWidth * 0.76f);
-	m_damageSprite->SetY(m_screenHeight * 0.76f);
-
-	//SET UP AUDIO
-	system = NULL;
-
-	result = FMOD::System_Create(&system);      // Create the main system object.
-	result = system->init(32, FMOD_INIT_NORMAL, 0);    // Initialize FMOD.
-
-	channel = 0;
-	combatMusic = 0;
-	m_musicChannel = 0;
+	m_startWave->SetBackgroundColour(34, 139, 34);
 
 	// Timings
 	m_lastTime = SDL_GetTicks();
 	m_lag = 0.0f;
 
+	UpdateGameState(PLAYING);
+
 	return (true);
+}
+
+void Game::CleanUp()
+{
+	//Clear out containers
+	for each (Enemy* enemy in m_enemies)
+	{
+		delete enemy;
+		enemy = 0;
+	}
+
+	m_enemies.clear();
+
+	for each (Tower* tower in m_towers)
+	{
+		delete tower;
+		tower = 0;
+	}
+
+	m_towers.clear();
+
+	for each (Projectile* projectile in m_projectiles)
+	{
+		delete projectile;
+		projectile = 0;
+	}
+
+	m_projectiles.clear();
+
+	delete m_map;
+	m_map = 0;
+
+	delete m_quadTree;
+	m_quadTree = 0;
+
+	delete m_towerQuadTree;
+	m_towerQuadTree = 0;
+
+	delete m_particles;
+	m_particles = 0;
+
+	delete m_enemySpawner;
+	m_enemySpawner = 0;
 }
 
 bool Game::DoGameLoop()
 {
-	//struct coord{
-	//	int x1;
-	//	int y1;
-	//	int x2;
-	//	int y2;
-	//};
-
-	//coord coordinates[250];
-
-	//for (int i = 0; i < 250; ++i)
-	//{
-	//	coordinates[i].x1 = rand() % 800;
-	//	coordinates[i].y1 = rand() % 600;
-
-	//	coordinates[i].x2 = rand() % 800;
-	//	coordinates[i].y2 = rand() % 600;
-	//}
-
-	//auto startVec = std::chrono::system_clock::now();
-
-	//for (int i = 0; i < 250; ++i)
-	//{
-	//	m_pathfinding->FindPathVector(coordinates[i].x1, coordinates[i].y1, coordinates[i].x2, coordinates[i].y2);
-	//}
-
-	//auto endVec = std::chrono::system_clock::now();
-
-	//std::chrono::duration<double> elapsed_secondsVec = endVec - startVec;
-
-	//auto startHeap = std::chrono::system_clock::now();
-
-	//for (int i = 0; i < 250; ++i)
-	//{
-	//	m_pathfinding->FindPath(coordinates[i].x1, coordinates[i].y1, coordinates[i].x2, coordinates[i].y2);
-	//}
-
-	//auto endHeap = std::chrono::system_clock::now();
-
-	//std::chrono::duration<double> elapsed_secondsHeap = endHeap - startHeap;
-
-	m_gameState = PLAYING;
-
 	const float stepSize = 1.0f / 60.0f; // calculate step size
 
 	// Check input
@@ -363,46 +364,16 @@ void Game::Process(float deltaTime)
 
 	m_particles->Process(deltaTime); // Process particles
 
-	m_enemySpawner->Process(deltaTime);
-
-	//Process projectiles
-	std::vector<Projectile*>::iterator projectileIter = m_projectiles.begin();
-
-	while (projectileIter != m_projectiles.end())
+	if (m_gameState == PLAYING)
 	{
-		Projectile* proj = *projectileIter;
+		m_enemySpawner->Process(deltaTime);
 
-		proj->Process(deltaTime);
-
-		std::vector<Entity*> entitiesInRange = m_quadTree->QueryRange(proj->GetCollisionBounds());
-
-		if (!entitiesInRange.empty())
-		{
-			Enemy* hit = reinterpret_cast<Enemy*>(entitiesInRange[0]);
-			hit->TakeDamage(proj->GetDamage());
-
-			projectileIter = m_projectiles.erase(projectileIter);
-
-			delete proj;
-			proj = 0;
-		}
-		else if (proj->GetPositionX() < 0 || proj->GetPositionX() > m_screenHeight || proj->GetPositionY() < 0 || proj->GetPositionY() > m_screenHeight)
-		{
-			projectileIter = m_projectiles.erase(projectileIter);
-
-			delete proj;
-			proj = 0;
-		}
-		else
-		{
-			++projectileIter;
-		}
+		ProcessProjectiles(deltaTime);
+		ProcessEnemies(deltaTime);
+		ProcessTowers(deltaTime);
 	}
 
-	ProcessEnemies(deltaTime);
-	ProcessTowers(deltaTime);
-
-	system->update(); // Update system
+	m_audioManager->Process(deltaTime);
 }
 
 void Game::ProcessEnemies(float deltaTime)
@@ -436,9 +407,9 @@ void Game::ProcessEnemies(float deltaTime)
 
 				m_startWave->SetBackgroundColour(34, 139, 34);
 
-				if (m_enemySpawner->GetWaveNumber() == m_enemySpawner->GetTotalWaveNumber())
+				if (m_enemySpawner->AllWavesCompleted())
 				{
-					m_gameState = WON;
+					UpdateGameState(WON);
 				}
 			}
 		}
@@ -465,36 +436,6 @@ void Game::ProcessEnemies(float deltaTime)
 
 void Game::ProcessTowers(float deltaTime)
 {
-	//std::vector<Tower*>::iterator towerIter = m_towers.begin();
-
-	//while (towerIter != m_towers.end())
-	//{
-	//	Tower* current = *towerIter;
-
-	//	if (current->IsSold())
-	//	{
-	//		towerIter = m_towers.erase(towerIter);
-
-	//		delete current;
-	//		current = 0;
-	//	}
-	//	else
-	//	{
-	//		std::vector<Entity*> entitiesInRange = m_quadTree->QueryRange(current->GetRangeBounds());
-
-	//		current->SetEnemiesInRange(entitiesInRange);
-
-	//		for each (Enemy* enemy in entitiesInRange)
-	//		{
-	//			enemy->m_targetted = true;
-	//		}
-
-	//		current->Process(deltaTime);
-
-	//		++towerIter;
-	//	}
-	//}
-
 	for each (Tower* current in m_towers)
 	{
 		std::vector<Entity*> entitiesInRange = m_quadTree->QueryRange(current->GetRangeBounds());
@@ -507,6 +448,45 @@ void Game::ProcessTowers(float deltaTime)
 		}
 
 		current->Process(deltaTime);
+	}
+}
+
+void Game::ProcessProjectiles(float deltaTime)
+{
+	//Process projectiles
+	std::vector<Projectile*>::iterator projectileIter = m_projectiles.begin();
+
+	while (projectileIter != m_projectiles.end())
+	{
+		Projectile* proj = *projectileIter;
+
+		proj->Process(deltaTime);
+
+		std::vector<Entity*> entitiesInRange = m_quadTree->QueryRange(proj->GetCollisionBounds());
+
+		if (!entitiesInRange.empty())
+		{
+			Enemy* hit = reinterpret_cast<Enemy*>(entitiesInRange[0]);
+			hit->TakeDamage(proj->GetDamage());
+
+			projectileIter = m_projectiles.erase(projectileIter);
+
+			delete proj;
+			proj = 0;
+
+			m_audioManager->PlaySound("assets\\audio\\enemy_end.wav");
+		}
+		else if (proj->GetPositionX() < 0 || proj->GetPositionX() > m_screenHeight || proj->GetPositionY() < 0 || proj->GetPositionY() > m_screenHeight)
+		{
+			projectileIter = m_projectiles.erase(projectileIter);
+
+			delete proj;
+			proj = 0;
+		}
+		else
+		{
+			++projectileIter;
+		}
 	}
 }
 
@@ -571,6 +551,12 @@ void Game::DrawUI(BackBuffer& backBuffer)
 	{
 		m_pBackBuffer->DrawSprite(*m_cursorSprite);
 	}
+
+	//Draw End Game UI if game is over
+	if (m_gameState != PLAYING)
+	{
+		DrawEndGameUI(backBuffer);
+	}
 }
 
 void Game::DrawSelectionUI(BackBuffer& backBuffer)
@@ -603,6 +589,19 @@ void Game::DrawSelectionUI(BackBuffer& backBuffer)
 	}
 }
 
+void Game::DrawEndGameUI(BackBuffer & backBuffer)
+{
+	backBuffer.SetDrawColour(0, 0, 0);
+	backBuffer.DrawRectangle(m_screenWidth * 0.29f, m_screenHeight * 0.29f, m_screenWidth * 0.71, m_screenHeight * 0.71f, 1); // Frame
+
+	backBuffer.SetDrawColour(192, 192, 192);
+	backBuffer.DrawRectangle(m_screenWidth * 0.3f, m_screenHeight * 0.30f, m_screenWidth * 0.7f, m_screenHeight * 0.7f, 1); // Background
+
+	m_gameOver->Draw(backBuffer); // Draw title
+	m_quit->Draw(backBuffer);
+	m_restart->Draw(backBuffer);
+}
+
 void Game::UpdateLives(int amount)
 {
 	m_currentLives += amount;
@@ -611,7 +610,7 @@ void Game::UpdateLives(int amount)
 	{
 		m_currentLives = 0;
 
-		m_gameState = LOST;
+		UpdateGameState(LOST);
 	}
 
 	std::stringstream lifeMessage;
@@ -699,7 +698,6 @@ void Game::UpdateSelected()
 		m_towerFireRate->SetText("");
 		m_towerDamage->SetText("");
 		m_sell->SetText("");
-
 	}
 }
 
@@ -711,7 +709,6 @@ void Game::Quit()
 void Game::Pause(bool pause)
 {
 	m_paused = pause;
-	m_musicChannel->setPaused(pause);
 }
 
 bool Game::IsPaused()
@@ -764,6 +761,15 @@ void Game::OnLeftMouseClick(int x, int y)
 			UpdateSelected();
 		}
 	}
+	else if (m_quit->WasClickedOn(x, y) && m_gameState != PLAYING)
+	{
+		Quit();
+	}
+	else if (m_restart->WasClickedOn(x, y) && m_gameState != PLAYING)
+	{
+		CleanUp();
+		Initialise(false);
+	}
 	else
 	{
 		Position pos = Position(x, y);
@@ -773,6 +779,8 @@ void Game::OnLeftMouseClick(int x, int y)
 		for each (Entity* e in clickedOn)
 		{
 			reinterpret_cast<Enemy*>(e)->TakeDamage(1);
+
+			m_audioManager->PlaySound("assets\\audio\\enemy_end.wav");
 		}
 
 		if (m_selected == TOWER)
@@ -830,6 +838,8 @@ void Game::StartWave()
 	m_selected = NOTHING;
 
 	m_startWave->SetBackgroundColour(100, 100, 100);
+
+	m_audioManager->PlaySound("assets\\audio\\wave_start.wav");
 }
 
 void Game::AddEnemy(Enemy* enemy)
@@ -845,6 +855,7 @@ void Game::AddEnemy(Enemy* enemy)
 
 void Game::AddProjectile(Projectile* projectile)
 {
+	m_audioManager->PlaySound("assets\\audio\\tower_shoot.wav");
 	m_projectiles.push_back(projectile);
 }
 
@@ -893,6 +904,8 @@ void Game::PlaceTower(int x, int y)
 	UpdateCurrency(-newTower->GetTowerCost());
 
 	m_towerQuadTree->Insert(newTower);
+
+	m_audioManager->PlaySound("assets\\audio\\tower_place.wav");
 }
 
 void Game::SellTower(Tower* tower)
@@ -935,6 +948,10 @@ void Game::SellTower(Tower* tower)
 
 void Game::PlaceWall(int x, int y)
 {
+	if (m_enemySpawner->IsWaveActive()) 
+	{
+		return;
+	}
 	Tile* clicked = m_map->GetTileFromPixelCoord(x, y);
 
 	if (clicked != 0)
@@ -954,6 +971,7 @@ void Game::PlaceWall(int x, int y)
 			else
 			{
 				UpdateCurrency(-10);
+				m_audioManager->PlaySound("assets\\audio\\wall_place.wav");
 			}
 		}
 	}
@@ -964,5 +982,34 @@ void Game::UpdateCursorPosition(int x, int y)
 	if (m_cursorSprite != 0)
 	{
 		m_cursorSprite->SetCenter(x, y);
+	}
+}
+
+void Game::UpdateGameState(GameState state)
+{
+	if (m_gameState == PAUSED && state == PAUSED)
+	{
+		state = PLAYING;
+	}
+
+	m_gameState = state;
+
+	switch (m_gameState)
+	{
+	case WON:
+	{
+		m_gameOver->SetText("You Win");
+	}
+	break;
+	case LOST:
+	{
+		m_gameOver->SetText("You Lost");
+	}
+	break;
+	default:
+	{
+		m_gameOver->SetText("Paused");
+	}
+	break;
 	}
 }

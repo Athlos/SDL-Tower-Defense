@@ -21,16 +21,14 @@ TextureManager::~TextureManager()
 
 }
 
-bool 
-TextureManager::Initialise(SDL_Renderer* pRenderer)
+bool TextureManager::Initialise(SDL_Renderer* pRenderer)
 {
 	m_pRenderer = pRenderer;
 
 	return (true);
 }
 
-Texture*
-TextureManager::GetTexture(const char* pcFilename)
+Texture* TextureManager::GetTexture(const char* pcFilename)
 {
 	Texture* pTexture = 0;
 

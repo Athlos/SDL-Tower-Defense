@@ -1,5 +1,4 @@
-#ifndef __GAME_H__
-#define __GAME_H__
+#pragma once
 
 // Forward Declarations
 class BackBuffer;
@@ -16,6 +15,7 @@ class Position;
 class QuadTree;
 class EnemySpawner;
 class Projectile;
+class AudioManager;
 
 #include "fmod.hpp";
 
@@ -30,7 +30,7 @@ enum BuildingTypeSelected
 
 enum GameState
 {
-	MENU,
+	PAUSED,
 	PLAYING,
 	WON,
 	LOST
@@ -44,7 +44,9 @@ public:
 	static void DestroyInstance();
 	~Game();
 
-	bool Initialise();
+	bool Initialise(bool firstTime);
+	void CleanUp();
+
 	bool DoGameLoop();
 	void Quit();
 
@@ -63,16 +65,19 @@ public:
 	void PlaceWall(int x, int y);
 
 	void UpdateCursorPosition(int x, int y);
+	void UpdateGameState(GameState state);
 	
 protected:
 	void Process(float deltaTime);
 	void ProcessEnemies(float deltaTime);
 	void ProcessTowers(float deltaTime);
+	void ProcessProjectiles(float deltaTime);
 
 	void Draw(BackBuffer& backBuffer);
 
 	void DrawUI(BackBuffer& backBuffer);
 	void DrawSelectionUI(BackBuffer& backBuffer);
+	void DrawEndGameUI(BackBuffer& backBuffer);
 
 	void UpdateLives(int amount);
 	void UpdateWaves();
@@ -143,6 +148,11 @@ protected:
 	Button* m_sell;
 	Button* m_upgradeTower;
 
+	//end game ui
+	Label* m_gameOver;
+	Button* m_quit;
+	Button* m_restart;
+
 	//GAME ENTITIES
 	Grid* m_map; // Grid of map tiles
 	Pathfinding* m_pathfinding; // Pathfinding class
@@ -165,11 +175,5 @@ protected:
 	int m_currency;
 
 	//AUDIO
-	FMOD::System *system;
-	bool combatMusic;
-	FMOD_RESULT result;
-	FMOD::Channel* channel;
-	FMOD::Channel* m_musicChannel;
+	AudioManager* m_audioManager;
 };
-
-#endif // __GAME_H__

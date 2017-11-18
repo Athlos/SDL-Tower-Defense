@@ -13,6 +13,8 @@ AnimatedSprite::AnimatedSprite()
 	, m_paused(false)
 	, m_loop(false)
 	, m_animating(false)
+	, m_scaleWidth(0)
+	, m_scaleHeight(0)
 {
 }
 
@@ -25,6 +27,16 @@ Texture* AnimatedSprite::GetTexture()
 	return (m_pTexture);
 }
 
+void AnimatedSprite::SetScale(int width, int height)
+{
+	m_scaleWidth = width;
+	m_scaleHeight = height;
+}
+
+int AnimatedSprite::GetFrameCount()
+{
+	return m_totalFrames.size();
+}
 
 bool AnimatedSprite::Initialise(Texture& texture)
 {
@@ -39,12 +51,6 @@ bool AnimatedSprite::Initialise(Texture& texture)
 	StartAnimating();
 
 	return (true);
-}
-
-void AnimatedSprite::AddFrame(int x)
-{
-	//Add the x coordinate to the frame coordinate container.
-	m_totalFrames.push_back(x);
 }
 
 void AnimatedSprite::Process(float deltaTime)
@@ -81,10 +87,42 @@ void AnimatedSprite::Process(float deltaTime)
 	}
 }
 
+void AnimatedSprite::LoadFrames(int width, int height)
+{
+	//Set the center to half the width and height
+	SetCenter(width / 2, height / 2);
+
+	//Set width and height to the same value, assuming your sprite is a square
+	m_width = width;
+	m_height = height;
+
+	//default frame speed
+	m_frameSpeed = 0.1f;
+
+	//loops by default
+	m_loop = true;
+	for (int a = 0; a < m_pTexture->GetHeight(); a += height)
+	{
+		//Grab the texture, and grab frames the size of the width for 1 row
+		for (int i = 0; i < m_pTexture->GetWidth(); i += width)
+		{
+			//Store frame coordinates to render later
+			SDL_Point* newFrame = new SDL_Point();
+			newFrame->x = i;
+			newFrame->y = a;
+
+			m_totalFrames.push_back(newFrame);
+		}
+	}
+}
+
 void AnimatedSprite::Draw(BackBuffer& backbuffer)
 {
 	//Draw the particular frame into the backbuffer.
-	backbuffer.DrawAnimatedSprite(*this, m_totalFrames[m_currentFrame], m_frameWidth);
+	SDL_Rect base{ m_totalFrames[m_currentFrame]->x, m_totalFrames[m_currentFrame]->y, m_width, m_height };
+	SDL_Rect scale{ m_x, m_y, m_scaleWidth, m_scaleHeight };
+	
+	backbuffer.DrawAnimatedSprite(*this, &base, &scale);
 }
 
 void AnimatedSprite::SetFrameSpeed(float f)

@@ -52,6 +52,9 @@ public:
 
 	void SetTextAlignment(Alignment align);
 
+protected:
+	void ResizeText();
+
 	// Member Data:
 protected:
 	std::string m_text;

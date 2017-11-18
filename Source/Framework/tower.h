@@ -7,6 +7,7 @@
 class Tile;
 class Enemy;
 class Projectile;
+class AnimatedSprite;
 
 struct Target
 {
@@ -47,6 +48,7 @@ public:
 	int GetTowerCost();
 
 	int GetTowerRange() const;
+	int GetTowerLevel() const;
 	int GetTowerDamage() const;
 	float GetTowerFireRate() const;
 
@@ -56,6 +58,8 @@ public:
 	void UpgradeTower();
 
 	bool IsMaxLevel();
+
+	void SetSelected(bool selected);
 
 	//Member Data:
 protected:
@@ -74,7 +78,13 @@ protected:
 	int m_currentLevel;
 	int m_maxLevel;
 
+	bool m_selected;
+
 	AxisAlignedBoundingBox* m_towerRangeArea;
 
 	BackBuffer* m_backBuffer;
+
+	AnimatedSprite* m_towerSprite;
+	Sprite* m_selectionOutline;
+
 };

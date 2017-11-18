@@ -6,8 +6,10 @@
 #include "projectile.h"
 #include "game.h"
 #include "sprite.h"
+#include "animatedsprite.h"
 
 #include <cassert>
+#include <sstream>
 
 Tower::Tower(int range, float firingSpeed, int damage, int cost)
 {
@@ -21,6 +23,7 @@ Tower::Tower(int range, float firingSpeed, int damage, int cost)
 	m_timeElapsed = 0;
 	m_currentLevel = 1;
 	m_maxLevel = 4;
+	m_selected = false;
 }
 
 Tower::~Tower()
@@ -31,11 +34,25 @@ Tower::~Tower()
 bool Tower::Initialise(BackBuffer* backBuffer)
 {
 	m_pSprite = backBuffer->CreateSprite("assets\\tower_base.png");
+	m_selectionOutline = backBuffer->CreateSprite("assets\\tower_selected.png");
+
+	m_towerSprite = backBuffer->CreateAnimatedSprite("assets\\tower_loading.png");
+	m_towerSprite->LoadFrames(32, 32);
+	//m_towerSprite->SetFrameSpeed(0.1f);
 
 	assert(m_pSprite);
 
 	m_pSprite->SetX(m_x);
 	m_pSprite->SetY(m_y);
+
+	m_towerSprite->SetX(m_x);
+	m_towerSprite->SetY(m_y);
+
+	m_selectionOutline->SetX(m_x);
+	m_selectionOutline->SetY(m_y);
+
+	m_towerSprite->SetFrameSpeed(m_firingSpeed / m_towerSprite->GetFrameCount());
+	m_towerSprite->SetLooping(false);
 
 	m_backBuffer = backBuffer;
 
@@ -46,7 +63,12 @@ void Tower::Process(float deltaTime)
 {
 	Entity::Process(deltaTime);
 
+	m_towerSprite->SetX(m_x);
+	m_towerSprite->SetY(m_y);
+
 	m_timeElapsed += deltaTime;
+
+	m_towerSprite->Process(deltaTime);
 
 	if (m_currentTarget != 0)
 	{
@@ -58,7 +80,14 @@ void Tower::Process(float deltaTime)
 		if (m_timeElapsed >= m_firingSpeed && m_currentTarget != 0)
 		{
 			Shoot();
+			m_towerSprite->StartAnimating();
 		}
+
+		float angle = atan2(GetCenterX() - m_currentTarget->GetPosition()->m_x, GetCenterY() - m_currentTarget->GetPosition()->m_y);
+
+		angle *= 180 / 3.1459f;
+		angle *= -1;
+		m_towerSprite->SetAngle(angle);
 	}
 }
 
@@ -67,6 +96,13 @@ void Tower::Draw(BackBuffer& backBuffer)
 	backBuffer.SetDrawColour(0, 0, 0);
 	Entity::Draw(backBuffer);
 
+	m_towerSprite->Draw(backBuffer);
+
+	if (m_selected)
+	{
+		m_selectionOutline->Draw(backBuffer);;
+	}
+	
 	//backBuffer.SetDrawColour(0, 125, 0, 1);
 	//backBuffer.DrawRectangle(m_towerRangeArea->center->m_x - m_towerRangeArea->halfDimension, m_towerRangeArea->center->m_y + m_towerRangeArea->halfDimension, m_towerRangeArea->center->m_x + m_towerRangeArea->halfDimension, m_towerRangeArea->center->m_y - m_towerRangeArea->halfDimension, 0);
 }
@@ -75,9 +111,11 @@ void Tower::Shoot()
 {
 	m_timeElapsed = 0;
 
-	Projectile* firedProjectile = new Projectile(m_damage, 500, 1.0f);
+	Projectile* firedProjectile = new Projectile(m_damage, 700, 1.0f);
 
 	Sprite* projectileSprite = m_backBuffer->CreateSprite("assets\\projectile.png");
+	projectileSprite->SetWidth(8);
+	projectileSprite->SetHeight(8);
 
 	firedProjectile->Initialise(projectileSprite);
 
@@ -93,6 +131,26 @@ void Tower::SetTilePosition(Tile* tile)
 	m_tilePosition = tile;
 
 	m_towerRangeArea = new AxisAlignedBoundingBox(m_pos, m_tileRange * tile->GetTileWidth() + (tile->GetTileWidth() / 2));
+
+	//Scale to tile size
+	int tileWidth = m_tilePosition->GetTileWidth();
+	int tileHeight = m_tilePosition->GetTileHeight();
+
+	m_pSprite->SetWidth(tileWidth);
+	m_pSprite->SetHeight(tileHeight);
+
+	m_towerSprite->SetX(m_x);
+	m_towerSprite->SetY(m_y);
+
+	m_selectionOutline->SetX(m_x);
+	m_selectionOutline->SetY(m_y);
+
+	m_selectionOutline->SetWidth(tileWidth);
+	m_selectionOutline->SetHeight(tileHeight);
+
+	m_towerSprite->SetScale(tileWidth, tileHeight);
+
+	m_bounds = new AxisAlignedBoundingBox(m_pos, tileWidth / 2);
 }
 
 Tile* Tower::GetTilePosition() const
@@ -179,6 +237,11 @@ int Tower::GetTowerRange() const
 	return m_tileRange;
 }
 
+int Tower::GetTowerLevel() const
+{
+	return m_currentLevel;
+}
+
 int Tower::GetTowerDamage() const
 {
 	return m_damage;
@@ -222,10 +285,34 @@ void Tower::UpgradeTower()
 		m_tileRange += 0;
 
 		++m_currentLevel;
+
+		m_towerSprite->SetFrameSpeed(m_firingSpeed / m_towerSprite->GetFrameCount());
+
+		delete m_pSprite;
+		m_pSprite = 0;
+
+		std::stringstream levelSprite;
+		levelSprite << "assets\\tower_base_level" << m_currentLevel << ".png";
+
+		m_pSprite = m_backBuffer->CreateSprite(levelSprite.str().c_str());
+
+		int tileWidth = m_tilePosition->GetTileWidth();
+		int tileHeight = m_tilePosition->GetTileHeight();
+
+		m_pSprite->SetX(m_x);
+		m_pSprite->SetY(m_y);
+
+		m_pSprite->SetWidth(tileWidth);
+		m_pSprite->SetHeight(tileHeight);
 	}
 }
 
 bool Tower::IsMaxLevel()
 {
 	return m_currentLevel == m_maxLevel;
+}
+
+void Tower::SetSelected(bool selected)
+{
+	m_selected = selected;
 }

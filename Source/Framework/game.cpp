@@ -131,10 +131,11 @@ bool Game::Initialise(bool firstTime)
 		m_towerText->SetColour(255, 0, 0, 50);
 		m_towerText->SetFontSize(32);
 
-		m_highlighted = new Label(" Selected");
+		m_highlighted = new Label("Selected");
 		m_highlighted->SetBounds(m_screenWidth * 0.76f, m_screenHeight * 0.52f, m_screenWidth * 0.23f, m_screenHeight * 0.07f);
 		m_highlighted->SetColour(240, 230, 140, 50);
 		m_highlighted->SetFontSize(32);
+		m_highlighted->SetTextAlignment(CENTER);
 
 		m_wallButton = new Button("");
 		m_wallButton->SetBounds(m_screenWidth * 0.77f, m_screenHeight * 0.28f, m_screenWidth * 0.05f, m_screenWidth * 0.05f);
@@ -231,10 +232,10 @@ bool Game::Initialise(bool firstTime)
 	AxisAlignedBoundingBox* towerGridBounds = new AxisAlignedBoundingBox(towerTopLeft, m_screenHeight / 2);
 	m_towerQuadTree = new QuadTree(towerGridBounds);
 
-	m_totalLives = 1;
+	m_totalLives = 10;
 	m_currentLives = m_totalLives;
 
-	m_currency = 500;
+	m_currency = 5000;
 
 	m_enemySpawner = new EnemySpawner(0.5f, m_pBackBuffer);
 
@@ -250,6 +251,7 @@ bool Game::Initialise(bool firstTime)
 	m_cursorSprite = 0;
 
 	m_startWave->SetBackgroundColour(34, 139, 34);
+	m_highlighted->SetText("Selected");
 
 	// Timings
 	m_lastTime = SDL_GetTicks();
@@ -578,7 +580,7 @@ void Game::DrawSelectionUI(BackBuffer& backBuffer)
 		m_damageSprite->Draw(backBuffer);
 		m_speedSprite->Draw(backBuffer);
 
-		if (m_currency >= m_selectedTower->GetTowerUpgradeCost())
+		if (m_currency >= m_selectedTower->GetTowerUpgradeCost() && !m_selectedTower->IsMaxLevel())
 		{
 			m_upgradeTower->SetBackgroundColour(34, 139, 34);
 		}
@@ -691,9 +693,14 @@ void Game::UpdateSelected()
 
 		m_upgradeTower->SetText(message.str());
 		message.str("");
+
+		message << "Level " << m_selectedTower->GetTowerLevel() << " tower";
+
+		m_highlighted->SetText(message.str());
 	}
 	else
 	{
+		m_highlighted->SetText("Selected");
 		m_towerRange->SetText("");
 		m_towerFireRate->SetText("");
 		m_towerDamage->SetText("");
@@ -759,6 +766,8 @@ void Game::OnLeftMouseClick(int x, int y)
 			m_selectedTower->UpgradeTower();
 
 			UpdateSelected();
+
+			m_audioManager->PlaySound("assets\\audio\\tower_place.wav");
 		}
 	}
 	else if (m_quit->WasClickedOn(x, y) && m_gameState != PLAYING)
@@ -797,10 +806,31 @@ void Game::OnLeftMouseClick(int x, int y)
 
 			std::vector<Entity*> clickedOn = m_towerQuadTree->QueryPoint(&pos);
 
-			for each (Tower* t in clickedOn) // There should only ever be 1 tower in the vector
+			if (clickedOn.empty())
 			{
-				m_selectedTower = t;
+				if (m_selectedTower != 0)
+				{
+					m_selectedTower->SetSelected(false);
+				}
+
+				m_selectedTower = 0;
 				UpdateSelected();
+			}
+			else
+			{
+				for each (Tower* t in clickedOn) // There should only ever be 1 tower in the vector
+				{
+					if (m_selectedTower != 0)
+					{
+						m_selectedTower->SetSelected(false);
+					}
+
+					m_selectedTower = t;
+
+					m_selectedTower->SetSelected(true);
+
+					UpdateSelected();
+				}
 			}
 		}
 	}
@@ -890,10 +920,6 @@ void Game::PlaceTower(int x, int y)
 	Tower* newTower = new Tower(2, 0.5f, 1, 100);
 
 	newTower->Initialise(m_pBackBuffer);
-
-	//Scale to tile size
-	newTower->GetSprite()->SetWidth(currentTile->GetTileWidth());
-	newTower->GetSprite()->SetHeight(currentTile->GetTileHeight());
 
 	newTower->SetTilePosition(currentTile);
 

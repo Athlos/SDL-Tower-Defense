@@ -77,24 +77,19 @@ AnimatedSprite* BackBuffer::CreateAnimatedSprite(const char* pcFilename)
 	return (pSprite);
 }
 
-void BackBuffer::DrawAnimatedSprite(AnimatedSprite& sprite, int x, int width) 
+void BackBuffer::DrawAnimatedSprite(AnimatedSprite& sprite, SDL_Rect* bounds, SDL_Rect* raw)
 {
-	SDL_Rect dest;
-
-	dest.x = sprite.GetX();
-	dest.y = sprite.GetY();
-	dest.w = width;
-	dest.h = sprite.GetHeight();
-
-	SDL_Rect* f = new SDL_Rect;
-	//location of animation frame
-	f->x = x;
-	f->y = 0;
-	f->w = width;
-	f->h = sprite.GetHeight();
-	
-	SDL_RenderCopy(m_pRenderer, sprite.GetTexture()->GetTexture(), f, &dest);
+	if (sprite.GetAngle() != 0)
+	{
+		SDL_RenderCopyEx(m_pRenderer, sprite.GetTexture()->GetTexture(), bounds, raw, sprite.GetAngle(), NULL, SDL_FLIP_HORIZONTAL);
+	}
+	else
+	{
+		SDL_RenderCopyEx(m_pRenderer, sprite.GetTexture()->GetTexture(), bounds, raw, sprite.GetAngle(), NULL, SDL_FLIP_NONE);
+	}
+	//SDL_RenderCopy(m_pRenderer, sprite.GetTexture()->GetTexture(), bounds, raw);
 }
+
 
 bool BackBuffer::Initialise(int width, int height)
 {

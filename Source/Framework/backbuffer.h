@@ -41,7 +41,7 @@ public:
 	SDL_Texture* CreateText(std::string text, SDL_Color colour);
 
 	Sprite* CreateSprite(const char* pcFilename);
-	void DrawAnimatedSprite(AnimatedSprite& sprite, int x, int width);
+	void DrawAnimatedSprite(AnimatedSprite& sprite, SDL_Rect* bounds, SDL_Rect* raw);
 	AnimatedSprite* CreateAnimatedSprite(const char* pcFilename);
 	void SetMouse(int x, int y);
 	

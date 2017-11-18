@@ -2,6 +2,8 @@
 #define __ANIMATEDSPRITE_H__
 
 #include "sprite.h"
+#include "SDL.h"
+
 #include <vector>
 
 class BackBuffer;
@@ -15,10 +17,11 @@ public:
 	~AnimatedSprite();
 
 	bool Initialise(Texture& texture);
-	void AddFrame(int x);
 
 	void Process(float deltaTime);
 	void Draw(BackBuffer& backbuffer);
+
+	void AnimatedSprite::LoadFrames(int width, int height);
 
 	void SetFrameSpeed(float f);
 	void SetFrameWidth(int w);
@@ -35,10 +38,13 @@ public:
 
 	Texture* GetTexture();
 
+	void SetScale(int width, int height);
+	int GetFrameCount();
+
 	// Member Data:
 protected:
 
-	std::vector<int> m_totalFrames;
+	std::vector<SDL_Point*> m_totalFrames;
 
 	float m_frameSpeed;
 	int m_frameWidth;
@@ -49,6 +55,9 @@ protected:
 	bool m_paused;
 	bool m_loop;
 	bool m_animating;
+
+	int m_scaleWidth;
+	int m_scaleHeight;
 
 private:
 

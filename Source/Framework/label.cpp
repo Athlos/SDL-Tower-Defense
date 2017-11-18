@@ -89,13 +89,7 @@ void Label::Draw(BackBuffer& backBuffer)
 		m_requiredUpdate = false;
 		m_textTexture = backBuffer.CreateText(m_text, m_colour);
 
-		//Resize bounds to fit text;
-		TTF_SizeText(m_font, m_text.c_str(), &m_currentBounds.w, &m_currentBounds.h);
-
-		if (m_textAlignment == CENTER)
-		{
-			m_currentBounds.x = m_bounds.x + (float)(m_bounds.w - m_currentBounds.w) / 2.0f;
-		}
+		ResizeText();
 	}
 
 	backBuffer.DrawText(m_textTexture, m_currentBounds);
@@ -134,4 +128,23 @@ void Label::SetTextAlignment(Alignment align)
 	m_textAlignment = align;
 
 	m_requiredUpdate = true;
+}
+
+void Label::ResizeText()
+{
+	//Resize bounds to fit text;
+	TTF_SizeText(m_font, m_text.c_str(), &m_currentBounds.w, &m_currentBounds.h);
+
+	while (m_currentBounds.w > m_bounds.w)
+	{
+		m_fontSize *= 0.9f;
+		m_font = TTF_OpenFont("assets/currentfont.TTF", m_fontSize);
+
+		TTF_SizeText(m_font, m_text.c_str(), &m_currentBounds.w, &m_currentBounds.h);
+	}
+
+	if (m_textAlignment == CENTER)
+	{
+		m_currentBounds.x = m_bounds.x + (float)(m_bounds.w - m_currentBounds.w) / 2.0f;
+	}
 }

@@ -1,2 +1,39 @@
 ﻿C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V120\Microsoft.CppBuild.targets(388,5): warning MSB8028: The intermediate directory (Release\) contains files shared from another project (Assignment 1.vcxproj, Circuit Breaker.vcxproj).  This can lead to incorrect clean and rebuild behavior.
+  game.cpp
+c:\users\pascal\desktop\sdl tower defense\sdl-tower-defense\source\framework\game.h(20): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+c:\users\pascal\desktop\sdl tower defense\sdl-tower-defense\source\framework\game.h(22): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+c:\users\pascal\desktop\sdl tower defense\sdl-tower-defense\source\framework\audiomanager.h(3): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+game.cpp(73): warning C4244: 'argument' : conversion from 'time_t' to 'unsigned int', possible loss of data
+game.cpp(122): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
+game.cpp(126): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
+game.cpp(130): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
+game.cpp(135): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
+game.cpp(140): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
+game.cpp(145): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
+game.cpp(150): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
+game.cpp(155): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
+game.cpp(160): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
+game.cpp(165): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
+game.cpp(170): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
+game.cpp(175): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
+game.cpp(181): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
+game.cpp(186): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
+game.cpp(187): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
+game.cpp(190): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
+game.cpp(191): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
+game.cpp(194): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
+game.cpp(195): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
+game.cpp(198): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
+game.cpp(202): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
+game.cpp(206): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
+game.cpp(535): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
+game.cpp(565): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
+game.cpp(595): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
+game.cpp(595): warning C4244: 'argument' : conversion from 'double' to 'int', possible loss of data
+game.cpp(598): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
+game.cpp(775): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+game.cpp(796): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+game.cpp(812): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+  Generating code
+  Finished generating code
   Framework.vcxproj -> C:\Users\Pascal\Desktop\SDL Tower Defense\SDL-Tower-Defense\Source\Release\SDL Core.exe

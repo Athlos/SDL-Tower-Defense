@@ -34,11 +34,11 @@ Explosion::Initialise(AnimatedSprite* sprite)
 	assert(sprite);
 	m_pSprite = sprite;
 	m_pSprite->SetFrameWidth(64);
-	m_pSprite->AddFrame(0);
-	m_pSprite->AddFrame(64);
-	m_pSprite->AddFrame(128);
-	m_pSprite->AddFrame(192);
-	m_pSprite->AddFrame(256);
+	//m_pSprite->AddFrame(0);
+	//m_pSprite->AddFrame(64);
+	//m_pSprite->AddFrame(128);
+	//m_pSprite->AddFrame(192);
+	//m_pSprite->AddFrame(256);
 	return (true);
 }
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "entity.h"
+#include "building.h"
 
 #include <vector>
 
@@ -21,7 +21,7 @@ struct Target
 	}
 };
 
-class Tower : public Entity
+class Tower : public Building
 {
 	//Member Methods:
 public:
@@ -36,7 +36,6 @@ public:
 	void Shoot();
 
 	void SetTilePosition(Tile* tile);
-	Tile* GetTilePosition() const;
 
 	void SetEnemiesInRange(std::vector<Entity*> enemies);
 
@@ -45,26 +44,20 @@ public:
 	void SetCurrentTarget(Enemy* target);
 	void EvaluateTarget();
 
-	int GetTowerCost();
-
 	int GetTowerRange() const;
 	int GetTowerLevel() const;
 	int GetTowerDamage() const;
 	float GetTowerFireRate() const;
 
-	int GetTowerValue() const;
+	int GetSellValue() const;
 
 	int GetTowerUpgradeCost() const;
 	void UpgradeTower();
 
 	bool IsMaxLevel();
 
-	void SetSelected(bool selected);
-
 	//Member Data:
 protected:
-	Tile* m_tilePosition;
-
 	Enemy* m_currentTarget;
 
 	std::vector<Enemy*> m_targetsInRange;
@@ -73,18 +66,11 @@ protected:
 	float m_firingSpeed;
 	float m_timeElapsed;
 	int m_damage;
-	int m_cost;
 
 	int m_currentLevel;
 	int m_maxLevel;
 
-	bool m_selected;
-
 	AxisAlignedBoundingBox* m_towerRangeArea;
 
-	BackBuffer* m_backBuffer;
-
 	AnimatedSprite* m_towerSprite;
-	Sprite* m_selectionOutline;
-
 };

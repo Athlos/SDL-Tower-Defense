@@ -85,7 +85,7 @@ private:
 	colour m_colour;
 	TileState m_state;
 
-	std::vector<Sprite*> m_tileSprites;
+	Sprite* m_tileSprite;
 
 	bool m_occupied;
 	bool m_hasWall;

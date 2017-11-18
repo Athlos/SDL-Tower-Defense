@@ -7,6 +7,7 @@
 #include "grid.h"
 #include "backbuffer.h"
 #include "position.h"
+#include "animatedsprite.h"
 
 #include <math.h>
 #include <cassert>
@@ -25,6 +26,38 @@ Enemy::Enemy()
 Enemy::~Enemy() 
 {
 	Entity::~Entity();
+}
+
+void Enemy::SetPosition(float x, float y)
+{
+	//Entity::SetPosition(x, y);
+
+	m_animSprite->SetX(static_cast<int>(m_x));
+	m_animSprite->SetY(static_cast<int>(m_y));
+
+	m_pos->m_x = GetCenterX();
+	m_pos->m_y = GetCenterY();
+}
+
+float Enemy::GetCenterX() const
+{
+	return static_cast<float>(m_animSprite->GetCenterX());
+}
+
+float Enemy::GetCenterY() const
+{
+	return static_cast<float>(m_animSprite->GetCenterY());
+}
+
+bool Enemy::Initialise(AnimatedSprite * sprite)
+{
+	assert(sprite);
+	m_animSprite = sprite;
+
+	m_animSprite->SetX(m_x);
+	m_animSprite->SetY(m_y);
+
+	return (true);
 }
 
 int Enemy::GetReward()
@@ -75,43 +108,33 @@ void Enemy::TakeDamage(int amount)
 
 void Enemy::Process(float deltaTime) 
 {
-	Entity::Process(deltaTime);
+	//Entity::Process(deltaTime);
 	
 	MoveToWaypoints(deltaTime);
+
+	//m_x += deltaTime * m_velocityX;
+	//m_y += deltaTime * m_velocityY;
+
+	//if (m_x >= 800 - m_pSprite->GetWidth())
+	//{
+	//	m_x = (800 - m_pSprite->GetWidth());
+	//	m_velocityX = 0;
+	//}
+	//if (m_x <= 0)
+	//{
+	//	m_x = 0;
+	//	m_velocityX = 0;
+	//}
+
+	m_animSprite->Process(deltaTime);
+
+	m_animSprite->SetX(static_cast<int>(m_x));
+	m_animSprite->SetY(static_cast<int>(m_y));
 }
 
 void Enemy::Draw(BackBuffer& backBuffer)
 {
-	//TEMP drawing rectangle for enemies
-
-	if (m_targetted)
-	{
-		backBuffer.SetDrawColour(255, 0, 0);
-	}
-	else
-	{
-		backBuffer.SetDrawColour(255, 215, 0);
-	}
-
-	Entity::Draw(backBuffer);
-
-	//if (m_inRange)
-	//{
-	//	if (m_targetted)
-	//	{
-	//		backBuffer.SetDrawColour(255, 0, 0);
-	//	}
-	//	else
-	//	{
-	//		backBuffer.SetDrawColour(255, 215, 0);
-	//	}
-	//}
-	//else
-	//{
-	//	backBuffer.SetDrawColour(0, 0, 255);
-	//}
-
-	//backBuffer.DrawRectangle(m_x, m_y, m_x + 16, m_y + 16, 1);
+	m_animSprite->Draw(backBuffer);
 
 	DrawHealthBar(backBuffer);
 }
@@ -125,11 +148,6 @@ void Enemy::DrawHealthBar(BackBuffer& backBuffer)
 	//Draw Fill
 	backBuffer.SetDrawColour(255, 0, 0);
 	backBuffer.DrawRectangle(m_x, m_y - 4, m_x + (((float)m_currentHealth / (float)m_maxHealth) * 32), m_y, 1);
-}
-
-void Enemy::SetPosition(float x, float y) 
-{
-	Entity::SetPosition(x, y);
 }
 
 void Enemy::SetTilePosition(Tile* tile)
@@ -205,7 +223,11 @@ void Enemy::UpdateDirection()
 		angle *= 180 / 3.1459f;
 		angle *= -1;
 
-		m_pSprite->SetAngle(angle);
+		angle += 180;
+
+		m_animSprite->SetAngle(angle);
+
+		//m_animSprite->SetAngle(angle);
 
 		m_directionX = m_currentWaypoint->m_x - GetCenterX();
 		m_directionY = m_currentWaypoint->m_y - GetCenterY();

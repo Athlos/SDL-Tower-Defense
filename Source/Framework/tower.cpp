@@ -11,19 +11,18 @@
 #include <cassert>
 #include <sstream>
 
-Tower::Tower(int range, float firingSpeed, int damage, int cost)
+Tower::Tower(int range, float firingSpeed, int damage, int cost) : Building(cost)
 {
-	Entity::Entity();
 	m_tileRange = range;
 	m_firingSpeed = firingSpeed;
 	m_damage = damage;
-	m_cost = cost;
 
 	m_currentTarget = 0;
 	m_timeElapsed = 0;
 	m_currentLevel = 1;
 	m_maxLevel = 4;
-	m_selected = false;
+
+	m_buildingType = TOWER;
 }
 
 Tower::~Tower()
@@ -61,7 +60,7 @@ bool Tower::Initialise(BackBuffer* backBuffer)
 
 void Tower::Process(float deltaTime)
 {
-	Entity::Process(deltaTime);
+	Building::Process(deltaTime);
 
 	m_towerSprite->SetX(m_x);
 	m_towerSprite->SetY(m_y);
@@ -93,15 +92,9 @@ void Tower::Process(float deltaTime)
 
 void Tower::Draw(BackBuffer& backBuffer)
 {
-	backBuffer.SetDrawColour(0, 0, 0);
-	Entity::Draw(backBuffer);
+	Building::Draw(backBuffer);
 
 	m_towerSprite->Draw(backBuffer);
-
-	if (m_selected)
-	{
-		m_selectionOutline->Draw(backBuffer);;
-	}
 	
 	//backBuffer.SetDrawColour(0, 125, 0, 1);
 	//backBuffer.DrawRectangle(m_towerRangeArea->center->m_x - m_towerRangeArea->halfDimension, m_towerRangeArea->center->m_y + m_towerRangeArea->halfDimension, m_towerRangeArea->center->m_x + m_towerRangeArea->halfDimension, m_towerRangeArea->center->m_y - m_towerRangeArea->halfDimension, 0);
@@ -127,8 +120,7 @@ void Tower::Shoot()
 
 void Tower::SetTilePosition(Tile* tile)
 {
-	Entity::SetPosition(tile->GetX(), tile->GetY());
-	m_tilePosition = tile;
+	Building::SetTilePosition(tile);
 
 	m_towerRangeArea = new AxisAlignedBoundingBox(m_pos, m_tileRange * tile->GetTileWidth() + (tile->GetTileWidth() / 2));
 
@@ -136,26 +128,10 @@ void Tower::SetTilePosition(Tile* tile)
 	int tileWidth = m_tilePosition->GetTileWidth();
 	int tileHeight = m_tilePosition->GetTileHeight();
 
-	m_pSprite->SetWidth(tileWidth);
-	m_pSprite->SetHeight(tileHeight);
-
 	m_towerSprite->SetX(m_x);
 	m_towerSprite->SetY(m_y);
 
-	m_selectionOutline->SetX(m_x);
-	m_selectionOutline->SetY(m_y);
-
-	m_selectionOutline->SetWidth(tileWidth);
-	m_selectionOutline->SetHeight(tileHeight);
-
 	m_towerSprite->SetScale(tileWidth, tileHeight);
-
-	m_bounds = new AxisAlignedBoundingBox(m_pos, tileWidth / 2);
-}
-
-Tile* Tower::GetTilePosition() const
-{
-	return m_tilePosition;
 }
 
 void Tower::SetEnemiesInRange(std::vector<Entity*> enemies)
@@ -227,11 +203,6 @@ void Tower::EvaluateTarget()
 	m_targetsInRange.erase(m_targetsInRange.begin() + eraseTargetCounter);
 }
 
-int Tower::GetTowerCost()
-{
-	return m_cost;
-}
-
 int Tower::GetTowerRange() const
 {
 	return m_tileRange;
@@ -252,7 +223,7 @@ float Tower::GetTowerFireRate() const
 	return m_firingSpeed;
 }
 
-int Tower::GetTowerValue() const
+int Tower::GetSellValue() const
 {
 	int value = 0;
 
@@ -310,9 +281,4 @@ void Tower::UpgradeTower()
 bool Tower::IsMaxLevel()
 {
 	return m_currentLevel == m_maxLevel;
-}
-
-void Tower::SetSelected(bool selected)
-{
-	m_selected = selected;
 }

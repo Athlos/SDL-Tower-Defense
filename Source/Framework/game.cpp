@@ -20,6 +20,7 @@
 #include "enemyspawner.h"
 #include "projectile.h"
 #include "audiomanager.h"
+#include "wall.h"
 
 // Library includes:
 #include <cassert>
@@ -239,14 +240,14 @@ bool Game::Initialise(bool firstTime)
 
 	m_enemySpawner = new EnemySpawner(0.5f, m_pBackBuffer);
 
-	m_selectedTower = 0;
+	m_selectedBuilding = 0;
 
 	//SET UP UI
 	UpdateLives(0);
 	UpdateCurrency(0);
 	UpdateWaves();
 
-	m_selected = NOTHING;
+	m_selected = NONE;
 
 	m_cursorSprite = 0;
 
@@ -273,13 +274,13 @@ void Game::CleanUp()
 
 	m_enemies.clear();
 
-	for each (Tower* tower in m_towers)
+	for each (Building* tower in m_buildings)
 	{
 		delete tower;
 		tower = 0;
 	}
 
-	m_towers.clear();
+	m_buildings.clear();
 
 	for each (Projectile* projectile in m_projectiles)
 	{
@@ -438,18 +439,26 @@ void Game::ProcessEnemies(float deltaTime)
 
 void Game::ProcessTowers(float deltaTime)
 {
-	for each (Tower* current in m_towers)
+	for each (Building* current in m_buildings)
 	{
-		std::vector<Entity*> entitiesInRange = m_quadTree->QueryRange(current->GetRangeBounds());
-
-		current->SetEnemiesInRange(entitiesInRange);
-
-		for each (Enemy* enemy in entitiesInRange)
+		if (current->GetType() == TOWER)
 		{
-			enemy->m_targetted = true;
-		}
+			std::vector<Entity*> entitiesInRange = m_quadTree->QueryRange(dynamic_cast<Tower*>(current)->GetRangeBounds());
 
-		current->Process(deltaTime);
+			dynamic_cast<Tower*>(current)->SetEnemiesInRange(entitiesInRange);
+
+			for each (Enemy* enemy in entitiesInRange)
+			{
+				enemy->m_targetted = true;
+			}
+
+			dynamic_cast<Tower*>(current)->Process(deltaTime);
+		}
+		else if (current->GetType() == WALL)
+		{
+			//Nothing to process
+			dynamic_cast<Wall*>(current)->Process(deltaTime);
+		}
 	}
 }
 
@@ -507,9 +516,17 @@ void Game::Draw(BackBuffer& backBuffer)
 		enemy->Draw(backBuffer);
 	}
 
-	for each (Tower* tower in m_towers)
+	for each (Building* current in m_buildings)
 	{
-		tower->Draw(backBuffer);
+		if (current->GetType() == TOWER)
+		{
+			dynamic_cast<Tower*>(current)->Draw(backBuffer);
+		}
+		else if (current->GetType() == WALL)
+		{
+			//Nothing to process
+			dynamic_cast<Wall*>(current)->Draw(backBuffer);
+		}
 	}
 
 	for each (Projectile* projectile in m_projectiles)
@@ -568,25 +585,29 @@ void Game::DrawSelectionUI(BackBuffer& backBuffer)
 
 	m_highlighted->Draw(backBuffer); // Selected title
 
-	if (m_selectedTower != 0)
+	if (m_selectedBuilding != 0)
 	{
-		m_towerRange->Draw(backBuffer);
-		m_towerFireRate->Draw(backBuffer);
-		m_towerDamage->Draw(backBuffer);
 		m_sell->Draw(backBuffer);
-		m_upgradeTower->Draw(backBuffer);
 
-		m_rangeSprite->Draw(backBuffer);
-		m_damageSprite->Draw(backBuffer);
-		m_speedSprite->Draw(backBuffer);
+		if (m_selectedBuilding->GetType() == TOWER)
+		{
+			m_towerRange->Draw(backBuffer);
+			m_towerFireRate->Draw(backBuffer);
+			m_towerDamage->Draw(backBuffer);
+			m_upgradeTower->Draw(backBuffer);
 
-		if (m_currency >= m_selectedTower->GetTowerUpgradeCost() && !m_selectedTower->IsMaxLevel())
-		{
-			m_upgradeTower->SetBackgroundColour(34, 139, 34);
-		}
-		else
-		{
-			m_upgradeTower->SetBackgroundColour(178, 34, 34);
+			m_rangeSprite->Draw(backBuffer);
+			m_damageSprite->Draw(backBuffer);
+			m_speedSprite->Draw(backBuffer);
+
+			if (m_currency >= dynamic_cast<Tower*>(m_selectedBuilding)->GetTowerUpgradeCost() && !dynamic_cast<Tower*>(m_selectedBuilding)->IsMaxLevel())
+			{
+				m_upgradeTower->SetBackgroundColour(34, 139, 34);
+			}
+			else
+			{
+				m_upgradeTower->SetBackgroundColour(178, 34, 34);
+			}
 		}
 	}
 }
@@ -658,45 +679,61 @@ void Game::UpdateCurrency(int amount)
 
 void Game::UpdateSelected()
 {
-	if (m_selectedTower != 0)
+	if (m_selectedBuilding != 0)
 	{
 		std::stringstream message;
-		message << "Range: " << m_selectedTower->GetTowerRange();
 
-		m_towerRange->SetText(message.str());
-		message.str("");
-
-		message << std::setprecision(2);
-		message << "Speed: " << 1.0f / m_selectedTower->GetTowerFireRate();
-
-		m_towerFireRate->SetText(message.str());
-		message.str("");
-
-		message << "Damage: " << m_selectedTower->GetTowerDamage();
-
-		m_towerDamage->SetText(message.str());
-		message.str("");
-
-		message << "Sell $" << m_selectedTower->GetTowerValue();
-
-		m_sell->SetText(message.str());
-		message.str("");
-		
-		if (m_selectedTower->IsMaxLevel())
+		if (m_selectedBuilding->GetType() == TOWER)
 		{
-			message << "Maxed";
+			message << "Range: " << dynamic_cast<Tower*>(m_selectedBuilding)->GetTowerRange();
+
+			m_towerRange->SetText(message.str());
+			message.str("");
+
+			message << std::setprecision(2);
+			message << "Speed: " << 1.0f / dynamic_cast<Tower*>(m_selectedBuilding)->GetTowerFireRate();
+
+			m_towerFireRate->SetText(message.str());
+			message.str("");
+
+			message << "Damage: " << dynamic_cast<Tower*>(m_selectedBuilding)->GetTowerDamage();
+
+			m_towerDamage->SetText(message.str());
+			message.str("");
+
+			message << "Sell $" << dynamic_cast<Tower*>(m_selectedBuilding)->GetSellValue();
+
+			m_sell->SetText(message.str());
+			message.str("");
+
+			if (dynamic_cast<Tower*>(m_selectedBuilding)->IsMaxLevel())
+			{
+				message << "Maxed";
+			}
+			else
+			{
+				message << "Upgrade $" << dynamic_cast<Tower*>(m_selectedBuilding)->GetTowerUpgradeCost();
+			}
+
+			m_upgradeTower->SetText(message.str());
+			message.str("");
+
+			message << "Level " << dynamic_cast<Tower*>(m_selectedBuilding)->GetTowerLevel() << " tower";
+
+			m_highlighted->SetText(message.str());
 		}
-		else
+		else if (m_selectedBuilding->GetType() == WALL)
 		{
-			message << "Upgrade $" << m_selectedTower->GetTowerUpgradeCost();
+			m_highlighted->SetText("Wall");
+			m_towerRange->SetText("");
+			m_towerFireRate->SetText("");
+			m_towerDamage->SetText("");
+
+			message << "Sell $" << dynamic_cast<Wall*>(m_selectedBuilding)->GetSellValue();
+
+			m_sell->SetText(message.str());
+			message.str("");
 		}
-
-		m_upgradeTower->SetText(message.str());
-		message.str("");
-
-		message << "Level " << m_selectedTower->GetTowerLevel() << " tower";
-
-		m_highlighted->SetText(message.str());
 	}
 	else
 	{
@@ -750,20 +787,21 @@ void Game::OnLeftMouseClick(int x, int y)
 	}
 	else if (m_sell->WasClickedOn(x, y))
 	{
-		if (m_selectedTower != 0)
+		if (m_selectedBuilding != 0)
 		{
-			SellTower(m_selectedTower);
-			m_selectedTower = 0;
+			SellBuilding(m_selectedBuilding);
+
+			m_selectedBuilding = 0;
 			UpdateSelected();
 		}
 	}
 	else if (m_upgradeTower->WasClickedOn(x, y))
 	{
-		if (m_currency >= m_selectedTower->GetTowerUpgradeCost() && !m_selectedTower->IsMaxLevel())
+		if (m_currency >= dynamic_cast<Tower*>(m_selectedBuilding)->GetTowerUpgradeCost() && !dynamic_cast<Tower*>(m_selectedBuilding)->IsMaxLevel())
 		{
-			UpdateCurrency(-m_selectedTower->GetTowerUpgradeCost());
+			UpdateCurrency(-dynamic_cast<Tower*>(m_selectedBuilding)->GetTowerUpgradeCost());
 
-			m_selectedTower->UpgradeTower();
+			dynamic_cast<Tower*>(m_selectedBuilding)->UpgradeTower();
 
 			UpdateSelected();
 
@@ -802,32 +840,33 @@ void Game::OnLeftMouseClick(int x, int y)
 		}
 		else
 		{
+			m_selected = NONE;
 			Position pos = Position(x, y);
 
 			std::vector<Entity*> clickedOn = m_towerQuadTree->QueryPoint(&pos);
 
 			if (clickedOn.empty())
 			{
-				if (m_selectedTower != 0)
+				if (m_selectedBuilding != 0)
 				{
-					m_selectedTower->SetSelected(false);
+					m_selectedBuilding->SetSelected(false);
 				}
 
-				m_selectedTower = 0;
+				m_selectedBuilding = 0;
 				UpdateSelected();
 			}
 			else
 			{
-				for each (Tower* t in clickedOn) // There should only ever be 1 tower in the vector
+				for each (Building* building in clickedOn) // There should only ever be 1 tower in the vector
 				{
-					if (m_selectedTower != 0)
+					if (m_selectedBuilding != 0)
 					{
-						m_selectedTower->SetSelected(false);
+						m_selectedBuilding->SetSelected(false);
 					}
 
-					m_selectedTower = t;
+					m_selectedBuilding = building;
 
-					m_selectedTower->SetSelected(true);
+					m_selectedBuilding->SetSelected(true);
 
 					UpdateSelected();
 				}
@@ -837,17 +876,11 @@ void Game::OnLeftMouseClick(int x, int y)
 	
 }
 
-void Game::TestQuadTree(int x, int y)
-{
-	Position* newPos = new Position(x, y);
-	//m_quadTree->Insert(newPos);
-}
-
 void Game::OnRightMouseClick(int x, int y)
 {
 	delete(m_cursorSprite);
 	m_cursorSprite = 0;
-	m_selected = NOTHING;
+	m_selected = NONE;
 }
 
 void Game::StartWave()
@@ -865,7 +898,7 @@ void Game::StartWave()
 
 	delete(m_cursorSprite);
 	m_cursorSprite = 0;
-	m_selected = NOTHING;
+	m_selected = NONE;
 
 	m_startWave->SetBackgroundColour(100, 100, 100);
 
@@ -923,32 +956,39 @@ void Game::PlaceTower(int x, int y)
 
 	newTower->SetTilePosition(currentTile);
 
-	m_towers.push_back(newTower);
+	m_buildings.push_back(newTower);
 
 	m_map->UpdatePath();
 
-	UpdateCurrency(-newTower->GetTowerCost());
+	UpdateCurrency(-newTower->GetCost());
 
 	m_towerQuadTree->Insert(newTower);
 
 	m_audioManager->PlaySound("assets\\audio\\tower_place.wav");
 }
 
-void Game::SellTower(Tower* tower)
+void Game::SellBuilding(Building* building)
 {
-	UpdateCurrency(tower->GetTowerValue());
-
-	tower->GetTilePosition()->SetOccupied(false);
-
-	std::vector<Tower*>::iterator towerIter = m_towers.begin();
-
-	while (towerIter != m_towers.end())
+	if (building->GetType() == TOWER)
 	{
-		Tower* current = *towerIter;
+		UpdateCurrency(dynamic_cast<Tower*>(building)->GetSellValue());
+	}
+	else if (m_selectedBuilding->GetType() == WALL)
+	{
+		UpdateCurrency(dynamic_cast<Wall*>(building)->GetSellValue());
+	}
 
-		if (current == tower)
+	building->GetTilePosition()->SetOccupied(false);
+
+	std::vector<Building*>::iterator towerIter = m_buildings.begin();
+
+	while (towerIter != m_buildings.end())
+	{
+		Building* current = *towerIter;
+
+		if (current == building)
 		{
-			m_towers.erase(towerIter);
+			m_buildings.erase(towerIter);
 			break;
 		}
 		else
@@ -964,7 +1004,7 @@ void Game::SellTower(Tower* tower)
 	AxisAlignedBoundingBox* gridBounds = new AxisAlignedBoundingBox(topLeftPos, m_screenHeight / 2);
 	m_towerQuadTree = new QuadTree(gridBounds);
 
-	for each (Tower* tower in m_towers)
+	for each (Building* tower in m_buildings)
 	{
 		m_towerQuadTree->Insert(tower);
 	}
@@ -997,6 +1037,17 @@ void Game::PlaceWall(int x, int y)
 			else
 			{
 				UpdateCurrency(-10);
+
+				Wall* newWall = new Wall(10);
+
+				newWall->Initialise(m_pBackBuffer);
+
+				newWall->SetTilePosition(clicked);
+
+				m_buildings.push_back(newWall);
+
+				m_towerQuadTree->Insert(newWall);
+
 				m_audioManager->PlaySound("assets\\audio\\wall_place.wav");
 			}
 		}

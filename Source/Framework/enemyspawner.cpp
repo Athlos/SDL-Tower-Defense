@@ -2,6 +2,7 @@
 #include "game.h"
 #include "enemy.h"
 #include "backbuffer.h"
+#include "animatedsprite.h"
 
 EnemySpawner::EnemySpawner(float spawnInterval, BackBuffer* backBuffer)
 {
@@ -57,35 +58,41 @@ void EnemySpawner::LoadWave()
 		int type = rand() % 3;
 
 		Enemy* testEnemy = new Enemy();
-		Sprite* testEnemySprite;
+		AnimatedSprite* testEnemySprite;
 
 		switch (type)
 		{
 			case 0: // Large enemy, high health and low speed
 			{
-				testEnemySprite = m_backBuffer->CreateSprite("assets\\enemy.png");
+				testEnemySprite = m_backBuffer->CreateAnimatedSprite("assets\\enemy_tank.png");
 				testEnemy->SetData(18 * m_waveNumber, rand() % 31 + 20, 1);
+				testEnemySprite->SetScale(48, 48);
 			}
 				break;
 			case 1: // Medium enemy, normal health, normal speed
 			{
-				testEnemySprite = m_backBuffer->CreateSprite("assets\\enemy_medium.png");
+				testEnemySprite = m_backBuffer->CreateAnimatedSprite("assets\\enemy_minigun.png");
 				testEnemy->SetData(15 * m_waveNumber, rand() % 51 + 50, 1);
+				testEnemySprite->SetScale(48, 48);
 			}
 				break;
 			case 2: // Small enemy, low health, high speed
 			{
-				testEnemySprite = m_backBuffer->CreateSprite("assets\\enemy_small.png");
+				testEnemySprite = m_backBuffer->CreateAnimatedSprite("assets\\enemy_drone.png");
 				testEnemy->SetData(13 * m_waveNumber, rand() % 51 + 100, 1);
+				testEnemySprite->SetScale(48, 48);
 			}
 				break;
 			default:
 			{
-				testEnemySprite = m_backBuffer->CreateSprite("assets\\enemy.png");
+				testEnemySprite = m_backBuffer->CreateAnimatedSprite("assets\\enemy_spider.png");
 				testEnemy->SetData(7 * m_waveNumber, rand() % 31 + 20, 1);
+				testEnemySprite->SetScale(32, 32);
 			}
 				break;
 		}
+
+		testEnemySprite->LoadFrames(32, 32);
 
 		testEnemy->Initialise(testEnemySprite);
 

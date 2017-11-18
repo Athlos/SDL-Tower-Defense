@@ -88,6 +88,8 @@
     <ClCompile Include="audiomanager.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="wall.cpp" />
+    <ClCompile Include="building.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="animatedsprite.h">
@@ -174,6 +176,8 @@
     <ClInclude Include="audiomanager.h">
       <Filter>Headers</Filter>
     </ClInclude>
+    <ClInclude Include="wall.h" />
+    <ClInclude Include="building.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Headers">

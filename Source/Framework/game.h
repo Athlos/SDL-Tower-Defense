@@ -16,17 +16,12 @@ class QuadTree;
 class EnemySpawner;
 class Projectile;
 class AudioManager;
+class Wall;
 
 #include "fmod.hpp";
+#include "building.h"
 
 #include <vector>;
-
-enum BuildingTypeSelected
-{
-	WALL,
-	TOWER,
-	NOTHING
-};
 
 enum GameState
 {
@@ -61,7 +56,7 @@ public:
 	void AddProjectile(Projectile* projectile);
 
 	void PlaceTower(int x, int y);
-	void SellTower(Tower* tower);
+	void SellBuilding(Building* building);
 	void PlaceWall(int x, int y);
 
 	void UpdateCursorPosition(int x, int y);
@@ -87,8 +82,6 @@ protected:
 private:
 	Game(const Game& game);
 	Game& operator=(const Game& game);
-
-	void TestQuadTree(int x, int y);
 	
 	Game();
 
@@ -134,7 +127,7 @@ protected:
 	Button* m_startWave;
 
 	Sprite* m_cursorSprite;
-	BuildingTypeSelected m_selected;
+	BuildingType m_selected;
 
 	Button* m_towerRange;
 	Sprite* m_rangeSprite;
@@ -157,7 +150,7 @@ protected:
 	Grid* m_map; // Grid of map tiles
 	Pathfinding* m_pathfinding; // Pathfinding class
 	std::vector<Enemy*> m_enemies; // Container of enemies on map
-	std::vector<Tower*> m_towers; // Container of towers in game
+	std::vector<Building*> m_buildings; // Container of towers in game
 	std::vector<Projectile*> m_projectiles; // Container of projectiles in game TODO update to use a projectile pool of some sort
 
 	EnemySpawner* m_enemySpawner; // Spawner for enemies
@@ -165,7 +158,7 @@ protected:
 	ParticleEmitter* m_particles; // Particle emitter
 
 	QuadTree* m_towerQuadTree;
-	Tower* m_selectedTower;
+	Building* m_selectedBuilding;
 
 	//WAVES
 	int m_currentLives;

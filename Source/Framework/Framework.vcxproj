@@ -88,6 +88,7 @@
     <ClInclude Include="audiomanager.h" />
     <ClInclude Include="axisalignedboundingbox.h" />
     <ClInclude Include="backbuffer.h" />
+    <ClInclude Include="building.h" />
     <ClInclude Include="button.h" />
     <ClInclude Include="enemyspawner.h" />
     <ClInclude Include="grid.h" />
@@ -112,12 +113,14 @@
     <ClInclude Include="tile.h" />
     <ClInclude Include="tileheap.h" />
     <ClInclude Include="tower.h" />
+    <ClInclude Include="wall.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="animatedsprite.cpp" />
     <ClCompile Include="audiomanager.cpp" />
     <ClCompile Include="axisalignedboundingbox.cpp" />
     <ClCompile Include="backbuffer.cpp" />
+    <ClCompile Include="building.cpp" />
     <ClCompile Include="button.cpp" />
     <ClCompile Include="enemyspawner.cpp" />
     <ClCompile Include="grid.cpp" />
@@ -143,6 +146,7 @@
     <ClCompile Include="tile.cpp" />
     <ClCompile Include="tileheap.cpp" />
     <ClCompile Include="tower.cpp" />
+    <ClCompile Include="wall.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

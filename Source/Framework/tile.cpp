@@ -41,7 +41,7 @@ int Tile::GetGCost() const
 
 void Tile::Draw(BackBuffer& backBuffer)
 {
-	backBuffer.DrawSprite(*m_tileSprites.at(EMPTY));
+	backBuffer.DrawSprite(*m_tileSprite);
 
 	if (m_state == START || m_state == END)
 	{
@@ -53,24 +53,16 @@ void Tile::Draw(BackBuffer& backBuffer)
 
 		backBuffer.DrawRectangle(m_xScreenPos, m_yScreenPos, m_xScreenPos + m_gridWidth, m_yScreenPos + m_gridHeight, 0);
 	}
-	else if (m_hasWall)
-	{
-		backBuffer.DrawSprite(*m_tileSprites.at(BLOCKED));
-	}
 }
 
 void Tile::Initialise(BackBuffer& backBuffer)
 {
-	//Load ground base
-	Sprite* groundSprite = backBuffer.CreateSprite("assets\\ground_base.png");
-
-	SetSpriteDefault(groundSprite);
-
 	//Load wall base
 
-	Sprite* wallSprite = backBuffer.CreateSprite("assets\\wall_base.png");
+	m_tileSprite = backBuffer.CreateSprite("assets\\ground_base.png");
 
-	SetSpriteDefault(wallSprite);
+	SetSpriteDefault(m_tileSprite);
+
 }
 
 int Tile::GetGridX() const
@@ -207,6 +199,4 @@ void Tile::SetSpriteDefault(Sprite* sprite)
 
 	sprite->SetX(m_xScreenPos);
 	sprite->SetY(m_yScreenPos);
-
-	m_tileSprites.push_back(sprite);
 }

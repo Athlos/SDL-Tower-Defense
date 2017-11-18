@@ -9,6 +9,7 @@
 class Tile;
 class Grid;
 class Position;
+class AnimatedSprite;
 
 class Enemy : public Entity
 {
@@ -18,6 +19,12 @@ public:
 	~Enemy();
 
 	void SetPosition(float x, float y);
+
+	float GetCenterX() const;
+
+	float GetCenterY() const;
+
+	bool Initialise(AnimatedSprite* sprite);
 
 	void Process(float deltaTime);
 	void Draw(BackBuffer& backBuffer);
@@ -73,6 +80,8 @@ protected:
 
 	bool m_reachedEnd;
 	float m_distanceToNextWaypoint;
+
+	AnimatedSprite* m_animSprite;
 };
 #endif //__ENEMY_H__
 

@@ -92,16 +92,13 @@ Game::~Game()
 	CleanUp();
 }
 
-/*
-Initialises renderer, input, audio, player and other variables needed to begin
-*/
 bool Game::Initialise(bool firstTime)
 {
 	if (firstTime)
 	{
 		// Load backbuffer
 		m_pBackBuffer = new BackBuffer();
-		if (!m_pBackBuffer->Initialise(m_screenWidth, m_screenHeight))
+		if (!m_pBackBuffer->Initialise(SCREEN_WIDTH, SCREEN_HEIGHT))
 		{
 			LogManager::GetInstance().Log("BackBuffer Init Fail!");
 			return (false);
@@ -119,17 +116,17 @@ bool Game::Initialise(bool firstTime)
 		m_interfaceManager = new InterfaceManager(m_pBackBuffer);
 
 		//UI counters
-		m_interfaceManager->AddLabel("fpsCounter", "", m_screenWidth - 48, 0, 48, 24, GREEN);
-		m_interfaceManager->AddLabel("lifeCounter", "", m_screenWidth * 0.76f, m_screenHeight * 0.01f, m_screenWidth * 0.15f, m_screenHeight * 0.05f, RED);
-		m_interfaceManager->AddLabel("waveCounter", "", m_screenWidth * 0.76f, m_screenHeight * 0.07f, m_screenWidth * 0.15f, m_screenHeight * 0.05f, BLUE);
-		m_interfaceManager->AddLabel("currencyCounter", "", m_screenWidth * 0.76f, m_screenHeight * 0.13f, m_screenWidth * 0.15f, m_screenHeight * 0.05f, GOLD);
+		m_interfaceManager->AddLabel("fpsCounter", "", SCREEN_WIDTH - 48, 0, 48, 24, GREEN);
+		m_interfaceManager->AddLabel("lifeCounter", "", SCREEN_WIDTH * 0.76f, SCREEN_HEIGHT * 0.01f, SCREEN_WIDTH * 0.15f, SCREEN_HEIGHT * 0.05f, RED);
+		m_interfaceManager->AddLabel("waveCounter", "", SCREEN_WIDTH * 0.76f, SCREEN_HEIGHT * 0.07f, SCREEN_WIDTH * 0.15f, SCREEN_HEIGHT * 0.05f, BLUE);
+		m_interfaceManager->AddLabel("currencyCounter", "", SCREEN_WIDTH * 0.76f, SCREEN_HEIGHT * 0.13f, SCREEN_WIDTH * 0.15f, SCREEN_HEIGHT * 0.05f, GOLD);
 
 		m_interfaceManager->GetLabel("fpsCounter")->SetDrawable(false);
 
 		//UI static text
-		m_interfaceManager->AddLabel("buildingText", "Buildings", m_screenWidth * 0.76f, m_screenHeight * 0.20f, m_screenWidth * 0.23f, m_screenHeight * 0.07f, RED);
-		m_interfaceManager->AddLabel("selected", "Selected", m_screenWidth * 0.76f, m_screenHeight * 0.52f, m_screenWidth * 0.23f, m_screenHeight * 0.07f, RED);
-		m_interfaceManager->AddLabel("gameOver", "", m_screenWidth * 0.3f, m_screenHeight * 0.3f, m_screenWidth * 0.4f, m_screenHeight * 0.1f, BLACK);
+		m_interfaceManager->AddLabel("buildingText", "Buildings", SCREEN_WIDTH * 0.76f, SCREEN_HEIGHT * 0.20f, SCREEN_WIDTH * 0.23f, SCREEN_HEIGHT * 0.07f, RED);
+		m_interfaceManager->AddLabel("selected", "Selected", SCREEN_WIDTH * 0.76f, SCREEN_HEIGHT * 0.52f, SCREEN_WIDTH * 0.23f, SCREEN_HEIGHT * 0.07f, RED);
+		m_interfaceManager->AddLabel("gameOver", "", SCREEN_WIDTH * 0.3f, SCREEN_HEIGHT * 0.3f, SCREEN_WIDTH * 0.4f, SCREEN_HEIGHT * 0.1f, BLACK);
 
 		m_interfaceManager->GetLabel("buildingText")->SetTextAlignment(CENTER);
 		m_interfaceManager->GetLabel("selected")->SetTextAlignment(CENTER);
@@ -137,30 +134,30 @@ bool Game::Initialise(bool firstTime)
 		m_interfaceManager->GetLabel("gameOver")->SetDrawable(false);
 
 		//UI selection text
-		m_interfaceManager->AddLabel("towerRangeText", "", m_screenWidth * 0.82f, m_screenHeight * 0.61f, m_screenWidth * 0.15f, m_screenHeight * 0.07f, DARKRED);
-		m_interfaceManager->AddLabel("towerDamageText", "", m_screenWidth * 0.82f, m_screenHeight * 0.77f, m_screenWidth * 0.15f, m_screenHeight * 0.07f, DARKRED);
-		m_interfaceManager->AddLabel("towerSpeedText", "", m_screenWidth * 0.82f, m_screenHeight * 0.69f, m_screenWidth * 0.15f, m_screenHeight * 0.07f, DARKRED);
+		m_interfaceManager->AddLabel("towerRangeText", "", SCREEN_WIDTH * 0.82f, SCREEN_HEIGHT * 0.61f, SCREEN_WIDTH * 0.15f, SCREEN_HEIGHT * 0.07f, DARKRED);
+		m_interfaceManager->AddLabel("towerDamageText", "", SCREEN_WIDTH * 0.82f, SCREEN_HEIGHT * 0.77f, SCREEN_WIDTH * 0.15f, SCREEN_HEIGHT * 0.07f, DARKRED);
+		m_interfaceManager->AddLabel("towerSpeedText", "", SCREEN_WIDTH * 0.82f, SCREEN_HEIGHT * 0.69f, SCREEN_WIDTH * 0.15f, SCREEN_HEIGHT * 0.07f, DARKRED);
 
 		//UI selection buttons
-		m_interfaceManager->AddButton("wallBuildButton", "", "assets\\wall_base.png", m_screenWidth * 0.77f, m_screenHeight * 0.28f, m_screenWidth * 0.05f, m_screenWidth * 0.05f, BLACK);
-		m_interfaceManager->AddButton("towerBuildButton", "", "assets\\tower_base.png", m_screenWidth * 0.84f, m_screenHeight * 0.28f, m_screenWidth * 0.05f, m_screenWidth * 0.05f, BLACK);
-		m_interfaceManager->AddButton("upgradeButton", "", "", m_screenWidth * 0.76f, m_screenHeight * 0.82f, m_screenWidth * 0.23f, m_screenHeight * 0.05f, BLACK);
-		m_interfaceManager->AddButton("sellButton", "", "", m_screenWidth * 0.76f, m_screenHeight * 0.87f, m_screenWidth * 0.23f, m_screenHeight * 0.05f, GOLD);
+		m_interfaceManager->AddButton("wallBuildButton", "", "assets\\wall_base.png", SCREEN_WIDTH * 0.77f, SCREEN_HEIGHT * 0.28f, SCREEN_WIDTH * 0.05f, SCREEN_WIDTH * 0.05f, BLACK);
+		m_interfaceManager->AddButton("towerBuildButton", "", "assets\\tower_base.png", SCREEN_WIDTH * 0.84f, SCREEN_HEIGHT * 0.28f, SCREEN_WIDTH * 0.05f, SCREEN_WIDTH * 0.05f, BLACK);
+		m_interfaceManager->AddButton("upgradeButton", "", "", SCREEN_WIDTH * 0.76f, SCREEN_HEIGHT * 0.82f, SCREEN_WIDTH * 0.23f, SCREEN_HEIGHT * 0.05f, BLACK);
+		m_interfaceManager->AddButton("sellButton", "", "", SCREEN_WIDTH * 0.76f, SCREEN_HEIGHT * 0.87f, SCREEN_WIDTH * 0.23f, SCREEN_HEIGHT * 0.05f, GOLD);
 
 		m_interfaceManager->GetButton("upgradeButton")->SetDrawable(false);
 
 		//UI selection icons
-		m_interfaceManager->AddIcon("rangeIcon", "assets\\range_icon.png", m_screenWidth * 0.76f, m_screenHeight * 0.60f, 32, 32);
-		m_interfaceManager->AddIcon("speedIcon", "assets\\time_icon.png", m_screenWidth * 0.76f, m_screenHeight * 0.68f, 32, 32);
-		m_interfaceManager->AddIcon("damageIcon", "assets\\damage_icon.png", m_screenWidth * 0.76f, m_screenHeight * 0.76f, 32, 32);
+		m_interfaceManager->AddIcon("rangeIcon", "assets\\range_icon.png", SCREEN_WIDTH * 0.76f, SCREEN_HEIGHT * 0.60f, 32, 32);
+		m_interfaceManager->AddIcon("speedIcon", "assets\\time_icon.png", SCREEN_WIDTH * 0.76f, SCREEN_HEIGHT * 0.68f, 32, 32);
+		m_interfaceManager->AddIcon("damageIcon", "assets\\damage_icon.png", SCREEN_WIDTH * 0.76f, SCREEN_HEIGHT * 0.76f, 32, 32);
 
 		//UI start wave
-		m_interfaceManager->AddButton("startWaveButton", "Start Wave", "", m_screenWidth * 0.76f, m_screenHeight * 0.93f, m_screenWidth * 0.23f, m_screenWidth * 0.05f, BLACK);
+		m_interfaceManager->AddButton("startWaveButton", "Start Wave", "", SCREEN_WIDTH * 0.76f, SCREEN_HEIGHT * 0.93f, SCREEN_WIDTH * 0.23f, SCREEN_WIDTH * 0.05f, BLACK);
 		m_interfaceManager->GetButton("startWaveButton")->SetTextAlignment(CENTER);
 
 		//UI end game buttons
-		m_interfaceManager->AddButton("quitButton", "Quit", "", m_screenWidth * 0.3f, m_screenHeight * 0.6f, m_screenWidth * 0.2f, m_screenHeight * 0.1f, BLACK);
-		m_interfaceManager->AddButton("restartButton", "Restart", "", m_screenWidth * 0.5f, m_screenHeight * 0.6f, m_screenWidth * 0.2f, m_screenHeight * 0.1f, BLACK);
+		m_interfaceManager->AddButton("quitButton", "Quit", "", SCREEN_WIDTH * 0.3f, SCREEN_HEIGHT * 0.6f, SCREEN_WIDTH * 0.2f, SCREEN_HEIGHT * 0.1f, BLACK);
+		m_interfaceManager->AddButton("restartButton", "Restart", "", SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.6f, SCREEN_WIDTH * 0.2f, SCREEN_HEIGHT * 0.1f, BLACK);
 
 		m_interfaceManager->GetButton("quitButton")->SetTextAlignment(CENTER);
 		m_interfaceManager->GetButton("restartButton")->SetTextAlignment(CENTER);
@@ -182,12 +179,12 @@ bool Game::Initialise(bool firstTime)
 
 	m_particles = new ParticleEmitter();
 
-	Position* topLeftPos = new Position( m_screenHeight / 2, m_screenHeight / 2 );
-	AxisAlignedBoundingBox* gridBounds = new AxisAlignedBoundingBox (topLeftPos, m_screenHeight / 2 );
+	Position* topLeftPos = new Position( SCREEN_HEIGHT / 2, SCREEN_HEIGHT / 2 );
+	AxisAlignedBoundingBox* gridBounds = new AxisAlignedBoundingBox (topLeftPos, SCREEN_HEIGHT / 2 );
 	m_quadTree = new QuadTree(gridBounds);
 
-	Position* towerTopLeft = new Position(m_screenHeight / 2, m_screenHeight / 2);
-	AxisAlignedBoundingBox* towerGridBounds = new AxisAlignedBoundingBox(towerTopLeft, m_screenHeight / 2);
+	Position* towerTopLeft = new Position(SCREEN_HEIGHT / 2, SCREEN_HEIGHT / 2);
+	AxisAlignedBoundingBox* towerGridBounds = new AxisAlignedBoundingBox(towerTopLeft, SCREEN_HEIGHT / 2);
 	m_towerQuadTree = new QuadTree(towerGridBounds);
 
 	m_totalLives = 10;
@@ -385,8 +382,8 @@ void Game::ProcessEnemies(float deltaTime)
 	//Redo quad tree
 	delete(m_quadTree);
 
-	Position* topLeftPos = new Position(m_screenHeight / 2, m_screenHeight / 2);
-	AxisAlignedBoundingBox* gridBounds = new AxisAlignedBoundingBox(topLeftPos, m_screenHeight / 2);
+	Position* topLeftPos = new Position(SCREEN_HEIGHT / 2, SCREEN_HEIGHT / 2);
+	AxisAlignedBoundingBox* gridBounds = new AxisAlignedBoundingBox(topLeftPos, SCREEN_HEIGHT / 2);
 	m_quadTree = new QuadTree(gridBounds);
 
 	for each (Enemy* enemy in m_enemies)
@@ -445,7 +442,7 @@ void Game::ProcessProjectiles(float deltaTime)
 
 			m_audioManager->PlaySound("assets\\audio\\enemy_end.wav");
 		}
-		else if (proj->GetPositionX() < 0 || proj->GetPositionX() > m_screenHeight || proj->GetPositionY() < 0 || proj->GetPositionY() > m_screenHeight)
+		else if (proj->GetPositionX() < 0 || proj->GetPositionX() > SCREEN_HEIGHT || proj->GetPositionY() < 0 || proj->GetPositionY() > SCREEN_HEIGHT)
 		{
 			projectileIter = m_projectiles.erase(projectileIter);
 
@@ -507,7 +504,7 @@ void Game::DrawUI(BackBuffer& backBuffer)
 
 	//Draw building UI
 	backBuffer.SetDrawColour(192, 192, 192);
-	backBuffer.DrawRectangle(m_screenWidth * 0.76f, m_screenHeight * 0.20f, m_screenWidth * 0.99f, m_screenHeight * 0.5f, 1); // Background
+	backBuffer.DrawRectangle(SCREEN_WIDTH * 0.76f, SCREEN_HEIGHT * 0.20f, SCREEN_WIDTH * 0.99f, SCREEN_HEIGHT * 0.5f, 1); // Background
 
 	//Draw Selected UI
 	DrawSelectionUI(backBuffer);
@@ -529,7 +526,7 @@ void Game::DrawUI(BackBuffer& backBuffer)
 void Game::DrawSelectionUI(BackBuffer& backBuffer)
 {
 	backBuffer.SetDrawColour(192, 192, 192);
-	backBuffer.DrawRectangle(m_screenWidth * 0.76f, m_screenHeight * 0.52f, m_screenWidth * 0.99f, m_screenHeight * 0.92f, 1); // Background
+	backBuffer.DrawRectangle(SCREEN_WIDTH * 0.76f, SCREEN_HEIGHT * 0.52f, SCREEN_WIDTH * 0.99f, SCREEN_HEIGHT * 0.92f, 1); // Background
 
 	if (m_selectedBuilding != 0)
 	{
@@ -550,10 +547,10 @@ void Game::DrawSelectionUI(BackBuffer& backBuffer)
 void Game::DrawEndGameUI(BackBuffer & backBuffer)
 {
 	backBuffer.SetDrawColour(0, 0, 0);
-	backBuffer.DrawRectangle(m_screenWidth * 0.29f, m_screenHeight * 0.29f, m_screenWidth * 0.71, m_screenHeight * 0.71f, 1); // Frame
+	backBuffer.DrawRectangle(SCREEN_WIDTH * 0.29f, SCREEN_HEIGHT * 0.29f, SCREEN_WIDTH * 0.71, SCREEN_HEIGHT * 0.71f, 1); // Frame
 
 	backBuffer.SetDrawColour(192, 192, 192);
-	backBuffer.DrawRectangle(m_screenWidth * 0.3f, m_screenHeight * 0.30f, m_screenWidth * 0.7f, m_screenHeight * 0.7f, 1); // Background
+	backBuffer.DrawRectangle(SCREEN_WIDTH * 0.3f, SCREEN_HEIGHT * 0.30f, SCREEN_WIDTH * 0.7f, SCREEN_HEIGHT * 0.7f, 1); // Background
 }
 
 void Game::UpdateLives(int amount)
@@ -957,8 +954,8 @@ void Game::SellBuilding(Building* building)
 	//Redo quad tree
 	delete(m_towerQuadTree);
 
-	Position* topLeftPos = new Position(m_screenHeight / 2, m_screenHeight / 2);
-	AxisAlignedBoundingBox* gridBounds = new AxisAlignedBoundingBox(topLeftPos, m_screenHeight / 2);
+	Position* topLeftPos = new Position(SCREEN_HEIGHT / 2, SCREEN_HEIGHT / 2);
+	AxisAlignedBoundingBox* gridBounds = new AxisAlignedBoundingBox(topLeftPos, SCREEN_HEIGHT / 2);
 	m_towerQuadTree = new QuadTree(gridBounds);
 
 	for each (Building* tower in m_buildings)

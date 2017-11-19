@@ -8,8 +8,8 @@
 
 InterfaceManager::InterfaceManager(BackBuffer* backbuffer)
 {
-	Position* topLeftPos = new Position(Game::m_screenHeight / 2, Game::m_screenHeight / 2);
-	AxisAlignedBoundingBox* gridBounds = new AxisAlignedBoundingBox(topLeftPos, Game::m_screenHeight / 2);
+	Position* topLeftPos = new Position(Game::SCREEN_HEIGHT / 2, Game::SCREEN_HEIGHT / 2);
+	AxisAlignedBoundingBox* gridBounds = new AxisAlignedBoundingBox(topLeftPos, Game::SCREEN_HEIGHT / 2);
 
 	m_buttonCollisions = new QuadTree(gridBounds);
 

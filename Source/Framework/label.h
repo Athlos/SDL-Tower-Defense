@@ -24,58 +24,50 @@ public:
 	Label();
 	~Label();
 
-	//Set the text image, if the text is the same it returns, you can call this in the process loop safely
-	void SetText(std::string newText, BackBuffer& backBuffer);
+	void SetText(std::string newText, BackBuffer& backBuffer); //Set the text image, if the text is the same it returns, you can call this in the process loop safely
 
-	//only changes the string, does not make new image
-	void SetText(std::string textOnScreen);
+	void SetText(std::string textOnScreen); //only changes the string, does not make new image
 
-	//standard draw
-	void Draw(BackBuffer& backBuffer);
+	void Draw(BackBuffer& backBuffer); // Draw label
 
-	//set the bounds of your text, and the words will be constrained to this window
-	void SetBounds(int x, int y, int w, int h);
+	void SetBounds(int x, int y, int w, int h); // Set the bounds of your text, and the words will be constrained to this window
 
-	//Set the colour, default is black already, set this before you set the text
-	void SetColour(int r, int g, int b, int a);
+	void SetColour(int r, int g, int b, int a); // Set the colour, default is black already, set this before you set the text
+	
+	std::string GetText(); // Get the string of text stored
+	
+	SDL_Rect GetBounds(); // Get the collision bounds
 
-	//get the string of text stored
-	std::string GetText();
+	bool WasClickedOn(int x, int y); // Check if label was clicked on, basic button functionality
 
-	//get the collision bounds
-	SDL_Rect GetBounds();
+	void SetFontSize(int size); // Sets the font size
 
-	//Check if label was clicked on, basic button functionality
-	bool WasClickedOn(int x, int y);
+	void SetTextAlignment(Alignment align); // Set text alignment
 
-	void SetFontSize(int size);
-
-	void SetTextAlignment(Alignment align);
-
-	void SetDrawable(bool draw);
+	void SetDrawable(bool draw); // Set if label will be drawn
 
 protected:
 	void ResizeText();
 
 	// Member Data:
 protected:
-	std::string m_text;
+	std::string m_text; // Label text
 
 	//Holds multi line message
-	std::vector<std::string> m_textArray;
-	SDL_Texture* m_textTexture;
+	std::vector<std::string> m_textArray; // Multi line message
+	SDL_Texture* m_textTexture; // Texture made from text
 
-	SDL_Rect m_bounds;
-	SDL_Rect m_currentBounds;
+	SDL_Rect m_bounds; // Bounds of the label
+	SDL_Rect m_currentBounds; // Current label bounds, used to resize the text appropriately within the bounds
 
-	SDL_Color m_colour;
-	bool m_requiredUpdate;
+	SDL_Color m_colour; // Text colour
+	bool m_requiredUpdate; // Flag if text texture needs to be redone
 
-	TTF_Font* m_font;
-	int m_fontSize;
+	TTF_Font* m_font; // Font
+	int m_fontSize; // Font size
 
-	Alignment m_textAlignment;
+	Alignment m_textAlignment; // Alignment of the text
 
-	bool m_drawable;
+	bool m_drawable; // Flag if label will be drawn or clicked on
 };
 

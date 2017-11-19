@@ -85,5 +85,5 @@ protected:
 	};
 };
 
-//		m_highlighted->SetBounds(m_screenWidth * 0.76f, m_screenHeight * 0.52f, m_screenWidth * 0.23f, m_screenHeight * 0.07f);
+//		m_highlighted->SetBounds(SCREEN_WIDTH * 0.76f, SCREEN_HEIGHT * 0.52f, SCREEN_WIDTH * 0.23f, SCREEN_HEIGHT * 0.07f);
 //m_highlighted->SetColour(240, 230, 140, 50);

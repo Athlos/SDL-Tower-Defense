@@ -34,7 +34,7 @@ void Grid::CreateGrid(BackBuffer& backBuffer)
 		for (int y = 0; y < m_gridSizeY; ++y)
 		{
 			Tile* newTile = new Tile(x, y, EMPTY);
-			newTile->SetGridSize((Game::GetInstance().m_screenWidth * 0.75f) / m_gridSizeX, Game::GetInstance().m_screenHeight / m_gridSizeY);
+			newTile->SetGridSize((Game::GetInstance().SCREEN_WIDTH * 0.75f) / m_gridSizeX, Game::GetInstance().SCREEN_HEIGHT / m_gridSizeY);
 			newTile->Initialise(backBuffer);
 
 			m_grid.at(x)->push_back(newTile);
@@ -142,8 +142,8 @@ std::vector<Tile*> Grid::GetNeighbours(Tile* tile)
 
 Tile* Grid::GetTileFromPixelCoord(int x, int y)
 {
-	float xPos = x / (float)((Game::GetInstance().m_screenWidth * 0.75f) / m_gridSizeX);
-	float yPos = y / (float)(Game::GetInstance().m_screenHeight / m_gridSizeY);
+	float xPos = x / (float)((Game::GetInstance().SCREEN_WIDTH * 0.75f) / m_gridSizeX);
+	float yPos = y / (float)(Game::GetInstance().SCREEN_HEIGHT / m_gridSizeY);
 
 	if (xPos >= 0 && xPos < m_gridSizeX && yPos >= 0 && yPos < m_gridSizeY)
 	{

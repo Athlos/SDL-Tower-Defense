@@ -15,6 +15,7 @@ public:
 
 	void SetCustomSprite(Sprite* sprite);
 
+	void SetBackgroundColour(SDL_Color colour);
 	void SetBackgroundColour(Uint8 r, Uint8 g, Uint8 b);
 
 	Sprite* GetCustomSprite();

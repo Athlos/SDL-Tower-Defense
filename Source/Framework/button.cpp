@@ -28,6 +28,11 @@ Button::~Button()
 
 void Button::Draw(BackBuffer& backBuffer)
 {
+	if (!m_drawable)
+	{
+		return;
+	}
+
 	backBuffer.SetDrawColour(m_backgroundColour.r, m_backgroundColour.g, m_backgroundColour.b);
 	backBuffer.DrawRectangle(&m_bounds, 1);
 
@@ -56,6 +61,11 @@ void Button::SetCustomSprite(Sprite* sprite)
 	m_sprite->SetHeight(m_bounds.h);
 
 	m_customSprite = true;
+}
+
+void Button::SetBackgroundColour(SDL_Color colour)
+{
+	m_backgroundColour = colour;
 }
 
 void Button::SetBackgroundColour(Uint8 r, Uint8 g, Uint8 b)

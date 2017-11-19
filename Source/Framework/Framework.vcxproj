@@ -92,6 +92,7 @@
     <ClInclude Include="button.h" />
     <ClInclude Include="enemyspawner.h" />
     <ClInclude Include="grid.h" />
+    <ClInclude Include="interfacemanager.h" />
     <ClInclude Include="label.h" />
     <ClInclude Include="enemy.h" />
     <ClInclude Include="entity.h" />
@@ -124,6 +125,7 @@
     <ClCompile Include="button.cpp" />
     <ClCompile Include="enemyspawner.cpp" />
     <ClCompile Include="grid.cpp" />
+    <ClCompile Include="interfacemanager.cpp" />
     <ClCompile Include="label.cpp" />
     <ClCompile Include="enemy.cpp" />
     <ClCompile Include="entity.cpp" />

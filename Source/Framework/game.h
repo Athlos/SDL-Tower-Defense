@@ -17,6 +17,7 @@ class EnemySpawner;
 class Projectile;
 class AudioManager;
 class Wall;
+class InterfaceManager;
 
 #include "fmod.hpp";
 #include "building.h"
@@ -114,37 +115,10 @@ protected:
 	GameState m_gameState;
 
 	//UI ELEMENTS
-	Label* m_debug_fps; // FPS counter
-	Label* m_lifeCounter; // Life counter
-	Label* m_waveCounter; // Current wave counter
-	Label* m_currencyCounter; // Currency amount counter
-
-	Label* m_towerText;
-	Label* m_highlighted;
-	
-	Button* m_wallButton;
-	Button* m_towerButton;
-	Button* m_startWave;
+	InterfaceManager* m_interfaceManager;
 
 	Sprite* m_cursorSprite;
 	BuildingType m_selected;
-
-	Button* m_towerRange;
-	Sprite* m_rangeSprite;
-
-	Button* m_towerFireRate;
-	Sprite* m_speedSprite;
-
-	Button* m_towerDamage;
-	Sprite* m_damageSprite;
-
-	Button* m_sell;
-	Button* m_upgradeTower;
-
-	//end game ui
-	Label* m_gameOver;
-	Button* m_quit;
-	Button* m_restart;
 
 	//GAME ENTITIES
 	Grid* m_map; // Grid of map tiles

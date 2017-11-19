@@ -88,8 +88,13 @@
     <ClCompile Include="audiomanager.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="wall.cpp" />
-    <ClCompile Include="building.cpp" />
+    <ClCompile Include="building.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="wall.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="interfacemanager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="animatedsprite.h">
@@ -176,8 +181,13 @@
     <ClInclude Include="audiomanager.h">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="wall.h" />
-    <ClInclude Include="building.h" />
+    <ClInclude Include="building.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="wall.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="interfacemanager.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Headers">

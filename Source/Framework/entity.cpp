@@ -35,7 +35,7 @@ Entity::Entity()
 , m_dead(false)
 {
 	m_pos = new Position(m_x, m_y);
-	m_bounds = new AxisAlignedBoundingBox(m_pos, 8);
+	m_bounds = new AxisAlignedBoundingBox(m_pos, 16);
 }
 
 Entity::~Entity()
@@ -188,4 +188,9 @@ Position* Entity::GetPosition() const
 AxisAlignedBoundingBox* Entity::GetCollisionBounds() const
 {
 	return m_bounds;
+}
+
+void Entity::SetCollisionBounds(Position * center, float radius)
+{
+	m_bounds = new AxisAlignedBoundingBox(center, radius);
 }

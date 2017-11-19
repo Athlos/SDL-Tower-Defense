@@ -19,6 +19,8 @@ Label::Label(std::string text)
 	m_font = TTF_OpenFont("assets/currentfont.TTF", m_fontSize);
 
 	m_textAlignment = LEFT;
+
+	m_drawable = true;
 }
 
 Label::Label()
@@ -92,7 +94,10 @@ void Label::Draw(BackBuffer& backBuffer)
 		ResizeText();
 	}
 
-	backBuffer.DrawText(m_textTexture, m_currentBounds);
+	if (m_drawable)
+	{
+		backBuffer.DrawText(m_textTexture, m_currentBounds);
+	}
 	//m_textTexture = TTF_RenderText_Blended_Wrapped(m_font, "this is \n 2 lines", m_colour, 50);
 }
 
@@ -113,6 +118,11 @@ SDL_Rect Label::GetBounds()
 
 bool Label::WasClickedOn(int x, int y)
 {
+	if (!m_drawable)
+	{
+		return false;
+	}
+
 	return ((x > m_bounds.x) && (x < m_bounds.x + m_bounds.w) && (y > m_bounds.y) && (y < m_bounds.y + m_bounds.h));
 }
 
@@ -128,6 +138,11 @@ void Label::SetTextAlignment(Alignment align)
 	m_textAlignment = align;
 
 	m_requiredUpdate = true;
+}
+
+void Label::SetDrawable(bool draw)
+{
+	m_drawable = draw;
 }
 
 void Label::ResizeText()

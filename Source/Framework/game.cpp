@@ -20,6 +20,7 @@
 #include "enemyspawner.h"
 #include "projectile.h"
 #include "audiomanager.h"
+#include "interfacemanager.h"
 #include "wall.h"
 
 // Library includes:
@@ -115,98 +116,54 @@ bool Game::Initialise(bool firstTime)
 		}
 
 		//Create UI
-		m_debug_fps = new Label("");
-		m_debug_fps->SetBounds(m_screenWidth - 48, 0, 48, 24);
-		m_debug_fps->SetColour(0, 255, 0, 50);
+		m_interfaceManager = new InterfaceManager(m_pBackBuffer);
 
-		m_lifeCounter = new Label("");
-		m_lifeCounter->SetBounds(m_screenWidth * 0.76f, m_screenHeight * 0.01f, m_screenWidth * 0.15f, m_screenHeight * 0.05f);
-		m_lifeCounter->SetColour(255, 0, 0, 50);
+		//UI counters
+		m_interfaceManager->AddLabel("fpsCounter", "", m_screenWidth - 48, 0, 48, 24, GREEN);
+		m_interfaceManager->AddLabel("lifeCounter", "", m_screenWidth * 0.76f, m_screenHeight * 0.01f, m_screenWidth * 0.15f, m_screenHeight * 0.05f, RED);
+		m_interfaceManager->AddLabel("waveCounter", "", m_screenWidth * 0.76f, m_screenHeight * 0.07f, m_screenWidth * 0.15f, m_screenHeight * 0.05f, BLUE);
+		m_interfaceManager->AddLabel("currencyCounter", "", m_screenWidth * 0.76f, m_screenHeight * 0.13f, m_screenWidth * 0.15f, m_screenHeight * 0.05f, GOLD);
 
-		m_waveCounter = new Label("");
-		m_waveCounter->SetBounds(m_screenWidth * 0.76f, m_screenHeight * 0.07f, m_screenWidth * 0.15f, m_screenHeight * 0.05f);
-		m_waveCounter->SetColour(0, 0, 255, 50);
+		m_interfaceManager->GetLabel("fpsCounter")->SetDrawable(false);
 
-		m_towerText = new Label("Buildings");
-		m_towerText->SetBounds(m_screenWidth * 0.76f, m_screenHeight * 0.20f, m_screenWidth * 0.23f, m_screenHeight * 0.07f);
-		m_towerText->SetColour(255, 0, 0, 50);
-		m_towerText->SetFontSize(32);
+		//UI static text
+		m_interfaceManager->AddLabel("buildingText", "Buildings", m_screenWidth * 0.76f, m_screenHeight * 0.20f, m_screenWidth * 0.23f, m_screenHeight * 0.07f, RED);
+		m_interfaceManager->AddLabel("selected", "Selected", m_screenWidth * 0.76f, m_screenHeight * 0.52f, m_screenWidth * 0.23f, m_screenHeight * 0.07f, RED);
+		m_interfaceManager->AddLabel("gameOver", "", m_screenWidth * 0.3f, m_screenHeight * 0.3f, m_screenWidth * 0.4f, m_screenHeight * 0.1f, BLACK);
 
-		m_highlighted = new Label("Selected");
-		m_highlighted->SetBounds(m_screenWidth * 0.76f, m_screenHeight * 0.52f, m_screenWidth * 0.23f, m_screenHeight * 0.07f);
-		m_highlighted->SetColour(240, 230, 140, 50);
-		m_highlighted->SetFontSize(32);
-		m_highlighted->SetTextAlignment(CENTER);
+		m_interfaceManager->GetLabel("buildingText")->SetTextAlignment(CENTER);
+		m_interfaceManager->GetLabel("selected")->SetTextAlignment(CENTER);
+		m_interfaceManager->GetLabel("gameOver")->SetTextAlignment(CENTER);
+		m_interfaceManager->GetLabel("gameOver")->SetDrawable(false);
 
-		m_wallButton = new Button("");
-		m_wallButton->SetBounds(m_screenWidth * 0.77f, m_screenHeight * 0.28f, m_screenWidth * 0.05f, m_screenWidth * 0.05f);
-		Sprite* wallSprite = m_pBackBuffer->CreateSprite("assets\\wall_base.png");
-		m_wallButton->SetCustomSprite(wallSprite);
+		//UI selection text
+		m_interfaceManager->AddLabel("towerRangeText", "", m_screenWidth * 0.82f, m_screenHeight * 0.61f, m_screenWidth * 0.15f, m_screenHeight * 0.07f, DARKRED);
+		m_interfaceManager->AddLabel("towerDamageText", "", m_screenWidth * 0.82f, m_screenHeight * 0.77f, m_screenWidth * 0.15f, m_screenHeight * 0.07f, DARKRED);
+		m_interfaceManager->AddLabel("towerSpeedText", "", m_screenWidth * 0.82f, m_screenHeight * 0.69f, m_screenWidth * 0.15f, m_screenHeight * 0.07f, DARKRED);
 
-		m_towerButton = new Button("");
-		m_towerButton->SetBounds(m_screenWidth * 0.84f, m_screenHeight * 0.28f, m_screenWidth * 0.05f, m_screenWidth * 0.05f);
-		Sprite* newTowerSprite = m_pBackBuffer->CreateSprite("assets\\tower_base.png");
-		m_towerButton->SetCustomSprite(newTowerSprite);
+		//UI selection buttons
+		m_interfaceManager->AddButton("wallBuildButton", "", "assets\\wall_base.png", m_screenWidth * 0.77f, m_screenHeight * 0.28f, m_screenWidth * 0.05f, m_screenWidth * 0.05f, BLACK);
+		m_interfaceManager->AddButton("towerBuildButton", "", "assets\\tower_base.png", m_screenWidth * 0.84f, m_screenHeight * 0.28f, m_screenWidth * 0.05f, m_screenWidth * 0.05f, BLACK);
+		m_interfaceManager->AddButton("upgradeButton", "", "", m_screenWidth * 0.76f, m_screenHeight * 0.82f, m_screenWidth * 0.23f, m_screenHeight * 0.05f, BLACK);
+		m_interfaceManager->AddButton("sellButton", "", "", m_screenWidth * 0.76f, m_screenHeight * 0.87f, m_screenWidth * 0.23f, m_screenHeight * 0.05f, GOLD);
 
-		m_startWave = new Button("Start Wave");
-		m_startWave->SetBounds(m_screenWidth * 0.76f, m_screenHeight * 0.93f, m_screenWidth * 0.23f, m_screenWidth * 0.05f);
-		m_startWave->SetFontSize(28);
-		m_startWave->SetColour(255, 255, 255, 255);
+		m_interfaceManager->GetButton("upgradeButton")->SetDrawable(false);
 
-		m_currencyCounter = new Label("");
-		m_currencyCounter->SetBounds(m_screenWidth * 0.76f, m_screenHeight * 0.13f, m_screenWidth * 0.15f, m_screenHeight * 0.05f);
-		m_currencyCounter->SetColour(255, 215, 0, 50);
+		//UI selection icons
+		m_interfaceManager->AddIcon("rangeIcon", "assets\\range_icon.png", m_screenWidth * 0.76f, m_screenHeight * 0.60f, 32, 32);
+		m_interfaceManager->AddIcon("speedIcon", "assets\\time_icon.png", m_screenWidth * 0.76f, m_screenHeight * 0.68f, 32, 32);
+		m_interfaceManager->AddIcon("damageIcon", "assets\\damage_icon.png", m_screenWidth * 0.76f, m_screenHeight * 0.76f, 32, 32);
 
-		//SET UP SELECTED UI
-		m_towerRange = new Button("");
-		m_towerRange->SetBounds(m_screenWidth * 0.82f, m_screenHeight * 0.61f, m_screenWidth * 0.15f, m_screenHeight * 0.07f);
-		m_towerRange->SetColour(178, 34, 34, 0);
-		m_towerRange->SetFontSize(20);
+		//UI start wave
+		m_interfaceManager->AddButton("startWaveButton", "Start Wave", "", m_screenWidth * 0.76f, m_screenHeight * 0.93f, m_screenWidth * 0.23f, m_screenWidth * 0.05f, BLACK);
+		m_interfaceManager->GetButton("startWaveButton")->SetTextAlignment(CENTER);
 
-		m_towerFireRate = new Button("");
-		m_towerFireRate->SetBounds(m_screenWidth * 0.82f, m_screenHeight * 0.69f, m_screenWidth * 0.15f, m_screenHeight * 0.07f);
-		m_towerFireRate->SetColour(178, 34, 34, 0);
-		m_towerFireRate->SetFontSize(20);
+		//UI end game buttons
+		m_interfaceManager->AddButton("quitButton", "Quit", "", m_screenWidth * 0.3f, m_screenHeight * 0.6f, m_screenWidth * 0.2f, m_screenHeight * 0.1f, BLACK);
+		m_interfaceManager->AddButton("restartButton", "Restart", "", m_screenWidth * 0.5f, m_screenHeight * 0.6f, m_screenWidth * 0.2f, m_screenHeight * 0.1f, BLACK);
 
-		m_towerDamage = new Button("");
-		m_towerDamage->SetBounds(m_screenWidth * 0.82f, m_screenHeight * 0.77f, m_screenWidth * 0.15f, m_screenHeight * 0.07f);
-		m_towerDamage->SetColour(178, 34, 34, 0);
-		m_towerDamage->SetFontSize(20);
-
-		m_sell = new Button("");
-		m_sell->SetBounds(m_screenWidth * 0.76f, m_screenHeight * 0.87f, m_screenWidth * 0.23f, m_screenHeight * 0.05f);
-		m_sell->SetColour(240, 230, 140, 0);
-		m_sell->SetBackgroundColour(100, 100, 100);
-		m_sell->SetFontSize(20);
-
-		m_upgradeTower = new Button("");
-		m_upgradeTower->SetBounds(m_screenWidth * 0.76f, m_screenHeight * 0.82f, m_screenWidth * 0.23f, m_screenHeight * 0.05f);
-		m_upgradeTower->SetColour(0, 0, 0, 0);
-		m_upgradeTower->SetFontSize(20);
-
-		m_rangeSprite = m_pBackBuffer->CreateSprite("assets\\range_icon.png");
-		m_rangeSprite->SetX(m_screenWidth * 0.76f);
-		m_rangeSprite->SetY(m_screenHeight * 0.60f);
-
-		m_speedSprite = m_pBackBuffer->CreateSprite("assets\\time_icon.png");
-		m_speedSprite->SetX(m_screenWidth * 0.76f);
-		m_speedSprite->SetY(m_screenHeight * 0.68f);
-
-		m_damageSprite = m_pBackBuffer->CreateSprite("assets\\damage_icon.png");
-		m_damageSprite->SetX(m_screenWidth * 0.76f);
-		m_damageSprite->SetY(m_screenHeight * 0.76f);
-
-		m_gameOver = new Label("");
-		m_gameOver->SetBounds(m_screenWidth * 0.3f, m_screenHeight * 0.3f, m_screenWidth * 0.4f, m_screenHeight * 0.1f);
-		m_gameOver->SetTextAlignment(CENTER);
-
-		m_quit = new Button("Quit");
-		m_quit->SetBounds(m_screenWidth * 0.3f, m_screenHeight * 0.6f, m_screenWidth * 0.2f, m_screenHeight * 0.1f);
-		m_quit->SetTextAlignment(CENTER);
-
-		m_restart = new Button("Restart");
-		m_restart->SetBounds(m_screenWidth * 0.5f, m_screenHeight * 0.6f, m_screenWidth * 0.2f, m_screenHeight * 0.1f);
-		m_restart->SetTextAlignment(CENTER);
+		m_interfaceManager->GetButton("quitButton")->SetTextAlignment(CENTER);
+		m_interfaceManager->GetButton("restartButton")->SetTextAlignment(CENTER);
 
 		//Set up data
 		m_pathfinding = new Pathfinding();
@@ -236,7 +193,7 @@ bool Game::Initialise(bool firstTime)
 	m_totalLives = 10;
 	m_currentLives = m_totalLives;
 
-	m_currency = 5000;
+	m_currency = 500;
 
 	m_enemySpawner = new EnemySpawner(0.5f, m_pBackBuffer);
 
@@ -249,10 +206,11 @@ bool Game::Initialise(bool firstTime)
 
 	m_selected = NONE;
 
+	UpdateSelected();
+
 	m_cursorSprite = 0;
 
-	m_startWave->SetBackgroundColour(34, 139, 34);
-	m_highlighted->SetText("Selected");
+	m_interfaceManager->GetButton("startWaveButton")->SetBackgroundColour(m_interfaceManager->GetColour(DARKGREEN));
 
 	// Timings
 	m_lastTime = SDL_GetTicks();
@@ -356,7 +314,7 @@ void Game::Process(float deltaTime)
 
 		//Update fps label
 		std::string fpsString = std::to_string(m_FPS);
-		m_debug_fps->SetText(fpsString);
+		m_interfaceManager->GetLabel("fpsCounter")->SetText(fpsString);
 	}
 
 	// Check if game is paused
@@ -408,7 +366,7 @@ void Game::ProcessEnemies(float deltaTime)
 				m_enemySpawner->EndWave();
 				UpdateWaves();
 
-				m_startWave->SetBackgroundColour(34, 139, 34);
+				m_interfaceManager->GetButton("startWaveButton")->SetBackgroundColour(m_interfaceManager->GetColour(DARKGREEN));
 
 				if (m_enemySpawner->AllWavesCompleted())
 				{
@@ -536,6 +494,8 @@ void Game::Draw(BackBuffer& backBuffer)
 
 	DrawUI(backBuffer);
 
+	m_interfaceManager->Draw();
+
 	//m_quadTree->Draw(backBuffer);
 
 	backBuffer.Present();
@@ -544,26 +504,14 @@ void Game::Draw(BackBuffer& backBuffer)
 void Game::DrawUI(BackBuffer& backBuffer)
 {
 	//Draw UI
-	//m_debug_fps->Draw(backBuffer);
-	m_lifeCounter->Draw(backBuffer);
-	m_waveCounter->Draw(backBuffer);
-	m_currencyCounter->Draw(backBuffer);
 
 	//Draw building UI
 	backBuffer.SetDrawColour(192, 192, 192);
 	backBuffer.DrawRectangle(m_screenWidth * 0.76f, m_screenHeight * 0.20f, m_screenWidth * 0.99f, m_screenHeight * 0.5f, 1); // Background
 
-	m_towerText->Draw(backBuffer); // Title
-
-	//Buttons
-	m_towerButton->Draw(backBuffer);
-	m_wallButton->Draw(backBuffer);
-
 	//Draw Selected UI
 	DrawSelectionUI(backBuffer);
 
-	//Start wave
-	m_startWave->Draw(backBuffer);
 
 	//Draw cursor
 	if (m_cursorSprite != 0)
@@ -583,30 +531,17 @@ void Game::DrawSelectionUI(BackBuffer& backBuffer)
 	backBuffer.SetDrawColour(192, 192, 192);
 	backBuffer.DrawRectangle(m_screenWidth * 0.76f, m_screenHeight * 0.52f, m_screenWidth * 0.99f, m_screenHeight * 0.92f, 1); // Background
 
-	m_highlighted->Draw(backBuffer); // Selected title
-
 	if (m_selectedBuilding != 0)
 	{
-		m_sell->Draw(backBuffer);
-
 		if (m_selectedBuilding->GetType() == TOWER)
 		{
-			m_towerRange->Draw(backBuffer);
-			m_towerFireRate->Draw(backBuffer);
-			m_towerDamage->Draw(backBuffer);
-			m_upgradeTower->Draw(backBuffer);
-
-			m_rangeSprite->Draw(backBuffer);
-			m_damageSprite->Draw(backBuffer);
-			m_speedSprite->Draw(backBuffer);
-
 			if (m_currency >= dynamic_cast<Tower*>(m_selectedBuilding)->GetTowerUpgradeCost() && !dynamic_cast<Tower*>(m_selectedBuilding)->IsMaxLevel())
 			{
-				m_upgradeTower->SetBackgroundColour(34, 139, 34);
+				m_interfaceManager->GetButton("upgradeButton")->SetBackgroundColour(m_interfaceManager->GetColour(DARKGREEN));
 			}
 			else
 			{
-				m_upgradeTower->SetBackgroundColour(178, 34, 34);
+				m_interfaceManager->GetButton("upgradeButton")->SetBackgroundColour(m_interfaceManager->GetColour(DARKRED));
 			}
 		}
 	}
@@ -619,10 +554,6 @@ void Game::DrawEndGameUI(BackBuffer & backBuffer)
 
 	backBuffer.SetDrawColour(192, 192, 192);
 	backBuffer.DrawRectangle(m_screenWidth * 0.3f, m_screenHeight * 0.30f, m_screenWidth * 0.7f, m_screenHeight * 0.7f, 1); // Background
-
-	m_gameOver->Draw(backBuffer); // Draw title
-	m_quit->Draw(backBuffer);
-	m_restart->Draw(backBuffer);
 }
 
 void Game::UpdateLives(int amount)
@@ -639,14 +570,14 @@ void Game::UpdateLives(int amount)
 	std::stringstream lifeMessage;
 	lifeMessage << "Lives: " << m_currentLives;
 
-	m_lifeCounter->SetText(lifeMessage.str());
+	m_interfaceManager->GetLabel("lifeCounter")->SetText(lifeMessage.str());
 }
 
 void Game::UpdateWaves()
 {
 	std::stringstream waveMessage;
 	waveMessage << "Wave: " << m_enemySpawner->GetWaveNumber() << "/" << m_enemySpawner->GetTotalWaveNumber();
-	m_waveCounter->SetText(waveMessage.str());
+	m_interfaceManager->GetLabel("waveCounter")->SetText(waveMessage.str());
 }
 
 void Game::UpdateCurrency(int amount)
@@ -655,55 +586,59 @@ void Game::UpdateCurrency(int amount)
 
 	std::stringstream currencyMessage;
 	currencyMessage << "$" << m_currency;
-	m_currencyCounter->SetText(currencyMessage.str());
+	m_interfaceManager->GetLabel("currencyCounter")->SetText(currencyMessage.str());
 
 	//Update buttons
 	if (m_currency >= 10)
 	{
-		m_wallButton->SetBackgroundColour(34, 139, 34);
+		m_interfaceManager->GetButton("wallBuildButton")->SetBackgroundColour(m_interfaceManager->GetColour(DARKGREEN));
 	}
 	else
 	{
-		m_wallButton->SetBackgroundColour(178, 34, 34);
+		m_interfaceManager->GetButton("wallBuildButton")->SetBackgroundColour(m_interfaceManager->GetColour(DARKRED));
 	}
 
 	if (m_currency >= 100)
 	{
-		m_towerButton->SetBackgroundColour(34, 139, 34);
+		m_interfaceManager->GetButton("towerBuildButton")->SetBackgroundColour(m_interfaceManager->GetColour(DARKGREEN));
 	}
 	else
 	{
-		m_towerButton->SetBackgroundColour(178, 34, 34);
+		m_interfaceManager->GetButton("towerBuildButton")->SetBackgroundColour(m_interfaceManager->GetColour(DARKRED));
 	}
 }
 
 void Game::UpdateSelected()
 {
+	bool draw = false;
+
 	if (m_selectedBuilding != 0)
 	{
 		std::stringstream message;
 
 		if (m_selectedBuilding->GetType() == TOWER)
 		{
+			draw = true;
+
 			message << "Range: " << dynamic_cast<Tower*>(m_selectedBuilding)->GetTowerRange();
 
-			m_towerRange->SetText(message.str());
+			m_interfaceManager->GetLabel("towerRangeText")->SetText(message.str());
 			message.str("");
 
 			message << std::setprecision(2);
 			message << "Speed: " << 1.0f / dynamic_cast<Tower*>(m_selectedBuilding)->GetTowerFireRate();
 
-			m_towerFireRate->SetText(message.str());
+			m_interfaceManager->GetLabel("towerSpeedText")->SetText(message.str());
 			message.str("");
 
 			message << "Damage: " << dynamic_cast<Tower*>(m_selectedBuilding)->GetTowerDamage();
 
-			m_towerDamage->SetText(message.str());
+			m_interfaceManager->GetLabel("towerDamageText")->SetText(message.str());
 			message.str("");
 
 			message << "Sell $" << dynamic_cast<Tower*>(m_selectedBuilding)->GetSellValue();
 
-			m_sell->SetText(message.str());
+			m_interfaceManager->GetButton("sellButton")->SetText(message.str());
 			message.str("");
 
 			if (dynamic_cast<Tower*>(m_selectedBuilding)->IsMaxLevel())
@@ -715,34 +650,48 @@ void Game::UpdateSelected()
 				message << "Upgrade $" << dynamic_cast<Tower*>(m_selectedBuilding)->GetTowerUpgradeCost();
 			}
 
-			m_upgradeTower->SetText(message.str());
+			m_interfaceManager->GetButton("upgradeButton")->SetText(message.str());
 			message.str("");
 
 			message << "Level " << dynamic_cast<Tower*>(m_selectedBuilding)->GetTowerLevel() << " tower";
 
-			m_highlighted->SetText(message.str());
+			m_interfaceManager->GetLabel("selected")->SetText(message.str());
+
+			m_interfaceManager->GetButton("sellButton")->SetDrawable(true);
 		}
 		else if (m_selectedBuilding->GetType() == WALL)
 		{
-			m_highlighted->SetText("Wall");
-			m_towerRange->SetText("");
-			m_towerFireRate->SetText("");
-			m_towerDamage->SetText("");
+			m_interfaceManager->GetButton("sellButton")->SetDrawable(true);
+
+			draw = false;
+
+			m_interfaceManager->GetLabel("selected")->SetText("Wall");
 
 			message << "Sell $" << dynamic_cast<Wall*>(m_selectedBuilding)->GetSellValue();
 
-			m_sell->SetText(message.str());
+			m_interfaceManager->GetButton("sellButton")->SetText(message.str());
 			message.str("");
 		}
 	}
 	else
 	{
-		m_highlighted->SetText("Selected");
-		m_towerRange->SetText("");
-		m_towerFireRate->SetText("");
-		m_towerDamage->SetText("");
-		m_sell->SetText("");
+		m_interfaceManager->GetLabel("selected")->SetText("Selected");
+
+		m_interfaceManager->GetButton("sellButton")->SetDrawable(false);
+
+		draw = false;
+
+		m_interfaceManager->GetButton("sellButton")->SetText("");
 	}
+
+	m_interfaceManager->GetLabel("towerRangeText")->SetDrawable(draw);
+	m_interfaceManager->GetLabel("towerSpeedText")->SetDrawable(draw);
+	m_interfaceManager->GetLabel("towerDamageText")->SetDrawable(draw);
+	m_interfaceManager->GetButton("upgradeButton")->SetDrawable(draw);
+
+	m_interfaceManager->GetIcon("rangeIcon")->drawable = draw;
+	m_interfaceManager->GetIcon("speedIcon")->drawable = draw;
+	m_interfaceManager->GetIcon("damageIcon")->drawable = draw;
 }
 
 void Game::Quit()
@@ -762,7 +711,7 @@ bool Game::IsPaused()
 
 void Game::OnLeftMouseClick(int x, int y)
 {
-	if (m_towerButton->WasClickedOn(x, y))
+	if (m_interfaceManager->GetButton("towerBuildButton")->WasClickedOn(x, y))
 	{
 		delete(m_cursorSprite);
 
@@ -771,7 +720,7 @@ void Game::OnLeftMouseClick(int x, int y)
 
 		m_selected = TOWER;
 	}
-	else if (m_wallButton->WasClickedOn(x, y))
+	else if (m_interfaceManager->GetButton("wallBuildButton")->WasClickedOn(x, y))
 	{
 		delete(m_cursorSprite);
 
@@ -781,11 +730,11 @@ void Game::OnLeftMouseClick(int x, int y)
 
 		m_selected = WALL;
 	}
-	else if (m_startWave->WasClickedOn(x, y))
+	else if (m_interfaceManager->GetButton("startWaveButton")->WasClickedOn(x, y))
 	{
 		StartWave();
 	}
-	else if (m_sell->WasClickedOn(x, y))
+	else if (m_interfaceManager->GetButton("sellButton")->WasClickedOn(x, y))
 	{
 		if (m_selectedBuilding != 0)
 		{
@@ -795,7 +744,7 @@ void Game::OnLeftMouseClick(int x, int y)
 			UpdateSelected();
 		}
 	}
-	else if (m_upgradeTower->WasClickedOn(x, y))
+	else if (m_interfaceManager->GetButton("upgradeButton")->WasClickedOn(x, y))
 	{
 		if (m_currency >= dynamic_cast<Tower*>(m_selectedBuilding)->GetTowerUpgradeCost() && !dynamic_cast<Tower*>(m_selectedBuilding)->IsMaxLevel())
 		{
@@ -808,11 +757,11 @@ void Game::OnLeftMouseClick(int x, int y)
 			m_audioManager->PlaySound("assets\\audio\\tower_place.wav");
 		}
 	}
-	else if (m_quit->WasClickedOn(x, y) && m_gameState != PLAYING)
+	else if (m_interfaceManager->GetButton("quitButton")->WasClickedOn(x, y) && m_gameState != PLAYING)
 	{
 		Quit();
 	}
-	else if (m_restart->WasClickedOn(x, y) && m_gameState != PLAYING)
+	else if (m_interfaceManager->GetButton("restartButton")->WasClickedOn(x, y) && m_gameState != PLAYING)
 	{
 		CleanUp();
 		Initialise(false);
@@ -900,7 +849,7 @@ void Game::StartWave()
 	m_cursorSprite = 0;
 	m_selected = NONE;
 
-	m_startWave->SetBackgroundColour(100, 100, 100);
+	m_interfaceManager->GetButton("startWaveButton")->SetBackgroundColour(m_interfaceManager->GetColour(GRAY));
 
 	m_audioManager->PlaySound("assets\\audio\\wave_start.wav");
 }
@@ -931,7 +880,13 @@ void Game::PlaceTower(int x, int y)
 
 	Tile* currentTile = m_map->GetTileFromPixelCoord(x, y);
 
-	if (m_currency < 100 || currentTile == 0)
+	if (m_currency < 100)
+	{
+		m_audioManager->PlaySound("assets\\audio\\error.wav");
+		return;
+	}
+
+	if (currentTile == 0)
 	{
 		return;
 	}
@@ -977,6 +932,8 @@ void Game::SellBuilding(Building* building)
 	{
 		UpdateCurrency(dynamic_cast<Wall*>(building)->GetSellValue());
 	}
+
+	m_audioManager->PlaySound("assets\\audio\\coin.wav");
 
 	building->GetTilePosition()->SetOccupied(false);
 
@@ -1051,6 +1008,10 @@ void Game::PlaceWall(int x, int y)
 				m_audioManager->PlaySound("assets\\audio\\wall_place.wav");
 			}
 		}
+		else if(m_currency < 10)
+		{
+			m_audioManager->PlaySound("assets\\audio\\error.wav");
+		}
 	}
 }
 
@@ -1071,21 +1032,34 @@ void Game::UpdateGameState(GameState state)
 
 	m_gameState = state;
 
+	if (m_gameState == PLAYING)
+	{
+		m_interfaceManager->GetLabel("gameOver")->SetDrawable(false);
+		m_interfaceManager->GetButton("quitButton")->SetDrawable(false);
+		m_interfaceManager->GetButton("restartButton")->SetDrawable(false);
+	}
+	else
+	{
+		m_interfaceManager->GetLabel("gameOver")->SetDrawable(true);
+		m_interfaceManager->GetButton("quitButton")->SetDrawable(true);
+		m_interfaceManager->GetButton("restartButton")->SetDrawable(true);
+	}
+
 	switch (m_gameState)
 	{
 	case WON:
 	{
-		m_gameOver->SetText("You Win");
+		m_interfaceManager->GetLabel("gameOver")->SetText("You Win");
 	}
 	break;
 	case LOST:
 	{
-		m_gameOver->SetText("You Lost");
+		m_interfaceManager->GetLabel("gameOver")->SetText("You Lost");
 	}
 	break;
 	default:
 	{
-		m_gameOver->SetText("Paused");
+		m_interfaceManager->GetLabel("gameOver")->SetText("Paused");
 	}
 	break;
 	}

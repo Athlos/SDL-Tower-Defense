@@ -52,6 +52,8 @@ public:
 
 	void SetTextAlignment(Alignment align);
 
+	void SetDrawable(bool draw);
+
 protected:
 	void ResizeText();
 
@@ -73,5 +75,7 @@ protected:
 	int m_fontSize;
 
 	Alignment m_textAlignment;
+
+	bool m_drawable;
 };
 

@@ -44,6 +44,7 @@ public:
 	Position* GetPosition() const;
 
 	AxisAlignedBoundingBox* GetCollisionBounds() const;
+	void SetCollisionBounds(Position* center, float radius);
 
 private:
 	Entity(const Entity& entity);

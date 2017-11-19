@@ -9,11 +9,11 @@ public:
 	Wall(int baseCost);
 	~Wall();
 
-	bool Initialise(BackBuffer* backBuffer);
+	bool Initialise(BackBuffer* backBuffer); // Create a wall
 
-	void Draw(BackBuffer& backBuffer);
+	void Draw(BackBuffer& backBuffer); // Draw the wall
 
-	int GetSellValue() const;
+	int GetSellValue() const; // Get the value to sell
 
 	//Member Data:
 };

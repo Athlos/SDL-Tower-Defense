@@ -24,19 +24,16 @@ public:
 	Label();
 	~Label();
 
+	std::string GetText(); // Get the string of text stored
 	void SetText(std::string newText, BackBuffer& backBuffer); //Set the text image, if the text is the same it returns, you can call this in the process loop safely
-
 	void SetText(std::string textOnScreen); //only changes the string, does not make new image
 
 	void Draw(BackBuffer& backBuffer); // Draw label
 
+	SDL_Rect GetBounds(); // Get the collision bounds
 	void SetBounds(int x, int y, int w, int h); // Set the bounds of your text, and the words will be constrained to this window
 
 	void SetColour(int r, int g, int b, int a); // Set the colour, default is black already, set this before you set the text
-	
-	std::string GetText(); // Get the string of text stored
-	
-	SDL_Rect GetBounds(); // Get the collision bounds
 
 	bool WasClickedOn(int x, int y); // Check if label was clicked on, basic button functionality
 

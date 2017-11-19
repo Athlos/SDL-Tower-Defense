@@ -13,14 +13,14 @@
 #include <cassert>
 
 Enemy::Enemy()
- : m_reachedEnd(false)
- , m_directionX(0.0f)
- , m_directionY(0.0f)
- , m_distanceToNextWaypoint(0.0f)
+	: m_reachedEnd(false)
+	, m_directionX(0.0f)
+	, m_directionY(0.0f)
+	, m_distanceToNextWaypoint(0.0f)
+	, m_targetted(false)
+	, m_inRange(false)
 {
 	Entity::Entity();
-	m_targetted = false;
-	m_inRange = false;
 }
 
 Enemy::~Enemy() 
@@ -60,56 +60,10 @@ bool Enemy::Initialise(AnimatedSprite * sprite)
 	return (true);
 }
 
-int Enemy::GetReward()
-{
-	return m_reward;
-}
-
-void Enemy::SetReward(int amount) 
-{
-	m_reward = amount;
-}
-
-void Enemy::SetData(int health, float speed, int damage) 
-{
-	m_maxHealth = health;
-
-	m_currentHealth = m_maxHealth;
-
-	m_speed = speed;
-	m_damage = damage;
-
-	//Calculate reward
-	m_reward = 0;
-	m_reward += m_currentHealth * 5;
-	m_reward += m_speed * .002;
-}
-
-bool Enemy::IsClickedOn(int x, int y) 
-{
-	return (Entity::IsClickedOn(x, y));
-}
-
-int Enemy::GetDamage()
-{
-	return m_damage;
-}
-
-void Enemy::TakeDamage(int amount) 
-{
-	m_currentHealth -= amount;
-
-	if (m_currentHealth <= 0)
-	{
-		m_currentHealth = 0;
-		m_dead = true;
-	}
-}
-
-void Enemy::Process(float deltaTime) 
+void Enemy::Process(float deltaTime)
 {
 	//Entity::Process(deltaTime);
-	
+
 	MoveToWaypoints(deltaTime);
 
 	//m_x += deltaTime * m_velocityX;
@@ -148,6 +102,52 @@ void Enemy::DrawHealthBar(BackBuffer& backBuffer)
 	//Draw Fill
 	backBuffer.SetDrawColour(255, 0, 0);
 	backBuffer.DrawRectangle(m_x, m_y - 4, m_x + (((float)m_currentHealth / (float)m_maxHealth) * 32), m_y, 1);
+}
+
+void Enemy::SetData(int health, float speed, int damage)
+{
+	m_maxHealth = health;
+
+	m_currentHealth = m_maxHealth;
+
+	m_speed = speed;
+	m_damage = damage;
+
+	//Calculate reward
+	m_reward = 0;
+	m_reward += m_currentHealth * 5;
+	m_reward += m_speed * .002;
+}
+
+bool Enemy::IsClickedOn(int x, int y)
+{
+	return (Entity::IsClickedOn(x, y));
+}
+
+int Enemy::GetDamage()
+{
+	return m_damage;
+}
+
+void Enemy::TakeDamage(int amount)
+{
+	m_currentHealth -= amount;
+
+	if (m_currentHealth <= 0)
+	{
+		m_currentHealth = 0;
+		m_dead = true;
+	}
+}
+
+int Enemy::GetReward()
+{
+	return m_reward;
+}
+
+void Enemy::SetReward(int amount) 
+{
+	m_reward = amount;
 }
 
 void Enemy::SetTilePosition(Tile* tile)
@@ -214,6 +214,21 @@ void Enemy::MoveToWaypoints(float deltaTime)
 	m_distanceToNextWaypoint = sqrt((m_currentWaypoint->m_x - m_pos->m_x) * (m_currentWaypoint->m_x - m_pos->m_x) + (m_currentWaypoint->m_y - m_pos->m_y) * (m_currentWaypoint->m_y - m_pos->m_y));
 }
 
+bool Enemy::ReachedEnd() const
+{
+	return m_reachedEnd;
+}
+
+int Enemy::WaypointsToGo() const
+{
+	return m_waypoints.size();
+}
+
+float Enemy::DistanceToNextWaypoint() const
+{
+	return m_distanceToNextWaypoint;
+}
+
 void Enemy::UpdateDirection()
 {
 	if (m_currentWaypoint != 0)
@@ -237,19 +252,4 @@ void Enemy::UpdateDirection()
 		m_directionX /= hyp;
 		m_directionY /= hyp;
 	}
-}
-
-bool Enemy::ReachedEnd() const
-{
-	return m_reachedEnd;
-}
-
-int Enemy::WaypointsToGo() const
-{
-	return m_waypoints.size();
-}
-
-float Enemy::DistanceToNextWaypoint() const
-{
-	return m_distanceToNextWaypoint;
 }

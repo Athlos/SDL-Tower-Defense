@@ -12,20 +12,19 @@ public:
 	AudioManager();
 	~AudioManager();
 
-	void Process(float deltaTime);
+	void Process(float deltaTime); // Process fmod system
 
-	bool PlaySound(std::string filename);
-	FMOD::Sound* GetSound(std::string filename);
+	bool PlaySound(std::string filename); // Play a sound with a filename
+	FMOD::Sound* GetSound(std::string filename); // Get a sound with a filename
 
 	//Member Data:
 protected:
-	//AUDIO
-	FMOD::System* m_system;
-	FMOD_RESULT m_result;
+	FMOD::System* m_system; // FMOD system
+	FMOD_RESULT m_result; // FMOD result
 
-	FMOD::Channel* m_mainChannel;
-	FMOD::Channel* m_musicChannel;
+	FMOD::Channel* m_mainChannel; // Main channel for audio
+	FMOD::Channel* m_musicChannel; // Music channel for audio
 
-	std::map<std::string, FMOD::Sound*> m_loadedSounds;
+	std::map<std::string, FMOD::Sound*> m_loadedSounds; // All stored sounds requested so far
 };
 

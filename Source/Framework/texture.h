@@ -1,5 +1,4 @@
-#ifndef __TEXTURE_H__
-#define __TEXTURE_H__
+#pragma once
 
 // Library includes:
 #include <SDL.h>
@@ -13,10 +12,10 @@ public:
 
 	bool Initialise(const char* pcFilename, SDL_Renderer* pRenderer);
 
-	int GetWidth() const;
-	int GetHeight() const;
+	int GetWidth() const; // Get the texture width
+	int GetHeight() const; // Get the texture height
 
-	SDL_Texture* GetTexture();
+	SDL_Texture* GetTexture(); // Get the SDL texture being used
 
 private:
 	Texture(const Texture& texture);
@@ -24,16 +23,14 @@ private:
 
 	//Member Data:
 protected:
-	SDL_Renderer* m_pRenderer;
-	SDL_Texture* m_pTexture;
+	SDL_Renderer* m_pRenderer; // Renderer
+	SDL_Texture* m_pTexture; // SDL texture
 
-	int m_width;
-	int m_height;
+	int m_width; // Texture width
+	int m_height; // Texture height
 
-	SDL_RendererFlip m_flip;
+	SDL_RendererFlip m_flip; // Render flip
 
 private:
 
 };
-
-#endif // __TEXTURE_H__

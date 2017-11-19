@@ -15,7 +15,7 @@ public:
 	void Process(float deltaTime);
 	void Draw(BackBuffer& backbuffer);
 
-	void SpawnParticle(int x, int y, std::string message);
+	void SpawnParticle(int x, int y, std::string message); // Spawn a text particle
 
 	// Member Data:
 protected:

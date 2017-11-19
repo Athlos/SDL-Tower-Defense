@@ -1,5 +1,4 @@
-#ifndef __SPRITE_H__
-#define __SPRITE_H__
+#pragma once
 
 // Forward Declarations:
 class BackBuffer;
@@ -12,33 +11,32 @@ public:
 	Sprite();
 	~Sprite();
 
-	bool Initialise(Texture& texture);
+	bool Initialise(Texture& texture); // Create a sprite using a texture
 
-	void Process(float deltaTime);
-	void Draw(BackBuffer& backbuffer);
+	void Process(float deltaTime); // Process over the sprite
+	void Draw(BackBuffer& backbuffer); // Draw the sprite
 
-	void SetX(int x);
-	void SetY(int y);
+	void SetX(int x); // Set X position
+	void SetY(int y); // Set Y position
 
-	int GetX() const;
-	int GetY() const;
+	int GetX() const; // Get X position
+	int GetY() const; // Get Y position
 
-	int GetCenterX() const;
-	int GetCenterY() const;
+	int GetCenterX() const; // Get X center
+	int GetCenterY() const; // Get Y center
 
-	void SetAngle(float angle);
-	float GetAngle() const;
+	void SetAngle(float angle); // Set the sprite angle
+	float GetAngle() const; // Get the angle
 
-	void SetCenter(int x, int y);
-	void SetHandleCenter();
+	void SetCenter(int x, int y); // Set the center of the sprite
 
-	int GetWidth() const;
-	int GetHeight() const;
+	int GetWidth() const; // Get the width of the sprite
+	int GetHeight() const; // Get the height of the sprite
 
-	void SetWidth(int width);
-	void SetHeight(int height);
+	void SetWidth(int width); // Set the sprite width
+	void SetHeight(int height); // Set sprite height
 
-	Texture* GetTexture();
+	Texture* GetTexture(); // Get the texture
 
 private:
 	Sprite(const Sprite& sprite);
@@ -46,17 +44,15 @@ private:
 
 	// Member Data:
 protected:
-	Texture* m_pTexture;
-	int m_x;
-	int m_y;
+	Texture* m_pTexture; // Sprite texture
+	int m_x; // X position
+	int m_y; // Y position
 
-	float m_angle;
-	int m_centerX;
-	int m_centerY;
+	float m_angle; // Sprite angle
+	int m_centerX; // Center X position
+	int m_centerY; // Center Y position
 
-	int m_width;
-	int m_height;
+	int m_width; // Width of the sprite
+	int m_height; // Height of the sprite
 
 };
-
-#endif // __SPRITE_H__

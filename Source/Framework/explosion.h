@@ -1,5 +1,4 @@
-#ifndef __EXPLOSION_H__
-#define __EXPLOSION_H__
+#pragma once
 
 class AnimatedSprite;
 class Sprite;
@@ -9,23 +8,23 @@ class Entity;
 
 #include "entity.h"
 
-
 class Explosion : public Entity
 {
-	//Methods
+	//Member Methods:
 public:
 	Explosion();
 	~Explosion();
 
-	void SetPosition(float x, float y);
-	void Draw(BackBuffer& backBuffer);
-	bool Initialise(AnimatedSprite* sprite);
-	void Process(float deltaTime);
+	bool Initialise(AnimatedSprite* sprite); // Initialise the explosion
+
+	void Process(float deltaTime); // Process the animation
+	void Draw(BackBuffer& backBuffer); // Draw the explosion frame
+
+	void SetPosition(float x, float y); // Set the screen position
 
 	// Member Data:
 protected:
-	AnimatedSprite* m_pSprite;
+	AnimatedSprite* m_pSprite; // Anmiated sprite for explosion
 	
 };
-#endif //__EXPLOSION_H__
 

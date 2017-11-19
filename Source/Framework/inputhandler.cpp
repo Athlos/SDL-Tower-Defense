@@ -8,8 +8,8 @@
 #include <cassert>
 
 InputHandler::InputHandler()
-: m_pGameController(0)
-, counter(0)
+	: m_pGameController(0)
+	, counter(0)
 {
 }
 
@@ -64,16 +64,6 @@ void InputHandler::ProcessInput(Game& game)
 				case SDLK_SPACE:
 				{
 					game.StartWave();
-				}
-				break;
-				case SDLK_1:
-				{
-					int xPos;
-					int yPos;
-
-					SDL_GetMouseState(&xPos, &yPos);
-
-					game.PlaceTower(xPos, yPos);
 				}
 				break;
 			default:

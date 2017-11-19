@@ -3,13 +3,12 @@
 #include "entity.h"
 
 QuadTree::QuadTree(AxisAlignedBoundingBox* bounds)
+	: m_bounds(bounds)
+	, m_topLeft(0)
+	, m_topRight(0)
+	, m_bottomLeft(0)
+	, m_bottomRight(0)
 {
-	m_bounds = bounds;
-
-	m_topLeft = 0;
-	m_topRight = 0;
-	m_bottomLeft = 0;
-	m_bottomRight = 0;
 }
 
 QuadTree::~QuadTree()

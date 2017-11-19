@@ -22,22 +22,6 @@ AnimatedSprite::~AnimatedSprite()
 {
 }
 
-Texture* AnimatedSprite::GetTexture()
-{
-	return (m_pTexture);
-}
-
-void AnimatedSprite::SetScale(int width, int height)
-{
-	m_scaleWidth = width;
-	m_scaleHeight = height;
-}
-
-int AnimatedSprite::GetFrameCount()
-{
-	return m_totalFrames.size();
-}
-
 bool AnimatedSprite::Initialise(Texture& texture)
 {
 	m_frameWidth = 0;
@@ -62,19 +46,19 @@ void AnimatedSprite::Process(float deltaTime)
 	//Count the time elapsed.
 	m_timeElapsed += deltaTime;
 	//If the time elapsed is greater than the frame speed.
-	if (m_timeElapsed > m_frameSpeed) 
+	if (m_timeElapsed > m_frameSpeed)
 	{
 		//reset if its at max frames
-		if (m_currentFrame >= m_totalFrames.size()-1) 
+		if (m_currentFrame >= m_totalFrames.size() - 1)
 		{
 			//if looping set to 0
 			if (m_loop)
 			{
 				m_currentFrame = 0;
 			}
-			else 
+			else
 			{
-			//if not looping turn of animation
+				//if not looping turn of animation
 				m_animating = false;
 			}
 		}
@@ -85,6 +69,15 @@ void AnimatedSprite::Process(float deltaTime)
 		}
 		m_timeElapsed = 0.0f;
 	}
+}
+
+void AnimatedSprite::Draw(BackBuffer& backbuffer)
+{
+	//Draw the particular frame into the backbuffer.
+	SDL_Rect base{ m_totalFrames[m_currentFrame]->x, m_totalFrames[m_currentFrame]->y, m_width, m_height };
+	SDL_Rect scale{ m_x, m_y, m_scaleWidth, m_scaleHeight };
+
+	backbuffer.DrawAnimatedSprite(*this, &base, &scale);
 }
 
 void AnimatedSprite::LoadFrames(int width, int height)
@@ -114,15 +107,6 @@ void AnimatedSprite::LoadFrames(int width, int height)
 			m_totalFrames.push_back(newFrame);
 		}
 	}
-}
-
-void AnimatedSprite::Draw(BackBuffer& backbuffer)
-{
-	//Draw the particular frame into the backbuffer.
-	SDL_Rect base{ m_totalFrames[m_currentFrame]->x, m_totalFrames[m_currentFrame]->y, m_width, m_height };
-	SDL_Rect scale{ m_x, m_y, m_scaleWidth, m_scaleHeight };
-	
-	backbuffer.DrawAnimatedSprite(*this, &base, &scale);
 }
 
 void AnimatedSprite::SetFrameSpeed(float f)
@@ -172,3 +156,20 @@ void AnimatedSprite::SetLooping(bool b)
 {
 	m_loop = b;
 }
+
+Texture* AnimatedSprite::GetTexture()
+{
+	return (m_pTexture);
+}
+
+void AnimatedSprite::SetScale(int width, int height)
+{
+	m_scaleWidth = width;
+	m_scaleHeight = height;
+}
+
+int AnimatedSprite::GetFrameCount()
+{
+	return m_totalFrames.size();
+}
+

@@ -3,14 +3,12 @@
 #include <cassert>
 
 AudioManager::AudioManager()
+	: m_system(0)
+	, m_mainChannel(0)
+	, m_musicChannel(0)
 {
-	m_system = 0;
-
 	m_result = FMOD::System_Create(&m_system);      // Create the main system object.
 	m_result = m_system->init(32, FMOD_INIT_NORMAL, 0);    // Initialize FMOD.
-
-	m_mainChannel = 0;
-	m_musicChannel = 0;
 }
 
 AudioManager::~AudioManager()

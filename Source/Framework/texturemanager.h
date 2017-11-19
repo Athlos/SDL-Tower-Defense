@@ -1,5 +1,4 @@
-#ifndef __TEXTUREMANAGER_H__
-#define __TEXTUREMANAGER_H__
+#pragma once
 
 // Library Includes:
 #include <string>
@@ -18,7 +17,7 @@ public:
 
 	bool Initialise(SDL_Renderer* pRenderer);
 
-	Texture* GetTexture(const char* pcFilename);
+	Texture* GetTexture(const char* pcFilename); // Get a texture from a file name. If it exists, get from map, otherwise load it from file
 
 private:
 	TextureManager(const TextureManager& textureManager);
@@ -26,10 +25,8 @@ private:
 
 	//Member Data:
 protected:
-	SDL_Renderer* m_pRenderer;
+	SDL_Renderer* m_pRenderer; // Renderer
 
-	std::map<std::string, Texture*> m_pLoadedTextures;
+	std::map<std::string, Texture*> m_pLoadedTextures; // Map of textures using filename as key
 
 };
-
-#endif // __TEXTUREMANAGER_H__

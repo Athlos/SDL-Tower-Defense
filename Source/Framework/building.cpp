@@ -5,12 +5,12 @@
 #include "backbuffer.h"
 
 Building::Building(int baseCost)
+	: m_cost(baseCost)
+	, m_selected(false)
 {
 	Entity::Entity();
-
-	m_cost = baseCost;
-	m_selected = false;
 }
+
 Building::~Building()
 {
 }

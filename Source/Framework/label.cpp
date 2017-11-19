@@ -7,20 +7,18 @@
 #include <cassert>
 
 Label::Label(std::string text)
+	: m_textTexture(NULL)
+	, m_requiredUpdate(false)
+	, m_fontSize(24)
+	, m_textAlignment(LEFT)
+	, m_drawable(true)
 {
 	m_colour = { 0, 0, 0, 0 };
-	m_textTexture = NULL;
-	m_requiredUpdate = false;
 	SetText(text);
 	SetBounds(0, 0, 100, 30);
 
 	TTF_Init();
-	m_fontSize = 24;
 	m_font = TTF_OpenFont("assets/currentfont.TTF", m_fontSize);
-
-	m_textAlignment = LEFT;
-
-	m_drawable = true;
 }
 
 Label::Label()
@@ -78,11 +76,6 @@ void Label::SetText(std::string textOnScreen)
 	//m_textArray.push_back(message);
 }
 
-void Label::SetColour(int r, int g, int b, int a) 
-{
-	m_colour = { (Uint8)r, (Uint8)g, (Uint8)b, (Uint8)a };
-}
-
 void Label::Draw(BackBuffer& backBuffer)
 {
 	//Make sure message is synced to the texture
@@ -101,6 +94,11 @@ void Label::Draw(BackBuffer& backBuffer)
 	//m_textTexture = TTF_RenderText_Blended_Wrapped(m_font, "this is \n 2 lines", m_colour, 50);
 }
 
+SDL_Rect Label::GetBounds()
+{
+	return m_bounds;
+}
+
 void Label::SetBounds(int x, int y, int w, int h) 
 {
 	m_bounds.x = x;
@@ -111,9 +109,9 @@ void Label::SetBounds(int x, int y, int w, int h)
 	m_currentBounds = m_bounds;
 }
 
-SDL_Rect Label::GetBounds()
+void Label::SetColour(int r, int g, int b, int a)
 {
-	return m_bounds;
+	m_colour = { (Uint8)r, (Uint8)g, (Uint8)b, (Uint8)a };
 }
 
 bool Label::WasClickedOn(int x, int y)

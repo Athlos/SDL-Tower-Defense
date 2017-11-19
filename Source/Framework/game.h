@@ -24,7 +24,7 @@ class InterfaceManager;
 
 #include <vector>;
 
-enum GameState
+enum GameState // State of the game
 {
 	PAUSED,
 	PLAYING,
@@ -41,7 +41,6 @@ public:
 	~Game(); // Destroy game
 
 	bool Initialise(bool firstTime); // Initialise game elements
-	void CleanUp(); // delete game elements for restarting
 
 	bool DoGameLoop(); // Run game loop
 	void Quit(); // Quit game
@@ -56,21 +55,18 @@ public:
 	void AddEnemy(Enemy* enemy); // Adds an enemy to the game, it will appear at the map start
 	void AddProjectile(Projectile* projectile); // Adds a projectile to the game
 
-	void PlaceTower(int x, int y); // Places a tower on the map
-	void SellBuilding(Building* building); // Sells a building
-	void PlaceWall(int x, int y); // Places a wall on the map
-
 	void UpdateCursorPosition(int x, int y); // Keeps track of cursor position
 	void UpdateGameState(GameState state); // Set the game state
 	
 protected:
+	void CleanUp(); // delete game elements for restarting
+
 	void Process(float deltaTime); // Process over game elements
 	void ProcessEnemies(float deltaTime); // Process over enemy container
 	void ProcessTowers(float deltaTime); // Process over tower container
 	void ProcessProjectiles(float deltaTime); // Process over projectile container
 
 	void Draw(BackBuffer& backBuffer); // Draw game elements
-
 	void DrawUI(BackBuffer& backBuffer); // Draw UI elements
 	void DrawSelectionUI(BackBuffer& backBuffer); // Draw Selection elements
 	void DrawEndGameUI(BackBuffer& backBuffer); // Draw game paused menu
@@ -79,6 +75,10 @@ protected:
 	void UpdateWaves(); // Update wave counter and text
 	void UpdateCurrency(int amount); // Update currency counter and text
 	void UpdateSelected(); // Update selection UI
+
+	void PlaceTower(int x, int y); // Places a tower on the map
+	void SellBuilding(Building* building); // Sells a building
+	void PlaceWall(int x, int y); // Places a wall on the map
 
 private:
 	Game(const Game& game);

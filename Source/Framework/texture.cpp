@@ -1,5 +1,3 @@
-// 717310 C++ SDL Framework
-
 // This include:
 #include "texture.h"
 
@@ -11,11 +9,11 @@
 #include <cassert>
 
 Texture::Texture()
-: m_pTexture(0)
-, m_height(0)
-, m_width(0)
+	: m_pTexture(0)
+	, m_height(0)
+	, m_width(0)
+	, m_flip(SDL_FLIP_NONE)
 {
-	m_flip = SDL_FLIP_NONE;
 }
 
 Texture::~Texture()
@@ -24,8 +22,7 @@ Texture::~Texture()
 	m_pTexture = 0;
 }
 
-bool 
-Texture::Initialise(const char* pcFilename, SDL_Renderer* pRenderer)
+bool Texture::Initialise(const char* pcFilename, SDL_Renderer* pRenderer)
 {
 	m_pRenderer = pRenderer;
 
@@ -56,22 +53,19 @@ Texture::Initialise(const char* pcFilename, SDL_Renderer* pRenderer)
 	return (m_pTexture != 0);
 }
 
-int 
-Texture::GetWidth() const
+int Texture::GetWidth() const
 {
 	assert(m_width); 
 	return (m_width);
 }
 
-int 
-Texture::GetHeight() const
+int Texture::GetHeight() const
 {
 	assert(m_height);
 	return (m_height);
 }
 
-SDL_Texture* 
-Texture::GetTexture()
+SDL_Texture* Texture::GetTexture()
 {
 	return (m_pTexture);
 }

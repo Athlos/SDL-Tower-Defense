@@ -11,14 +11,14 @@ public:
 	Button(std::string text);
 	~Button();
 
-	void Draw(BackBuffer& backBuffer);
+	void Draw(BackBuffer& backBuffer); // Draw the button
 
-	void SetCustomSprite(Sprite* sprite);
+	void SetCustomSprite(Sprite* sprite); // Set a sprite to draw instead of text for the button
 
-	void SetBackgroundColour(SDL_Color colour);
-	void SetBackgroundColour(Uint8 r, Uint8 g, Uint8 b);
+	void SetBackgroundColour(SDL_Color colour); // Set the colour to draw as the button background
+	void SetBackgroundColour(Uint8 r, Uint8 g, Uint8 b);// Set the colour to draw as the button background
 
-	Sprite* GetCustomSprite();
+	Sprite* GetCustomSprite(); // Get the sprite the button has set
 
 	//Member Data:
 private:

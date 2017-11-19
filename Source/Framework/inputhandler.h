@@ -1,5 +1,4 @@
-#ifndef __INPUTHANDER_H__
-#define __INPUTHANDER_H__
+#pragma once
 
 // Library includes:
 #include <SDL.h>
@@ -14,8 +13,8 @@ public:
 	InputHandler();
 	~InputHandler();
 
-	bool Initialise();
-	void ProcessInput(Game& game);
+	bool Initialise(); // Set up handler
+	void ProcessInput(Game& game); // Process all inputs
 
 private:
 	InputHandler(const InputHandler& inputHandler);
@@ -27,5 +26,3 @@ protected:
 	int counter;
 
 };
-
-#endif // __INPUTHANDER_H__

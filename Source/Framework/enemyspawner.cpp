@@ -5,18 +5,15 @@
 #include "animatedsprite.h"
 
 EnemySpawner::EnemySpawner(float spawnInterval, BackBuffer* backBuffer)
+	: m_spawnInterval(spawnInterval)
+	, m_timePassed(0)
+	, m_waveActive(false)
+	, m_waveLoaded(false)
+	, m_waveNumber(false)
+	, m_maxWaves(5)
+	, m_backBuffer(backBuffer)
+	, m_allWavesCompleted(false)
 {
-	m_spawnInterval = spawnInterval;
-
-	m_timePassed = 0;
-	m_waveActive = false;
-	m_waveLoaded = false;
-	m_waveNumber = 1;
-	m_maxWaves = 3;
-
-	m_backBuffer = backBuffer;
-
-	m_allWavesCompleted = false;
 }
 
 EnemySpawner::~EnemySpawner()

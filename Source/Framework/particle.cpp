@@ -43,26 +43,6 @@ void Particle::Process(float deltaTime)
 	}
 }
 
-ParticleType Particle::GetType()
-{
-	return m_type;
-}
-
-void Particle::SpawnParticle(int x, int y, BackBuffer* backbuffer) 
-{
-	return;
-}
-
-void Particle::SetAge(float age)
-{
-	m_age = age;
-}
-
-float Particle::GetAge()
-{
-	return m_age;
-}
-
 void Particle::Draw(BackBuffer& backbuffer)
 {
 	Entity::Draw(backbuffer);
@@ -76,4 +56,24 @@ void Particle::SetAccelerationX(float x)
 void Particle::SetAccelerationY(float y)
 {
 	m_accelerationY = y;
+}
+
+float Particle::GetAge()
+{
+	return m_age;
+}
+
+void Particle::SetAge(float age)
+{
+	m_age = age;
+}
+
+void Particle::SpawnParticle(int x, int y, BackBuffer* backbuffer)
+{
+	return;
+}
+
+ParticleType Particle::GetType()
+{
+	return m_type;
 }

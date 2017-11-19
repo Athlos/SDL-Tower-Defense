@@ -6,8 +6,6 @@
 
 Button::Button(std::string text)
 {
-	//Label::Label(text);
-
 	m_colour = { 0, 0, 0, 0 };
 	m_textTexture = NULL;
 	m_requiredUpdate = false;

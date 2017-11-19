@@ -218,6 +218,269 @@ bool Game::Initialise(bool firstTime)
 	return (true);
 }
 
+bool Game::DoGameLoop()
+{
+	const float stepSize = 1.0f / 60.0f; // calculate step size
+
+	// Check input
+	assert(m_pInputHandler);
+	m_pInputHandler->ProcessInput(*this);
+
+	if (m_looping)
+	{
+		// Set up time values
+		int current = SDL_GetTicks();
+		float deltaTime = (current - m_lastTime) / 1000.0f;
+		m_lastTime = current;
+
+		m_executionTime += deltaTime;
+
+		m_lag += deltaTime;
+
+		while (m_lag >= stepSize)
+		{
+			Process(stepSize); // Process
+
+			m_lag -= stepSize;
+
+			++m_numUpdates;
+		}
+
+		Draw(*m_pBackBuffer); // Render
+	}
+
+	SDL_Delay(1);
+
+	return (m_looping);
+}
+
+void Game::Quit()
+{
+	m_looping = false;
+}
+
+void Game::Pause(bool pause)
+{
+	m_paused = pause;
+}
+
+bool Game::IsPaused()
+{
+	return (m_paused);
+}
+
+void Game::OnLeftMouseClick(int x, int y)
+{
+	if (m_interfaceManager->GetButton("towerBuildButton")->WasClickedOn(x, y))
+	{
+		delete(m_cursorSprite);
+
+		Sprite* newTowerSprite = m_pBackBuffer->CreateSprite("assets\\tower_base.png");
+		m_cursorSprite = newTowerSprite;
+
+		m_selected = TOWER;
+	}
+	else if (m_interfaceManager->GetButton("wallBuildButton")->WasClickedOn(x, y))
+	{
+		delete(m_cursorSprite);
+
+		Sprite* wallSprite = m_pBackBuffer->CreateSprite("assets\\wall_base.png");
+
+		m_cursorSprite = wallSprite;
+
+		m_selected = WALL;
+	}
+	else if (m_interfaceManager->GetButton("startWaveButton")->WasClickedOn(x, y))
+	{
+		StartWave();
+	}
+	else if (m_interfaceManager->GetButton("sellButton")->WasClickedOn(x, y))
+	{
+		if (m_selectedBuilding != 0)
+		{
+			SellBuilding(m_selectedBuilding);
+
+			m_selectedBuilding = 0;
+			UpdateSelected();
+		}
+	}
+	else if (m_interfaceManager->GetButton("upgradeButton")->WasClickedOn(x, y))
+	{
+		if (m_currency >= dynamic_cast<Tower*>(m_selectedBuilding)->GetTowerUpgradeCost() && !dynamic_cast<Tower*>(m_selectedBuilding)->IsMaxLevel())
+		{
+			UpdateCurrency(-dynamic_cast<Tower*>(m_selectedBuilding)->GetTowerUpgradeCost());
+
+			dynamic_cast<Tower*>(m_selectedBuilding)->UpgradeTower();
+
+			UpdateSelected();
+
+			m_audioManager->PlaySound("assets\\audio\\tower_place.wav");
+		}
+	}
+	else if (m_interfaceManager->GetButton("quitButton")->WasClickedOn(x, y) && m_gameState != PLAYING)
+	{
+		Quit();
+	}
+	else if (m_interfaceManager->GetButton("restartButton")->WasClickedOn(x, y) && m_gameState != PLAYING)
+	{
+		CleanUp();
+		Initialise(false);
+	}
+	else
+	{
+		Position pos = Position(x, y);
+
+		std::vector<Entity*> clickedOn = m_quadTree->QueryPoint(&pos);
+
+		for each (Entity* e in clickedOn)
+		{
+			reinterpret_cast<Enemy*>(e)->TakeDamage(1);
+
+			m_audioManager->PlaySound("assets\\audio\\enemy_end.wav");
+		}
+
+		if (m_selected == TOWER)
+		{
+			PlaceTower(x, y);
+		}
+		else if (m_selected == WALL)
+		{
+			PlaceWall(x, y);
+		}
+		else
+		{
+			m_selected = NONE;
+			Position pos = Position(x, y);
+
+			std::vector<Entity*> clickedOn = m_towerQuadTree->QueryPoint(&pos);
+
+			if (clickedOn.empty())
+			{
+				if (m_selectedBuilding != 0)
+				{
+					m_selectedBuilding->SetSelected(false);
+				}
+
+				m_selectedBuilding = 0;
+				UpdateSelected();
+			}
+			else
+			{
+				for each (Building* building in clickedOn) // There should only ever be 1 tower in the vector
+				{
+					if (m_selectedBuilding != 0)
+					{
+						m_selectedBuilding->SetSelected(false);
+					}
+
+					m_selectedBuilding = building;
+
+					m_selectedBuilding->SetSelected(true);
+
+					UpdateSelected();
+				}
+			}
+		}
+	}
+
+}
+
+void Game::OnRightMouseClick(int x, int y)
+{
+	delete(m_cursorSprite);
+	m_cursorSprite = 0;
+	m_selected = NONE;
+}
+
+void Game::StartWave()
+{
+	if (m_enemySpawner->IsWaveActive()) // Cannot start a new wave while a wave is still active
+	{
+		return;
+	}
+
+	m_map->UpdatePath();
+
+	std::queue<Position*> path = m_pathfinding->SimplifyPath(m_map->GetGridPath());
+
+	m_enemySpawner->StartWave(path);
+
+	delete(m_cursorSprite);
+	m_cursorSprite = 0;
+	m_selected = NONE;
+
+	m_interfaceManager->GetButton("startWaveButton")->SetBackgroundColour(m_interfaceManager->GetColour(GRAY));
+
+	m_audioManager->PlaySound("assets\\audio\\wave_start.wav");
+}
+
+void Game::AddEnemy(Enemy* enemy)
+{
+	enemy->SetTilePosition(m_map->GetGridStart());
+
+	enemy->m_grid = m_map;
+
+	m_quadTree->Insert(enemy);
+
+	m_enemies.push_back(enemy);
+}
+
+void Game::AddProjectile(Projectile* projectile)
+{
+	m_audioManager->PlaySound("assets\\audio\\tower_shoot.wav");
+	m_projectiles.push_back(projectile);
+}
+
+void Game::UpdateCursorPosition(int x, int y)
+{
+	if (m_cursorSprite != 0)
+	{
+		m_cursorSprite->SetCenter(x, y);
+	}
+}
+
+void Game::UpdateGameState(GameState state)
+{
+	if (m_gameState == PAUSED && state == PAUSED)
+	{
+		state = PLAYING;
+	}
+
+	m_gameState = state;
+
+	if (m_gameState == PLAYING)
+	{
+		m_interfaceManager->GetLabel("gameOver")->SetDrawable(false);
+		m_interfaceManager->GetButton("quitButton")->SetDrawable(false);
+		m_interfaceManager->GetButton("restartButton")->SetDrawable(false);
+	}
+	else
+	{
+		m_interfaceManager->GetLabel("gameOver")->SetDrawable(true);
+		m_interfaceManager->GetButton("quitButton")->SetDrawable(true);
+		m_interfaceManager->GetButton("restartButton")->SetDrawable(true);
+	}
+
+	switch (m_gameState)
+	{
+	case WON:
+	{
+		m_interfaceManager->GetLabel("gameOver")->SetText("You Win");
+	}
+	break;
+	case LOST:
+	{
+		m_interfaceManager->GetLabel("gameOver")->SetText("You Lost");
+	}
+	break;
+	default:
+	{
+		m_interfaceManager->GetLabel("gameOver")->SetText("Paused");
+	}
+	break;
+	}
+}
+
 void Game::CleanUp()
 {
 	//Clear out containers
@@ -259,42 +522,6 @@ void Game::CleanUp()
 
 	delete m_enemySpawner;
 	m_enemySpawner = 0;
-}
-
-bool Game::DoGameLoop()
-{
-	const float stepSize = 1.0f / 60.0f; // calculate step size
-
-	// Check input
-	assert(m_pInputHandler);
-	m_pInputHandler->ProcessInput(*this);
-
-	if (m_looping)
-	{
-		// Set up time values
-		int current = SDL_GetTicks();
-		float deltaTime = (current - m_lastTime) / 1000.0f;
-		m_lastTime = current;
-
-		m_executionTime += deltaTime;
-
-		m_lag += deltaTime;
-
-		while (m_lag >= stepSize)
-		{
-			Process(stepSize); // Process
-
-			m_lag -= stepSize;
-
-			++m_numUpdates;
-		}
-
-		Draw(*m_pBackBuffer); // Render
-	}
-
-	SDL_Delay(1);
-
-	return (m_looping);
 }
 
 void Game::Process(float deltaTime)
@@ -691,183 +918,6 @@ void Game::UpdateSelected()
 	m_interfaceManager->GetIcon("damageIcon")->drawable = draw;
 }
 
-void Game::Quit()
-{
-	m_looping = false;
-}
-
-void Game::Pause(bool pause)
-{
-	m_paused = pause;
-}
-
-bool Game::IsPaused()
-{
-	return (m_paused);
-}
-
-void Game::OnLeftMouseClick(int x, int y)
-{
-	if (m_interfaceManager->GetButton("towerBuildButton")->WasClickedOn(x, y))
-	{
-		delete(m_cursorSprite);
-
-		Sprite* newTowerSprite = m_pBackBuffer->CreateSprite("assets\\tower_base.png");
-		m_cursorSprite = newTowerSprite;
-
-		m_selected = TOWER;
-	}
-	else if (m_interfaceManager->GetButton("wallBuildButton")->WasClickedOn(x, y))
-	{
-		delete(m_cursorSprite);
-
-		Sprite* wallSprite = m_pBackBuffer->CreateSprite("assets\\wall_base.png");
-
-		m_cursorSprite = wallSprite;
-
-		m_selected = WALL;
-	}
-	else if (m_interfaceManager->GetButton("startWaveButton")->WasClickedOn(x, y))
-	{
-		StartWave();
-	}
-	else if (m_interfaceManager->GetButton("sellButton")->WasClickedOn(x, y))
-	{
-		if (m_selectedBuilding != 0)
-		{
-			SellBuilding(m_selectedBuilding);
-
-			m_selectedBuilding = 0;
-			UpdateSelected();
-		}
-	}
-	else if (m_interfaceManager->GetButton("upgradeButton")->WasClickedOn(x, y))
-	{
-		if (m_currency >= dynamic_cast<Tower*>(m_selectedBuilding)->GetTowerUpgradeCost() && !dynamic_cast<Tower*>(m_selectedBuilding)->IsMaxLevel())
-		{
-			UpdateCurrency(-dynamic_cast<Tower*>(m_selectedBuilding)->GetTowerUpgradeCost());
-
-			dynamic_cast<Tower*>(m_selectedBuilding)->UpgradeTower();
-
-			UpdateSelected();
-
-			m_audioManager->PlaySound("assets\\audio\\tower_place.wav");
-		}
-	}
-	else if (m_interfaceManager->GetButton("quitButton")->WasClickedOn(x, y) && m_gameState != PLAYING)
-	{
-		Quit();
-	}
-	else if (m_interfaceManager->GetButton("restartButton")->WasClickedOn(x, y) && m_gameState != PLAYING)
-	{
-		CleanUp();
-		Initialise(false);
-	}
-	else
-	{
-		Position pos = Position(x, y);
-
-		std::vector<Entity*> clickedOn = m_quadTree->QueryPoint(&pos);
-
-		for each (Entity* e in clickedOn)
-		{
-			reinterpret_cast<Enemy*>(e)->TakeDamage(1);
-
-			m_audioManager->PlaySound("assets\\audio\\enemy_end.wav");
-		}
-
-		if (m_selected == TOWER)
-		{
-			PlaceTower(x, y);
-		}
-		else if (m_selected == WALL)
-		{
-			PlaceWall(x, y);
-		}
-		else
-		{
-			m_selected = NONE;
-			Position pos = Position(x, y);
-
-			std::vector<Entity*> clickedOn = m_towerQuadTree->QueryPoint(&pos);
-
-			if (clickedOn.empty())
-			{
-				if (m_selectedBuilding != 0)
-				{
-					m_selectedBuilding->SetSelected(false);
-				}
-
-				m_selectedBuilding = 0;
-				UpdateSelected();
-			}
-			else
-			{
-				for each (Building* building in clickedOn) // There should only ever be 1 tower in the vector
-				{
-					if (m_selectedBuilding != 0)
-					{
-						m_selectedBuilding->SetSelected(false);
-					}
-
-					m_selectedBuilding = building;
-
-					m_selectedBuilding->SetSelected(true);
-
-					UpdateSelected();
-				}
-			}
-		}
-	}
-	
-}
-
-void Game::OnRightMouseClick(int x, int y)
-{
-	delete(m_cursorSprite);
-	m_cursorSprite = 0;
-	m_selected = NONE;
-}
-
-void Game::StartWave()
-{
-	if (m_enemySpawner->IsWaveActive()) // Cannot start a new wave while a wave is still active
-	{
-		return;
-	}
-
-	m_map->UpdatePath();
-
-	std::queue<Position*> path = m_pathfinding->SimplifyPath(m_map->GetGridPath());
-
-	m_enemySpawner->StartWave(path);
-
-	delete(m_cursorSprite);
-	m_cursorSprite = 0;
-	m_selected = NONE;
-
-	m_interfaceManager->GetButton("startWaveButton")->SetBackgroundColour(m_interfaceManager->GetColour(GRAY));
-
-	m_audioManager->PlaySound("assets\\audio\\wave_start.wav");
-}
-
-void Game::AddEnemy(Enemy* enemy)
-{
-	enemy->SetTilePosition(m_map->GetGridStart());
-
-	enemy->m_grid = m_map;
-
-	m_quadTree->Insert(enemy);
-
-	m_enemies.push_back(enemy);
-}
-
-void Game::AddProjectile(Projectile* projectile)
-{
-	m_audioManager->PlaySound("assets\\audio\\tower_shoot.wav");
-	m_projectiles.push_back(projectile);
-}
-
 void Game::PlaceTower(int x, int y)
 {
 	if (m_enemySpawner->IsWaveActive())
@@ -1009,55 +1059,5 @@ void Game::PlaceWall(int x, int y)
 		{
 			m_audioManager->PlaySound("assets\\audio\\error.wav");
 		}
-	}
-}
-
-void Game::UpdateCursorPosition(int x, int y)
-{
-	if (m_cursorSprite != 0)
-	{
-		m_cursorSprite->SetCenter(x, y);
-	}
-}
-
-void Game::UpdateGameState(GameState state)
-{
-	if (m_gameState == PAUSED && state == PAUSED)
-	{
-		state = PLAYING;
-	}
-
-	m_gameState = state;
-
-	if (m_gameState == PLAYING)
-	{
-		m_interfaceManager->GetLabel("gameOver")->SetDrawable(false);
-		m_interfaceManager->GetButton("quitButton")->SetDrawable(false);
-		m_interfaceManager->GetButton("restartButton")->SetDrawable(false);
-	}
-	else
-	{
-		m_interfaceManager->GetLabel("gameOver")->SetDrawable(true);
-		m_interfaceManager->GetButton("quitButton")->SetDrawable(true);
-		m_interfaceManager->GetButton("restartButton")->SetDrawable(true);
-	}
-
-	switch (m_gameState)
-	{
-	case WON:
-	{
-		m_interfaceManager->GetLabel("gameOver")->SetText("You Win");
-	}
-	break;
-	case LOST:
-	{
-		m_interfaceManager->GetLabel("gameOver")->SetText("You Lost");
-	}
-	break;
-	default:
-	{
-		m_interfaceManager->GetLabel("gameOver")->SetText("Paused");
-	}
-	break;
 	}
 }

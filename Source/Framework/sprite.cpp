@@ -95,17 +95,6 @@ void Sprite::SetCenter(int x, int y)
 	m_y = m_centerY - (m_height / 2);
 }
 
-void Sprite::SetHandleCenter()
-{
-	m_centerX = 50; //TODO
-	m_centerY = 50;
-}
-
-Texture* Sprite::GetTexture()
-{
-	return (m_pTexture);
-}
-
 int Sprite::GetWidth() const
 {
 	return (m_width);
@@ -124,4 +113,9 @@ void Sprite::SetWidth(int width)
 void Sprite::SetHeight(int height)
 {
 	m_height = height;
+}
+
+Texture* Sprite::GetTexture()
+{
+	return (m_pTexture);
 }

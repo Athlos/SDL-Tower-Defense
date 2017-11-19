@@ -2,10 +2,10 @@
 #include "tile.h"
 
 TileHeap::TileHeap(int size)
+	: m_size(size)
+	, currentItemCount(0)
 {
 	m_tiles = new Tile*[size]; // Allocate array
-	m_size = size;
-	currentItemCount = 0;
 }
 
 TileHeap::~TileHeap()

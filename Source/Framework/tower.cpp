@@ -12,16 +12,13 @@
 #include <sstream>
 
 Tower::Tower(int range, float firingSpeed, int damage, int cost) : Building(cost)
+	, m_tileRange(range)
+	, m_firingSpeed(firingSpeed)
+	, m_damage(damage)
+	, m_currentTarget(0)
+	, m_timeElapsed(0)
+	, m_maxLevel(4)
 {
-	m_tileRange = range;
-	m_firingSpeed = firingSpeed;
-	m_damage = damage;
-
-	m_currentTarget = 0;
-	m_timeElapsed = 0;
-	m_currentLevel = 1;
-	m_maxLevel = 4;
-
 	m_buildingType = TOWER;
 }
 

@@ -1,5 +1,4 @@
-#ifndef __ANIMATEDSPRITE_H__
-#define __ANIMATEDSPRITE_H__
+#pragma once
 
 #include "sprite.h"
 #include "SDL.h"
@@ -16,51 +15,46 @@ public:
 	AnimatedSprite();
 	~AnimatedSprite();
 
-	bool Initialise(Texture& texture);
+	bool Initialise(Texture& texture); // Initialise sprite texture
 
-	void Process(float deltaTime);
-	void Draw(BackBuffer& backbuffer);
+	void Process(float deltaTime); // Process animated sprite frames and timings
+	void Draw(BackBuffer& backbuffer); // Draw current frame
 
-	void AnimatedSprite::LoadFrames(int width, int height);
+	void AnimatedSprite::LoadFrames(int width, int height); // Load up frame coordinates in current sprite sheet
 
-	void SetFrameSpeed(float f);
-	void SetFrameWidth(int w);
+	void SetFrameSpeed(float f); // Set duration between switching frames
+	void SetFrameWidth(int w); // Set width of a single frame in the sprite sheet
 
-	void Pause();
-	bool IsPaused();
+	void Pause(); // Pause processing through the animation frames
+	bool IsPaused(); // Get if animation if paused
 
-	bool IsAnimating();
-	void StartAnimating();
-	void StopAnimating();
+	bool IsAnimating(); // Get if sprite is being animated
+	void StartAnimating(); // Begin animating the sprite
+	void StopAnimating(); // Stop aninating the sprite
 
-	bool IsLooping();
-	void SetLooping(bool b);
+	bool IsLooping(); // Get if animation loops
+	void SetLooping(bool b); // Set if the animation should loop
 
-	Texture* GetTexture();
+	Texture* GetTexture(); // Get sprite sheet
 
-	void SetScale(int width, int height);
-	int GetFrameCount();
+	void SetScale(int width, int height); // Set the bounds each frame should fit in
+	int GetFrameCount(); // Get total frames
 
 	// Member Data:
 protected:
 
-	std::vector<SDL_Point*> m_totalFrames;
+	std::vector<SDL_Point*> m_totalFrames; // All frame coordinates in the sprite sheet
 
-	float m_frameSpeed;
-	int m_frameWidth;
+	float m_frameSpeed; // Time between frames
+	int m_frameWidth; // Width of a single frame in sprite sheet
 
-	float m_timeElapsed;
-	int m_currentFrame;
+	float m_timeElapsed; // Time passed counter
+	int m_currentFrame; // Index of current frame
 
-	bool m_paused;
-	bool m_loop;
-	bool m_animating;
+	bool m_paused; // Paused flag
+	bool m_loop; // Looping flag
+	bool m_animating; // animating flag
 
-	int m_scaleWidth;
-	int m_scaleHeight;
-
-private:
-
+	int m_scaleWidth; // Width to strech the sprite to
+	int m_scaleHeight; // Height to strech the sprite to
 };
-
-#endif // __ANIMATEDSPRITE_H__

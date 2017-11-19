@@ -9,9 +9,9 @@
 #include <queue>
 
 Grid::Grid(int x, int y)
+	: m_gridSizeX(x)
+	, m_gridSizeY(y)
 {
-	m_gridSizeX = x;
-	m_gridSizeY = y;
 
 	m_pathFinding = new Pathfinding();
 	m_pathFinding->m_grid = this;

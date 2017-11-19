@@ -45,6 +45,11 @@ void TextParticle::Process(float deltaTime)
 	}
 }
 
+void TextParticle::Draw(BackBuffer& backbuffer)
+{
+	m_text->Draw(backbuffer);
+}
+
 void TextParticle::SpawnParticle(int x, int y, std::string message)
 {
 	m_text->SetBounds(x, y, 32, 24);
@@ -74,9 +79,4 @@ void TextParticle::SpawnParticle(int x, int y, std::string message)
 	{
 		m_accelerationY = rand() % 50;
 	}
-}
-
-void TextParticle::Draw(BackBuffer& backbuffer)
-{
-	m_text->Draw(backbuffer);
 }

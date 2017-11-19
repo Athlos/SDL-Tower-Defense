@@ -4,20 +4,17 @@
 #include "sprite.h"
 
 Tile::Tile(int x, int y, TileState walkable)
+	: m_gridX(x)
+	, m_gridY(y)
+	, m_hCost(0)
+	, m_gCost(0)
+	, m_heapIndex(0)
+	, m_hasWall(false)
 {
-	m_gridX = x;
-	m_gridY = y;
 	SetState(walkable);
 
 	m_xScreenPos = m_gridX * m_gridWidth;
 	m_yScreenPos = m_gridY * m_gridHeight;
-
-	m_hCost = 0;
-	m_gCost = 0;
-
-	m_heapIndex = 0;
-
-	m_hasWall = false;
 }
 
 Tile::~Tile()

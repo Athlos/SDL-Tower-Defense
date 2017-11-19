@@ -1,5 +1,4 @@
-#ifndef __ENEMY_H__
-#define __ENEMY_H__
+#pragma once
 
 #include "entity.h"
 
@@ -18,70 +17,67 @@ public:
 	Enemy();
 	~Enemy();
 
-	void SetPosition(float x, float y);
+	void SetPosition(float x, float y); // Set the position
 
-	float GetCenterX() const;
+	float GetCenterX() const; // Get the center of the enemy X position
+	float GetCenterY() const;// Get the center of the enemy Y position
 
-	float GetCenterY() const;
+	bool Initialise(AnimatedSprite* sprite); // Initialise an enemy with a sprite
 
-	bool Initialise(AnimatedSprite* sprite);
+	void Process(float deltaTime); // Process the enemy
+	void Draw(BackBuffer& backBuffer); // Draw the enemy to the screen
 
-	void Process(float deltaTime);
-	void Draw(BackBuffer& backBuffer);
+	void DrawHealthBar(BackBuffer& backBuffer); // Draw the health bar above the enemy
 
-	void DrawHealthBar(BackBuffer& backBuffer);
+	void SetData(int health, float speed, int damage); // Set the core data for the enemy
+	bool IsClickedOn(int x, int y); // Return if the enemy was clicked on
 
-	void SetData(int health, float speed, int damage);
-	bool IsClickedOn(int x, int y);
+	int GetDamage(); // Get the amount of damage the enemy does
+	void TakeDamage(int amount); // Reduce the enemy health by a certain amount
 
-	void TakeDamage(int amount);
-	int GetDamage();
+	int GetReward(); // Get the currency reward value from killing the enemy
+	void SetReward(int amount); // Set the currency reward value from killing the enemy
 
-	int GetReward();
-	void SetReward(int amount);
+	void SetTilePosition(Tile* tile); // Set the position on map based on tile
+	Tile* GetTilePosition(); // Get the position of the tile
 
-	void SetTilePosition(Tile* tile);
-	Tile* GetTilePosition();
+	void SetPath(std::queue<Position*> path); // Set the path for the enemy to follow
 
-	void SetPath(std::queue<Position*> path);
+	void MoveToWaypoints(float deltaTime); // Moves towards the current waypoint
 
-	void MoveToWaypoints(float deltaTime);
+	bool ReachedEnd() const; // Returns if the enemy has reached the end
 
-	bool ReachedEnd() const;
-
-	int WaypointsToGo() const;
-	float DistanceToNextWaypoint() const;
+	int WaypointsToGo() const; // Returns how many waypoints are left to go through
+	float DistanceToNextWaypoint() const; // Get distance to next waypoint
 
 private:
-	void UpdateDirection();
+	void UpdateDirection(); // Updates the direction the enemy should move to
 
 	// Member Data:
 public:
-	Grid* m_grid;
+	Grid* m_grid; // Map grid
 
-	bool m_inRange;
-	bool m_targetted;
+	bool m_inRange; // Flag if enemy is in range of a tower
+	bool m_targetted; // Flag if enemy is targetted by a tower
 
 protected:
-	int m_currentHealth;
-	int m_maxHealth;
+	int m_currentHealth; // Enemy current health
+	int m_maxHealth; // Enemy max health
 
-	int m_damage;
-	int m_reward;
+	int m_damage; // Damage the enemy does
+	int m_reward; // Reward from killing enemy
 
-	float m_speed;
-	float m_directionX;
-	float m_directionY;
+	float m_speed; // Enemy movement speed
+	float m_directionX; // Enemy x direction
+	float m_directionY; // Enemy y direction
 
-	Tile* m_tilePosition;
+	Tile* m_tilePosition; // Enemy tile location on map
 
-	std::queue<Position*> m_waypoints;
-	Position* m_currentWaypoint;
+	std::queue<Position*> m_waypoints; // Waypoints to follow to reach end of map
+	Position* m_currentWaypoint; // Current waypoint to move towards
 
-	bool m_reachedEnd;
-	float m_distanceToNextWaypoint;
+	bool m_reachedEnd; // Flag if enemy has reached final waypoint
+	float m_distanceToNextWaypoint; // Distance to current waypoint
 
-	AnimatedSprite* m_animSprite;
+	AnimatedSprite* m_animSprite; // Enemy sprite
 };
-#endif //__ENEMY_H__
-

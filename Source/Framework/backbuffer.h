@@ -1,5 +1,4 @@
-#ifndef __BACKBUFFER_H__
-#define __BACKBUFFER_H__
+#pragma once
 
 #include <string>
 #include "SDL_ttf.h"
@@ -21,32 +20,34 @@ public:
 	BackBuffer();
 	~BackBuffer();
 
-	bool Initialise(int width, int height);
+	bool Initialise(int width, int height); // Initialise the backbuffer with screen dimensions
 
-	void Clear();
-	void Present();
+	void Clear(); // Clear the buffer
+	void Present(); // Present the buffer
 
-	void SetClearColour(unsigned char r, unsigned char g, unsigned char b);
+	void SetClearColour(unsigned char r, unsigned char g, unsigned char b); // Set colour to clear the screen to
 
-	void SetDrawColour(unsigned char r, unsigned char g, unsigned char b);
-	void SetDrawColour(unsigned char r, unsigned char g, unsigned char b, unsigned char a);
+	void SetDrawColour(unsigned char r, unsigned char g, unsigned char b); // Set the draw colour
+	void SetDrawColour(unsigned char r, unsigned char g, unsigned char b, unsigned char a); // Set the draw colour with alpha
 
-	void DrawSprite(Sprite& sprite);
-	void DrawRectangle(int x1, int y1, int x2, int y2, bool fill);
-	void DrawRectangle(SDL_Rect* bounds, bool fill);
+	void DrawSprite(Sprite& sprite); // Draw a sprite
+	Sprite* CreateSprite(const char* pcFilename); // Create a sprite based on a filename
 
-	void DrawLine(int x1, int y1, int x2, int y2);
+	void DrawRectangle(int x1, int y1, int x2, int y2, bool fill); // Draw a rectangle, either a frame or filled
+	void DrawRectangle(SDL_Rect* bounds, bool fill); // Draw a rectangle, either a frame or filled
 
-	void DrawText(SDL_Texture* textOnScreen, SDL_Rect bounds);
-	SDL_Texture* CreateText(std::string text, SDL_Color colour);
+	void DrawLine(int x1, int y1, int x2, int y2); // Draw a line between 2 points
 
-	Sprite* CreateSprite(const char* pcFilename);
-	void DrawAnimatedSprite(AnimatedSprite& sprite, SDL_Rect* bounds, SDL_Rect* raw);
-	AnimatedSprite* CreateAnimatedSprite(const char* pcFilename);
-	void SetMouse(int x, int y);
+	void DrawText(SDL_Texture* textOnScreen, SDL_Rect bounds); // Draw text to the screen
+	SDL_Texture* CreateText(std::string text, SDL_Color colour); // Create a text texture
+
+	void DrawAnimatedSprite(AnimatedSprite& sprite, SDL_Rect* bounds, SDL_Rect* raw); // Draw an animated sprite, pass in dimensions to draw to, and from
+	AnimatedSprite* CreateAnimatedSprite(const char* pcFilename); // Create an animated sprite based on a filename
+
+	void SetMouse(int x, int y); // Sets the mouse to these coordinates
 	
 protected:
-	void LogSDLError();
+	void LogSDLError(); // Log an error
 
 private:
 	BackBuffer(const BackBuffer& backBuffer);
@@ -54,21 +55,19 @@ private:
 
 	// Member Data:
 protected:
-	TextureManager* m_pTextureManager;
+	TextureManager* m_pTextureManager; // Manages all textures requested
 
 	// Fonts
-	SDL_Window* m_pWindow;
-	SDL_Renderer* m_pRenderer;
-	SDL_Surface* m_surface;
-	TTF_Font* m_font;
+	SDL_Window* m_pWindow; // Game window
+	SDL_Renderer* m_pRenderer; // Game renderer
+	SDL_Surface* m_surface; // Window surface
+	TTF_Font* m_font; // Game font
 
-	int m_width;
-	int m_height;
+	int m_width; // Window width
+	int m_height; // Window height
 
-	unsigned char m_clearRed;
-	unsigned char m_clearGreen;
-	unsigned char m_clearBlue;
+	unsigned char m_clearRed; // Red cleared channel
+	unsigned char m_clearGreen; // Green cleared channel
+	unsigned char m_clearBlue; // Blue cleared channel
 
 };
-
-#endif // __BACKBUFFER_H__

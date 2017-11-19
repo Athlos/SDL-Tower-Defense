@@ -1,9 +1,7 @@
-#ifndef __PARTICLEEMITTER_H__
-#define __PARTICLEEMITTER_H__
+#pragma once
 
 #include "particle.h"
 #include "entity.h"
-#include "playerbullettrailparticle.h"
 #include <vector>
 
 class ParticleEmitter : public Entity
@@ -13,20 +11,19 @@ public:
 	ParticleEmitter();
 	~ParticleEmitter();
 
-	void SpawnNewParticles(int x, int y, int amount, BackBuffer* backbuffer, ParticleType T);
-	void SpawnTextParticle(int x, int y, std::string message);
-	bool Initialise(Sprite* sprite);
+	void Process(float deltaTime); // Process the particles
+	void Draw(BackBuffer& backBuffer); // Draw the particles
 
-	void SetParticleTimer(float timer);
+	void SpawnNewParticles(int x, int y, int amount, BackBuffer* backbuffer, ParticleType T); // Spawn a new particle
+	void SpawnTextParticle(int x, int y, std::string message); // Spawn a new text particle
+	//bool Initialise(Sprite* sprite);
 
-	void Process(float deltaTime);
-	void Draw(BackBuffer& backBuffer);
+	void SetParticleTimer(float timer); // Set the time between spawning particles
 
 	// Member Data:
 protected:
-	std::vector<Particle*> m_particles;
+	std::vector<Particle*> m_particles; // Container of all particles
 	
 	float m_particleTimer; // how often particles spawn
 
 };
-#endif //__PARTICLEEMITTER_H__

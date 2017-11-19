@@ -7,7 +7,7 @@
 class BackBuffer;
 class Sprite;
 
-enum TileState
+enum TileState // State of the tile
 {
 	EMPTY,
 	BLOCKED,
@@ -17,7 +17,7 @@ enum TileState
 
 class Tile
 {
-	struct colour
+	struct colour // TODO remove this and use standard colour stuff
 	{
 		int r;
 		int g;
@@ -29,65 +29,65 @@ public:
 	Tile(int x, int y, TileState walkable);
 	~Tile();
 
-	int FCost() const;
+	int FCost() const; // F cost for A* pathfinding
 
-	int GetHCost() const;
-	int GetGCost() const;
+	int GetHCost() const; // H cost for A* pathfinding
+	int GetGCost() const; // G cost for A* pathfinding
 
-	void Draw(BackBuffer& backBuffer);
-	void Initialise(BackBuffer& backBuffer);
+	void Draw(BackBuffer& backBuffer); // Draw the tile
+	void Initialise(BackBuffer& backBuffer); // Create the tile
 
-	int GetGridX() const;
-	int GetGridY() const;
+	int GetGridX() const; // Get the grid X coordinate
+	int GetGridY() const; // Get the grid Y coordinate
 
-	Position GetCenter() const;
+	Position GetCenter() const; // Get the center of the tile
 	
-	int GetX() const;
-	int GetY() const;
+	int GetX() const; // Get X screen position
+	int GetY() const; // Get Y screen position
 
-	int GetTileWidth() const;
-	int GetTileHeight() const;
+	int GetTileWidth() const; // Get width of the tile
+	int GetTileHeight() const; // Get height of the tile
 
-	void SetState(TileState state);
-	TileState GetState() const;
+	void SetState(TileState state); // Set the state of the tile
+	TileState GetState() const; // Get the tile state
 
-	int CompareTo(Tile* tile);
+	int CompareTo(Tile* tile); // Compare to another tile
 
-	void SetGridSize(int width, int height);
+	void SetGridSize(int width, int height); // Set the width and height of the tile
 
-	bool IsOccupied();
-	void SetOccupied(bool occupied);
+	bool IsOccupied(); // Returns if the tile is occupied with an obstacle
+	void SetOccupied(bool occupied); // Set if a tile is occupied
 
-	void SetWall(bool hasWall);
+	void SetWall(bool hasWall); // Set if tile has a wall
 
 private:
-	void SetSpriteDefault(Sprite* sprite);
+	void SetSpriteDefault(Sprite* sprite); // Sets default values for a sprite
 
 	//Member Data:
 public:
-	int m_gCost;
-	int m_hCost;
+	int m_gCost; // G cost for A* pathfinding
+	int m_hCost; // H cost for A* pathfinding
 
-	Tile* m_parent;
+	Tile* m_parent; // Neighbour tile that explored this one and set its heuristics
 
-	int m_heapIndex;
+	int m_heapIndex; // Index of tile in the Tile heap
 
-	int m_xScreenPos;
-	int m_yScreenPos;
+	int m_xScreenPos; // X position on screen
+	int m_yScreenPos; // Y position on screen
 
 private:
-	int m_gridX;
-	int m_gridY;
+	int m_gridX; // X location in grid
+	int m_gridY; // Y location in grid
 
-	int m_gridWidth;
-	int m_gridHeight;
+	int m_gridWidth; // Width of the tile
+	int m_gridHeight; // Height of the tile
 
-	colour m_colour;
-	TileState m_state;
+	colour m_colour; // Colour to draw based on tile state
+	TileState m_state; // State of the tile
 
-	Sprite* m_tileSprite;
+	Sprite* m_tileSprite; // Ground sprite
 
-	bool m_occupied;
-	bool m_hasWall;
+	bool m_occupied; // Flag if tile is blocked
+	bool m_hasWall; // Flag if tile has a wall
 };
 

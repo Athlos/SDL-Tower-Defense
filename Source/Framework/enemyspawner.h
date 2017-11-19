@@ -14,20 +14,20 @@ public:
 	EnemySpawner(float spawnInterval, BackBuffer* backBuffer);
 	~EnemySpawner();
 
-	void Process(float deltaTime);
+	void Process(float deltaTime); // Process the enemies to spawn
 
-	void LoadWave();
+	void LoadWave(); // Loads up a wave into a queue to spawn once the wave is active
 
-	int GetWaveNumber() const;
-	int GetTotalWaveNumber() const;
+	int GetWaveNumber() const; // Gets the current wave number
+	int GetTotalWaveNumber() const; // Gets the total number of waves
 
-	bool IsWaveActive() const;
-	void StartWave(std::queue<Position*> path);
-	void EndWave();
+	bool IsWaveActive() const; // Get if the wave is currently active
+	void StartWave(std::queue<Position*> path); // Starts spawning enemies in the wave
+	void EndWave(); // Ends the wave
 
 	bool WaveSpawned() const; // Return true if there are no enemies left to spawn this wave
 
-	bool AllWavesCompleted() const;
+	bool AllWavesCompleted() const; // Return true if the end of the game is reached due to all waves being defeated
 
 	//Member Data:
 private:

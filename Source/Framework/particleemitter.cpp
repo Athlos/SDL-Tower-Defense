@@ -19,35 +19,6 @@ ParticleEmitter::~ParticleEmitter()
 
 }
 
-void ParticleEmitter::SpawnNewParticles(int x, int y, int amount, BackBuffer* backbuffer, ParticleType t) 
-{
-	PlayerBulletTrailParticle* playerP;
-	if (x <= 0)
-	{
-		LogManager::GetInstance().Log("emitter received zero");
-	}
-	for (int i = 0; i < amount; i++)
-	{
-			switch (t)
-			{
-			case PLAYERBULLETTRAIL:
-				playerP = new PlayerBulletTrailParticle();
-				playerP->SpawnParticle(x, y, backbuffer, 0.5, t);
-				m_particles.push_back(playerP);
-				break;
-			default:
-				break;
-			}
-	}
-}
-
-void ParticleEmitter::SpawnTextParticle(int x, int y, std::string message)
-{
-	TextParticle* textP = new TextParticle();
-	textP->SpawnParticle(x, y, message);
-	m_particles.push_back(textP);
-}
-
 void ParticleEmitter::Process(float deltaTime)
 {
 	std::vector<Particle*>::iterator iter = m_particles.begin();
@@ -60,7 +31,7 @@ void ParticleEmitter::Process(float deltaTime)
 			delete current;
 			current = 0;
 		}
-		else 
+		else
 		{
 			if (current->GetType() == TEXT)
 			{
@@ -78,7 +49,7 @@ void ParticleEmitter::Process(float deltaTime)
 
 void ParticleEmitter::Draw(BackBuffer& backBuffer)
 {
-	for each(Particle* p in m_particles) 
+	for each(Particle* p in m_particles)
 	{
 		//cast to text particle if relevant
 		if (p->GetType() == TEXT)
@@ -91,6 +62,35 @@ void ParticleEmitter::Draw(BackBuffer& backBuffer)
 			p->Draw(backBuffer);
 		}
 	}
+}
+
+void ParticleEmitter::SpawnNewParticles(int x, int y, int amount, BackBuffer* backbuffer, ParticleType t) 
+{
+	//PlayerBulletTrailParticle* playerP;
+	//if (x <= 0)
+	//{
+	//	LogManager::GetInstance().Log("emitter received zero");
+	//}
+	//for (int i = 0; i < amount; i++)
+	//{
+	//		switch (t)
+	//		{
+	//		case PLAYERBULLETTRAIL:
+	//			playerP = new PlayerBulletTrailParticle();
+	//			playerP->SpawnParticle(x, y, backbuffer, 0.5, t);
+	//			m_particles.push_back(playerP);
+	//			break;
+	//		default:
+	//			break;
+	//		}
+	//}
+}
+
+void ParticleEmitter::SpawnTextParticle(int x, int y, std::string message)
+{
+	TextParticle* textP = new TextParticle();
+	textP->SpawnParticle(x, y, message);
+	m_particles.push_back(textP);
 }
 
 void ParticleEmitter::SetParticleTimer(float timer)

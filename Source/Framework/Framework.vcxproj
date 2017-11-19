@@ -103,7 +103,6 @@
     <ClInclude Include="particle.h" />
     <ClInclude Include="particleemitter.h" />
     <ClInclude Include="pathfinding.h" />
-    <ClInclude Include="playerbullettrailparticle.h" />
     <ClInclude Include="position.h" />
     <ClInclude Include="projectile.h" />
     <ClInclude Include="quadtree.h" />
@@ -137,7 +136,6 @@
     <ClCompile Include="particle.cpp" />
     <ClCompile Include="particleemitter.cpp" />
     <ClCompile Include="pathfinding.cpp" />
-    <ClCompile Include="playerbullettrailparticle.cpp" />
     <ClCompile Include="position.cpp" />
     <ClCompile Include="projectile.cpp" />
     <ClCompile Include="quadtree.cpp" />

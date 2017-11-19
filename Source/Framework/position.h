@@ -9,7 +9,7 @@ public:
 
 	//Member Data:
 public:
-	float m_x;
-	float m_y;
+	float m_x; // X position
+	float m_y; // Y position
 };
 

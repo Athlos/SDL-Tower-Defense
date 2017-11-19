@@ -1,5 +1,4 @@
-#ifndef __LOGMANAGER_H__
-#define __LOGMANAGER_H__
+#pragma once
 
 class LogManager
 {
@@ -8,7 +7,7 @@ public:
 	static LogManager& GetInstance();
 	~LogManager();
 
-	void Log(const char* pcMessage);
+	void Log(const char* pcMessage); // Log a message
 
 private:
 	LogManager();
@@ -20,5 +19,3 @@ protected:
 	static LogManager* sm_pInstance;
 
 };
-
-#endif //__LOGMANAGER_H__

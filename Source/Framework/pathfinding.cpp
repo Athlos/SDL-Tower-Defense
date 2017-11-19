@@ -9,33 +9,12 @@
 #include <cassert>
 #include <algorithm>
 
-// Static Members:
-Pathfinding* Pathfinding::sm_pInstance = 0;
-
 Pathfinding::Pathfinding()
 {
 }
 
 Pathfinding::~Pathfinding()
 {
-}
-
-Pathfinding& Pathfinding::GetInstance()
-{
-	if (sm_pInstance == 0)
-	{
-		sm_pInstance = new Pathfinding();
-	}
-
-	assert(sm_pInstance);
-
-	return (*sm_pInstance);
-}
-
-void Pathfinding::DestroyInstance()
-{
-	delete sm_pInstance;
-	sm_pInstance = 0;
 }
 
 std::vector<Tile*> Pathfinding::FindPath(int xStart, int yStart, int xEnd, int yEnd, bool drawPath)

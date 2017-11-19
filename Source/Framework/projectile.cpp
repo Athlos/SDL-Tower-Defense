@@ -6,10 +6,10 @@
 #include <math.h>
 
 Projectile::Projectile(int damage, float speed, float lifespan)
+	: m_damage(damage)
+	, m_speed(speed)
+	, m_lifespan(lifespan)
 {
-	m_damage = damage;
-	m_speed = speed;
-	m_lifespan = lifespan;
 }
 
 Projectile::~Projectile()

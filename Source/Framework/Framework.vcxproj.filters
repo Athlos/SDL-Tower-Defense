@@ -34,9 +34,6 @@
     <ClCompile Include="particleemitter.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="playerbullettrailparticle.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
     <ClCompile Include="sprite.cpp">
       <Filter>Source</Filter>
     </ClCompile>
@@ -94,7 +91,9 @@
     <ClCompile Include="wall.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="interfacemanager.cpp" />
+    <ClCompile Include="interfacemanager.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="animatedsprite.h">
@@ -125,9 +124,6 @@
       <Filter>Headers</Filter>
     </ClInclude>
     <ClInclude Include="particleemitter.h">
-      <Filter>Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="playerbullettrailparticle.h">
       <Filter>Headers</Filter>
     </ClInclude>
     <ClInclude Include="sprite.h">
@@ -187,7 +183,9 @@
     <ClInclude Include="wall.h">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="interfacemanager.h" />
+    <ClInclude Include="interfacemanager.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Headers">

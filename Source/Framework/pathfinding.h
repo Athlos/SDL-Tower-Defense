@@ -30,8 +30,7 @@ public:
 
 	std::queue<Position*> SimplifyPath(std::vector<Tile*> path); // Turns path of tiles into positions, removes uneccessary points if direction does not change
 
-	int GetDistance(Tile* a, Tile* b); // Get distance between two tiles
-	int GetDistanceDiagonal(Tile* a, Tile* b); // Get distance between two tiles using diagonal distances
+	int GetDistance(Tile* a, Tile* b); // Get distance between two tiles using manhattan distances
 
 	std::vector<Tile*> RetracePath(Tile* start, Tile* end, bool drawPath); // Uses the closed set of the pathfinding algorithm to retrace from the start to end using a tile's parent
 

@@ -65,8 +65,8 @@ private:
 
 	//Member Data:
 public:
-	int m_gCost; // G cost for A* pathfinding
-	int m_hCost; // H cost for A* pathfinding
+	int m_gCost; // Cost from start node for A* pathfinding
+	int m_hCost; // Estimated heuristic cost to end node for A* pathfinding
 
 	Tile* m_parent; // Neighbour tile that explored this one and set its heuristics
 

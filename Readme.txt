@@ -20,4 +20,3 @@ Place walls to block the enemy path. Place towers to shoot the enemy. You can al
 Once you are ready to begin, click on start wave on the bottom right, or hit space.
 You can select the buildings you have placed by left clicking on them. Once selected, you can upgrade or sell them in the "Selected" section on the bottom right of the screen.
 Killing enemies will earn you more money to spend on towers and walls.
-

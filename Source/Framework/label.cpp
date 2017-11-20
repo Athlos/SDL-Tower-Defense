@@ -146,6 +146,8 @@ void Label::SetDrawable(bool draw)
 void Label::ResizeText()
 {
 	//Resize bounds to fit text;
+	m_currentBounds = m_bounds;
+
 	TTF_SizeText(m_font, m_text.c_str(), &m_currentBounds.w, &m_currentBounds.h);
 
 	while (m_currentBounds.w > m_bounds.w)

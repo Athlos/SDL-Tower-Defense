@@ -18,6 +18,7 @@ Tower::Tower(int range, float firingSpeed, int damage, int cost) : Building(cost
 	, m_currentTarget(0)
 	, m_timeElapsed(0)
 	, m_maxLevel(4)
+	, m_currentLevel(1)
 {
 	m_buildingType = TOWER;
 }

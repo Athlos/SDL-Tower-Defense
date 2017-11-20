@@ -141,11 +141,11 @@ TileState Tile::GetState() const
 
 int Tile::CompareTo(Tile* tile)
 {
-	int compare = FCost() - tile->FCost();
+	int compare = FCost() - tile->FCost(); // Compare F cost first
 
 	if (compare == 0)
 	{
-		compare = GetHCost() - tile->GetHCost();
+		compare = GetHCost() - tile->GetHCost(); // If F cost is equal, compare H cost
 	}
 
 	return -compare;

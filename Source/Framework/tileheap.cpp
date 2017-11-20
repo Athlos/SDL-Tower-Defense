@@ -10,6 +10,8 @@ TileHeap::TileHeap(int size)
 
 TileHeap::~TileHeap()
 {
+	delete m_tiles;
+	m_tiles = 0;
 }
 
 void TileHeap::Add(Tile* tile)
@@ -43,36 +45,38 @@ bool TileHeap::Contains(Tile* tile)
 
 void TileHeap::SortDown(Tile* tile)
 {
-	while (true)
+	bool sorted = false;
+
+	while (!sorted)
 	{
 		int childIndexLeft = tile->m_heapIndex * 2 + 1;
 		int childIndexRight = tile->m_heapIndex * 2 + 2;
 		int swapIndex = 0;
 
-		if (childIndexLeft < currentItemCount)
+		if (childIndexLeft < currentItemCount) // check left index is within the heap
 		{
 			swapIndex = childIndexLeft;
 
-			if (childIndexRight < currentItemCount)
+			if (childIndexRight < currentItemCount) // check right index is within the heap
 			{
-				if (m_tiles[childIndexLeft]->CompareTo(m_tiles[childIndexRight]) < 0)
+				if (m_tiles[childIndexLeft]->CompareTo(m_tiles[childIndexRight]) < 0) // Evaluate costs, check if left cost is smaller
 				{
 					swapIndex = childIndexRight;
 				}
 			}
 
-			if (tile->CompareTo(m_tiles[swapIndex]) < 0)
+			if (tile->CompareTo(m_tiles[swapIndex]) < 0) // check if cost is smaller than selected tile to swap
 			{
-				Swap(tile, m_tiles[swapIndex]);
+				Swap(tile, m_tiles[swapIndex]); // if new index is smaller, swap with it and move down the heap
 			}
 			else
 			{
-				return;
+				sorted = true; // If cost of tile is now smaller than its children, then it is now in the right place
 			}
 		}
 		else
 		{
-			return;
+			sorted = true; // Options are out of range, this is the bottom of the tree
 		}
 	}
 }
@@ -80,18 +84,19 @@ void TileHeap::SortDown(Tile* tile)
 void TileHeap::SortUp(Tile* tile)
 {
 	int parentIndex = (tile->m_heapIndex - 1) / 2;
+	bool sorted = false;
 
-	while (true)
+	while (!sorted)
 	{
 		Tile* parent = m_tiles[parentIndex];
 
-		if (tile->CompareTo(parent) > 0)
+		if (tile->CompareTo(parent) > 0) // Keep swapping up
 		{
 			Swap(tile, parent);
 		}
 		else
 		{
-			break;
+			sorted = false;
 		}
 
 		parentIndex = (tile->m_heapIndex - 1) / 2;

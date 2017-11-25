@@ -47,7 +47,6 @@ void Building::SetType(BuildingType type)
 
 void Building::SetTilePosition(Tile* tile)
 {
-	Entity::SetPosition(tile->GetX(), tile->GetY());
 	m_tilePosition = tile;
 
 	//Scale to tile size
@@ -57,13 +56,15 @@ void Building::SetTilePosition(Tile* tile)
 	m_pSprite->SetWidth(tileWidth);
 	m_pSprite->SetHeight(tileHeight);
 
+	Entity::SetPosition(tile->GetX(), tile->GetY());
+
 	m_selectionOutline->SetX(m_x);
 	m_selectionOutline->SetY(m_y);
 
 	m_selectionOutline->SetWidth(tileWidth);
 	m_selectionOutline->SetHeight(tileHeight);
 
-	m_bounds = new AxisAlignedBoundingBox(m_pos, tileWidth / 2);
+	m_bounds = new AxisAlignedBoundingBox(m_pos, tileWidth / 2.0f);
 }
 
 Tile* Building::GetTilePosition() const

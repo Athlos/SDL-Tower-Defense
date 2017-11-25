@@ -84,9 +84,8 @@ void TileHeap::SortDown(Tile* tile)
 void TileHeap::SortUp(Tile* tile)
 {
 	int parentIndex = (tile->m_heapIndex - 1) / 2;
-	bool sorted = false;
 
-	while (!sorted)
+	while (true)
 	{
 		Tile* parent = m_tiles[parentIndex];
 
@@ -96,7 +95,7 @@ void TileHeap::SortUp(Tile* tile)
 		}
 		else
 		{
-			sorted = false;
+			return;
 		}
 
 		parentIndex = (tile->m_heapIndex - 1) / 2;

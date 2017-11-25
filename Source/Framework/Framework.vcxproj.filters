@@ -94,6 +94,12 @@
     <ClCompile Include="interfacemanager.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="pulsetower.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="snipertower.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="animatedsprite.h">
@@ -184,6 +190,12 @@
       <Filter>Headers</Filter>
     </ClInclude>
     <ClInclude Include="interfacemanager.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="pulsetower.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="snipertower.h">
       <Filter>Headers</Filter>
     </ClInclude>
   </ItemGroup>

@@ -18,6 +18,8 @@ class Projectile;
 class AudioManager;
 class Wall;
 class InterfaceManager;
+class SniperTower;
+class PulseTower;
 
 #include "fmod.hpp";
 #include "building.h"
@@ -30,6 +32,14 @@ enum GameState // State of the game
 	PLAYING,
 	WON,
 	LOST
+};
+
+enum SelectedToBuild
+{
+	BUILD_NONE,
+	BUILD_WALL,
+	BUILD_SNIPER,
+	BUILD_PULSE
 };
 
 class Game
@@ -57,6 +67,8 @@ public:
 
 	void UpdateCursorPosition(int x, int y); // Keeps track of cursor position
 	void UpdateGameState(GameState state); // Set the game state
+
+	void PlaySound(const char* filename); // Play a sound through the audio manager
 	
 protected:
 	void CleanUp(); // delete game elements for restarting
@@ -119,7 +131,7 @@ protected:
 	InterfaceManager* m_interfaceManager; // Holds all the buttons, icons and labels
 
 	Sprite* m_cursorSprite; // Sprite attached to cursor to show which building will be placed
-	BuildingType m_selected; // tag to choose which sprite will be the cursor sprite
+	SelectedToBuild m_selected; // tag to choose which sprite will be the cursor sprite
 
 	//GAME ENTITIES
 	Grid* m_map; // Grid of map tiles

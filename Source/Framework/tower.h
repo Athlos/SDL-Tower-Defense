@@ -9,11 +9,17 @@ class Enemy;
 class Projectile;
 class AnimatedSprite;
 
+enum TowerType
+{
+	SNIPER,
+	PULSE
+};
+
 class Tower : public Building
 {
 	//Member Methods:
 public:
-	Tower(int range, float firingSpeed, int damage, int cost);
+	Tower(TowerType type);
 	~Tower();
 
 	bool Initialise(BackBuffer* backBuffer); // Create a tower
@@ -29,9 +35,6 @@ public:
 
 	AxisAlignedBoundingBox* GetRangeBounds(); // Get the bounds for the tower range
 
-	void SetCurrentTarget(Enemy* target); // Set the current target to shoot at
-	void EvaluateTarget(); // Evaluate all available targets to choose a current one
-
 	int GetTowerRange() const; // Get the range in tiles of the tower
 	int GetTowerLevel() const; // Get the level of the tower
 	int GetTowerDamage() const; // Get the damage of the tower
@@ -44,10 +47,12 @@ public:
 
 	bool IsMaxLevel(); // Returns if the tower has reached the final level of upgrades
 
+	TowerType GetTowerType(); // Get which type of tower this is
+
+	void SetScale(); // Scale sprites based on tile dimensions
+
 	//Member Data:
 protected:
-	Enemy* m_currentTarget; // Current enemy to shoot at
-
 	std::vector<Enemy*> m_targetsInRange; // All enemies in range
 
 	int m_tileRange; // Range in tiles the tower can shoot
@@ -61,4 +66,6 @@ protected:
 	AxisAlignedBoundingBox* m_towerRangeArea; // Area the tower can shoot enemies
 
 	AnimatedSprite* m_towerSprite; // Animated sprite of the tower
+
+	TowerType m_towerType; // The type of tower and attack it will do
 };

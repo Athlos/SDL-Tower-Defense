@@ -15,6 +15,8 @@
 #include "pathfinding.h"
 #include "enemy.h"
 #include "tower.h"
+#include "snipertower.h"
+#include "pulsetower.h"
 #include "position.h"
 #include "quadtree.h"
 #include "enemyspawner.h"
@@ -138,7 +140,8 @@ bool Game::Initialise(bool firstTime)
 
 		//UI selection buttons
 		m_interfaceManager->AddButton("wallBuildButton", "", "assets\\wall_base.png", SCREEN_WIDTH * 0.77f, SCREEN_HEIGHT * 0.28f, SCREEN_WIDTH * 0.05f, SCREEN_WIDTH * 0.05f, BLACK);
-		m_interfaceManager->AddButton("towerBuildButton", "", "assets\\tower_base.png", SCREEN_WIDTH * 0.84f, SCREEN_HEIGHT * 0.28f, SCREEN_WIDTH * 0.05f, SCREEN_WIDTH * 0.05f, BLACK);
+		m_interfaceManager->AddButton("sniperBuildButton", "", "assets\\tower_sniper_icon.png", SCREEN_WIDTH * 0.84f, SCREEN_HEIGHT * 0.28f, SCREEN_WIDTH * 0.05f, SCREEN_WIDTH * 0.05f, BLACK);
+		m_interfaceManager->AddButton("pulseBuildButton", "", "assets\\tower_pulse_icon.png", SCREEN_WIDTH * 0.91f, SCREEN_HEIGHT * 0.28f, SCREEN_WIDTH * 0.05f, SCREEN_WIDTH * 0.05f, BLACK);
 		m_interfaceManager->AddButton("upgradeButton", "", "", SCREEN_WIDTH * 0.76f, SCREEN_HEIGHT * 0.82f, SCREEN_WIDTH * 0.23f, SCREEN_HEIGHT * 0.05f, BLACK);
 		m_interfaceManager->AddButton("sellButton", "", "", SCREEN_WIDTH * 0.76f, SCREEN_HEIGHT * 0.87f, SCREEN_WIDTH * 0.23f, SCREEN_HEIGHT * 0.05f, GOLD);
 
@@ -188,7 +191,7 @@ bool Game::Initialise(bool firstTime)
 	m_totalLives = 10;
 	m_currentLives = m_totalLives;
 
-	m_currency = 500;
+	m_currency = 5000000;
 
 	m_enemySpawner = new EnemySpawner(0.5f, m_pBackBuffer);
 
@@ -199,7 +202,7 @@ bool Game::Initialise(bool firstTime)
 	UpdateCurrency(0);
 	UpdateWaves();
 
-	m_selected = NONE;
+	m_selected = BUILD_NONE;
 
 	UpdateSelected();
 
@@ -269,14 +272,23 @@ bool Game::IsPaused()
 
 void Game::OnLeftMouseClick(int x, int y)
 {
-	if (m_interfaceManager->GetButton("towerBuildButton")->WasClickedOn(x, y))
+	if (m_interfaceManager->GetButton("sniperBuildButton")->WasClickedOn(x, y))
 	{
 		delete(m_cursorSprite);
 
-		Sprite* newTowerSprite = m_pBackBuffer->CreateSprite("assets\\tower_base.png");
+		Sprite* newTowerSprite = m_pBackBuffer->CreateSprite("assets\\tower_sniper_icon.png");
 		m_cursorSprite = newTowerSprite;
 
-		m_selected = TOWER;
+		m_selected = BUILD_SNIPER;
+	}
+	else if (m_interfaceManager->GetButton("pulseBuildButton")->WasClickedOn(x, y))
+	{
+		delete(m_cursorSprite);
+
+		Sprite* newTowerSprite = m_pBackBuffer->CreateSprite("assets\\tower_pulse_icon.png");
+		m_cursorSprite = newTowerSprite;
+
+		m_selected = BUILD_PULSE;
 	}
 	else if (m_interfaceManager->GetButton("wallBuildButton")->WasClickedOn(x, y))
 	{
@@ -286,7 +298,7 @@ void Game::OnLeftMouseClick(int x, int y)
 
 		m_cursorSprite = wallSprite;
 
-		m_selected = WALL;
+		m_selected = BUILD_WALL;
 	}
 	else if (m_interfaceManager->GetButton("startWaveButton")->WasClickedOn(x, y))
 	{
@@ -337,17 +349,17 @@ void Game::OnLeftMouseClick(int x, int y)
 			m_audioManager->PlaySound("assets\\audio\\enemy_end.wav");
 		}
 
-		if (m_selected == TOWER)
+		if (m_selected == BUILD_PULSE || m_selected == BUILD_SNIPER)
 		{
 			PlaceTower(x, y);
 		}
-		else if (m_selected == WALL)
+		else if (m_selected == BUILD_WALL)
 		{
 			PlaceWall(x, y);
 		}
 		else
 		{
-			m_selected = NONE;
+			m_selected = BUILD_NONE;
 			Position pos = Position(x, y);
 
 			std::vector<Entity*> clickedOn = m_towerQuadTree->QueryPoint(&pos);
@@ -387,7 +399,7 @@ void Game::OnRightMouseClick(int x, int y)
 {
 	delete(m_cursorSprite);
 	m_cursorSprite = 0;
-	m_selected = NONE;
+	m_selected = BUILD_NONE;
 }
 
 void Game::StartWave()
@@ -405,7 +417,7 @@ void Game::StartWave()
 
 	delete(m_cursorSprite);
 	m_cursorSprite = 0;
-	m_selected = NONE;
+	m_selected = BUILD_NONE;
 
 	m_interfaceManager->GetButton("startWaveButton")->SetBackgroundColour(m_interfaceManager->GetColour(GRAY));
 
@@ -477,6 +489,11 @@ void Game::UpdateGameState(GameState state)
 	}
 	break;
 	}
+}
+
+void Game::PlaySound(const char * filename)
+{
+	m_audioManager->PlaySound(filename);
 }
 
 void Game::CleanUp()
@@ -625,14 +642,23 @@ void Game::ProcessTowers(float deltaTime)
 		{
 			std::vector<Entity*> entitiesInRange = m_quadTree->QueryRange(dynamic_cast<Tower*>(current)->GetRangeBounds());
 
-			dynamic_cast<Tower*>(current)->SetEnemiesInRange(entitiesInRange);
-
 			for each (Enemy* enemy in entitiesInRange)
 			{
 				enemy->m_targetted = true;
 			}
 
-			dynamic_cast<Tower*>(current)->Process(deltaTime);
+			if (dynamic_cast<Tower*>(current)->GetTowerType() == SNIPER)
+			{
+				SniperTower* currentTower = dynamic_cast<SniperTower*>(current);
+				currentTower->SetEnemiesInRange(entitiesInRange);
+				currentTower->Process(deltaTime);
+			}
+			else
+			{
+				PulseTower* currentTower = dynamic_cast<PulseTower*>(current);
+				currentTower->SetEnemiesInRange(entitiesInRange);
+				currentTower->Process(deltaTime);
+			}
 		}
 		else if (current->GetType() == WALL)
 		{
@@ -700,7 +726,14 @@ void Game::Draw(BackBuffer& backBuffer)
 	{
 		if (current->GetType() == TOWER)
 		{
-			dynamic_cast<Tower*>(current)->Draw(backBuffer);
+			if (dynamic_cast<Tower*>(current)->GetTowerType() == SNIPER)
+			{
+				dynamic_cast<SniperTower*>(current)->Draw(backBuffer);
+			}
+			else
+			{
+				dynamic_cast<PulseTower*>(current)->Draw(backBuffer);
+			}
 		}
 		else if (current->GetType() == WALL)
 		{
@@ -720,6 +753,12 @@ void Game::Draw(BackBuffer& backBuffer)
 
 	//m_quadTree->Draw(backBuffer);
 
+	//Draw cursor
+	if (m_cursorSprite != 0)
+	{
+		m_pBackBuffer->DrawSprite(*m_cursorSprite);
+	}
+
 	backBuffer.Present();
 }
 
@@ -733,13 +772,6 @@ void Game::DrawUI(BackBuffer& backBuffer)
 
 	//Draw Selected UI
 	DrawSelectionUI(backBuffer);
-
-
-	//Draw cursor
-	if (m_cursorSprite != 0)
-	{
-		m_pBackBuffer->DrawSprite(*m_cursorSprite);
-	}
 
 	//Draw End Game UI if game is over
 	if (m_gameState != PLAYING)
@@ -822,11 +854,20 @@ void Game::UpdateCurrency(int amount)
 
 	if (m_currency >= 100)
 	{
-		m_interfaceManager->GetButton("towerBuildButton")->SetBackgroundColour(m_interfaceManager->GetColour(DARKGREEN));
+		m_interfaceManager->GetButton("sniperBuildButton")->SetBackgroundColour(m_interfaceManager->GetColour(DARKGREEN));
 	}
 	else
 	{
-		m_interfaceManager->GetButton("towerBuildButton")->SetBackgroundColour(m_interfaceManager->GetColour(DARKRED));
+		m_interfaceManager->GetButton("sniperBuildButton")->SetBackgroundColour(m_interfaceManager->GetColour(DARKRED));
+	}
+
+	if (m_currency >= 200)
+	{
+		m_interfaceManager->GetButton("pulseBuildButton")->SetBackgroundColour(m_interfaceManager->GetColour(DARKGREEN));
+	}
+	else
+	{
+		m_interfaceManager->GetButton("pulseBuildButton")->SetBackgroundColour(m_interfaceManager->GetColour(DARKRED));
 	}
 }
 
@@ -925,7 +966,7 @@ void Game::PlaceTower(int x, int y)
 
 	Tile* currentTile = m_map->GetTileFromPixelCoord(x, y);
 
-	if (m_currency < 100)
+	if ((m_selected == BUILD_SNIPER && m_currency < 100) || (m_selected == BUILD_PULSE && m_currency < 200)) // can afford
 	{
 		m_audioManager->PlaySound("assets\\audio\\error.wav");
 		return;
@@ -950,11 +991,29 @@ void Game::PlaceTower(int x, int y)
 		return;
 	}
 
-	Tower* newTower = new Tower(2, 0.5f, 1, 100);
+	Tower* newTower;
+
+	if (m_selected == BUILD_SNIPER)
+	{
+		newTower = new SniperTower();
+	}
+	else if (m_selected == BUILD_PULSE)
+	{
+		newTower = new PulseTower();
+	}
 
 	newTower->Initialise(m_pBackBuffer);
 
 	newTower->SetTilePosition(currentTile);
+
+	if (m_selected == BUILD_SNIPER)
+	{
+		dynamic_cast<SniperTower*>(newTower)->SetScale();
+	}
+	else if (m_selected == BUILD_PULSE)
+	{
+		dynamic_cast<PulseTower*>(newTower)->SetScale();
+	}
 
 	m_buildings.push_back(newTower);
 

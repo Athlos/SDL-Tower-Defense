@@ -73,23 +73,15 @@ std::vector<Tile*> Pathfinding::FindPath(int xStart, int yStart, int xEnd, int y
 					{
 						//If this is a diagonal tile, we need to check if it has a blocked neighbour that we would cut across if we went this way
 						Tile* yNeighbour = m_grid->GetTile(neighbour->GetGridX(), currentTile->GetGridY()); // Get the tile with the matching Y axis to the current tile
-
-						if (yNeighbour != 0)
-						{
-							if (yNeighbour->IsOccupied()) // If that neighbour is blocked, then you should not go diagonal
-							{
-								continue;
-							}
-						}
-
 						Tile* xNeighbour = m_grid->GetTile(currentTile->GetGridX(), neighbour->GetGridY()); // Get the tile with the matching X axis to the current tile
 
-						if (xNeighbour != 0)
+						//There should never be a situation where either neighbour is 0 when the diagonal is valid
+						assert(yNeighbour);
+						assert(xNeighbour);
+
+						if (yNeighbour->IsOccupied() || xNeighbour->IsOccupied()) // If either neighbour is blocked, then you should not go diagonal
 						{
-							if (xNeighbour->IsOccupied()) // If that neighbour is blocked, then you should not go diagonal
-							{
-								continue;
-							}
+							continue;
 						}
 					}
 

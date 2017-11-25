@@ -9,7 +9,7 @@ EnemySpawner::EnemySpawner(float spawnInterval, BackBuffer* backBuffer)
 	, m_timePassed(0)
 	, m_waveActive(false)
 	, m_waveLoaded(false)
-	, m_waveNumber(false)
+	, m_waveNumber(1)
 	, m_maxWaves(5)
 	, m_backBuffer(backBuffer)
 	, m_allWavesCompleted(false)
@@ -50,9 +50,10 @@ void EnemySpawner::LoadWave()
 	//TODO
 	m_waveLoaded = true;
 
-	for (int i = 0; i < m_waveNumber * 4; ++i)
+	for (int i = 0; i < m_waveNumber * 10; ++i)
 	{
 		int type = rand() % 3;
+		int healthMultiplier = m_waveNumber;
 
 		Enemy* testEnemy = new Enemy();
 		AnimatedSprite* testEnemySprite;
@@ -62,28 +63,28 @@ void EnemySpawner::LoadWave()
 			case 0: // Large enemy, high health and low speed
 			{
 				testEnemySprite = m_backBuffer->CreateAnimatedSprite("assets\\enemy_tank.png");
-				testEnemy->SetData(18 * m_waveNumber, rand() % 31 + 20, 1);
+				testEnemy->SetData(8 * healthMultiplier, rand() % 31 + 20, 1);
 				testEnemySprite->SetScale(48, 48);
 			}
 				break;
 			case 1: // Medium enemy, normal health, normal speed
 			{
 				testEnemySprite = m_backBuffer->CreateAnimatedSprite("assets\\enemy_minigun.png");
-				testEnemy->SetData(15 * m_waveNumber, rand() % 51 + 50, 1);
+				testEnemy->SetData(5 * healthMultiplier, rand() % 51 + 50, 1);
 				testEnemySprite->SetScale(48, 48);
 			}
 				break;
 			case 2: // Small enemy, low health, high speed
 			{
 				testEnemySprite = m_backBuffer->CreateAnimatedSprite("assets\\enemy_drone.png");
-				testEnemy->SetData(13 * m_waveNumber, rand() % 51 + 100, 1);
+				testEnemy->SetData(3 * healthMultiplier, rand() % 51 + 100, 1);
 				testEnemySprite->SetScale(48, 48);
 			}
 				break;
 			default:
 			{
 				testEnemySprite = m_backBuffer->CreateAnimatedSprite("assets\\enemy_spider.png");
-				testEnemy->SetData(7 * m_waveNumber, rand() % 31 + 20, 1);
+				testEnemy->SetData(7 * healthMultiplier, rand() % 31 + 20, 1);
 				testEnemySprite->SetScale(32, 32);
 			}
 				break;

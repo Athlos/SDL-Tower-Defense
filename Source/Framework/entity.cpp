@@ -74,7 +74,7 @@ void Entity::Draw(BackBuffer& backBuffer)
 	assert(m_pSprite);
 	m_pSprite->Draw(backBuffer);
 
-	//backBuffer.DrawRectangle(m_bounds->center->m_x - m_bounds->halfDimension, m_bounds->center->m_y + m_bounds->halfDimension, m_bounds->center->m_x + m_bounds->halfDimension, m_bounds->center->m_y - m_bounds->halfDimension, 0);
+	//backBuffer.DrawRectangle(m_bounds->center->m_x - m_bounds->halfDimension, m_bounds->center->m_y + m_bounds->halfDimension, m_bounds->center->m_x + m_bounds->halfDimension, m_bounds->center->m_y - m_bounds->halfDimension, 1);
 }
 
 void Entity::SetDead(bool dead)

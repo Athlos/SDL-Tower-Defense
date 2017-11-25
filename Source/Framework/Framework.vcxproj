@@ -105,7 +105,9 @@
     <ClInclude Include="pathfinding.h" />
     <ClInclude Include="position.h" />
     <ClInclude Include="projectile.h" />
+    <ClInclude Include="pulsetower.h" />
     <ClInclude Include="quadtree.h" />
+    <ClInclude Include="snipertower.h" />
     <ClInclude Include="sprite.h" />
     <ClInclude Include="textparticle.h" />
     <ClInclude Include="texture.h" />
@@ -138,7 +140,9 @@
     <ClCompile Include="pathfinding.cpp" />
     <ClCompile Include="position.cpp" />
     <ClCompile Include="projectile.cpp" />
+    <ClCompile Include="pulsetower.cpp" />
     <ClCompile Include="quadtree.cpp" />
+    <ClCompile Include="snipertower.cpp" />
     <ClCompile Include="sprite.cpp" />
     <ClCompile Include="textparticle.cpp" />
     <ClCompile Include="texture.cpp" />

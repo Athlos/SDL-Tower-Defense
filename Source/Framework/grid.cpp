@@ -4,9 +4,11 @@
 #include "game.h"
 #include "pathfinding.h"
 #include "position.h"
+#include "logmanager.h"
 
 #include <math.h>
 #include <queue>
+#include <sstream>
 
 Grid::Grid(int x, int y)
 	: m_gridSizeX(x)
@@ -31,9 +33,10 @@ void Grid::CreateGrid(BackBuffer& backBuffer)
 	for (int x = 0; x < m_gridSizeX; ++x)
 	{
 		m_grid.push_back(new std::vector<Tile*>);
+
 		for (int y = 0; y < m_gridSizeY; ++y)
 		{
-			Tile* newTile = new Tile(x, y, EMPTY);
+			Tile* newTile = new Tile(x, y);
 			newTile->SetGridSize((Game::GetInstance().SCREEN_WIDTH * 0.75f) / m_gridSizeX, Game::GetInstance().SCREEN_HEIGHT / m_gridSizeY);
 			newTile->Initialise(backBuffer);
 
@@ -58,32 +61,32 @@ void Grid::Draw(BackBuffer& backBuffer)
 	}
 
 	//Draw Map Path
-	//backBuffer.SetDrawColour(0, 255, 0);
+	backBuffer.SetDrawColour(0, 255, 0);
 
-	//std::queue<Position*> path = m_pathFinding->SimplifyPath(m_gridPath);
+	std::queue<Position*> path = m_pathFinding->SimplifyPath(m_gridPath);
 
-	//Position* current = 0;
-	//Position* next = 0;
+	Position* current = 0;
+	Position* next = 0;
 
-	//if (!path.empty())
-	//{
-	//	current = path.front();
-	//	path.pop();
-	//}
+	if (!path.empty())
+	{
+		current = path.front();
+		path.pop();
+	}
 
-	//while (!path.empty())
-	//{
-	//	next = path.front();
-	//	path.pop();
+	while (!path.empty())
+	{
+		next = path.front();
+		path.pop();
 
-	//	backBuffer.DrawLine(current->m_x, current->m_y, next->m_x, next->m_y);
+		backBuffer.DrawLine(current->m_x, current->m_y, next->m_x, next->m_y);
 
-	//	delete current;
+		delete current;
 
-	//	current = next;
-	//}
+		current = next;
+	}
 
-	//delete next;
+	delete next;
 }
 
 std::vector<Tile*> Grid::GetNeighboursDiagonal(Tile* tile)
@@ -179,16 +182,16 @@ int Grid::GetGridSizeY()
 
 void Grid::ClearGridColours()
 {
-	for (int x = 0; x < m_gridSizeX; ++x)
-	{
-		for (int y = 0; y < m_gridSizeY; ++y)
-		{
-			if (m_grid.at(x)->at(y)->GetState() != BLOCKED)
-			{
-				m_grid.at(x)->at(y)->SetState(EMPTY);
-			}
-		}
-	}
+	//for (int x = 0; x < m_gridSizeX; ++x)
+	//{
+	//	for (int y = 0; y < m_gridSizeY; ++y)
+	//	{
+	//		if (m_grid.at(x)->at(y)->GetState() != BLOCKED)
+	//		{
+	//			m_grid.at(x)->at(y)->SetState(EMPTY);
+	//		}
+	//	}
+	//}
 }
 
 Tile* Grid::GetGridStart()
@@ -203,12 +206,27 @@ Tile* Grid::GetGridEnd()
 
 bool Grid::UpdatePath()
 {
+	//for (int x = 0; x < m_gridSizeX; ++x)
+	//{
+	//	for (int y = 0; y < m_gridSizeY; ++y)
+	//	{
+	//		if (m_grid.at(x)->at(y)->m_heapIndex != -1)
+	//		{
+	//			std::stringstream message;
+
+	//			message << "Tile at " << x << ", " << y << " = " << m_grid.at(x)->at(y)->m_heapIndex;
+	//			LogManager::GetInstance().Log(message.str().c_str());
+	//		}
+	//		m_grid.at(x)->at(y)->m_heapIndex = -1;
+	//	}
+	//}
+
 	std::vector<Tile*> newPath = m_pathFinding->FindPath(GetGridStart()->GetCenter().m_x, GetGridStart()->GetCenter().m_y, GetGridEnd()->GetCenter().m_x, GetGridEnd()->GetCenter().m_y, 0);
 
-	if (!newPath.empty())
-	{
+	//if (!newPath.empty())
+	//{
 		m_gridPath = newPath;
-	}
+	//}
 
 	return !newPath.empty();
 }

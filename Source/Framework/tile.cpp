@@ -3,16 +3,17 @@
 #include "position.h"
 #include "sprite.h"
 
-Tile::Tile(int x, int y, TileState walkable)
+Tile::Tile(int x, int y)
 	: m_gridX(x)
 	, m_gridY(y)
 	, m_hCost(0)
 	, m_gCost(0)
-	, m_heapIndex(0)
+	, m_heapIndex(-1)
 	, m_hasWall(false)
+	, m_occupied(false)
+	, m_parent(0)
 {
-	SetState(walkable);
-
+	m_state = CLEAR;
 	m_xScreenPos = m_gridX * m_gridWidth;
 	m_yScreenPos = m_gridY * m_gridHeight;
 }
@@ -50,6 +51,12 @@ void Tile::Draw(BackBuffer& backBuffer)
 
 		backBuffer.DrawRectangle(m_xScreenPos, m_yScreenPos, m_xScreenPos + m_gridWidth, m_yScreenPos + m_gridHeight, 0);
 	}
+
+	if (m_occupied)
+	{
+		backBuffer.SetDrawColour(0, 0, 0);
+		backBuffer.DrawRectangle(m_xScreenPos, m_yScreenPos, m_xScreenPos + m_gridWidth, m_yScreenPos + m_gridHeight, 1);
+	}
 }
 
 void Tile::Initialise(BackBuffer& backBuffer)
@@ -59,7 +66,6 @@ void Tile::Initialise(BackBuffer& backBuffer)
 	m_tileSprite = backBuffer.CreateSprite("assets\\ground_base.png");
 
 	SetSpriteDefault(m_tileSprite);
-
 }
 
 int Tile::GetGridX() const
@@ -109,18 +115,6 @@ void Tile::SetState(TileState state)
 
 	switch (m_state)
 	{
-	case EMPTY:
-		m_colour.r = 255;
-		m_colour.g = 255;
-		m_colour.b = 255;
-		break;
-	case BLOCKED:
-		m_colour.r = 0;
-		m_colour.g = 0;
-		m_colour.b = 0;
-
-		m_occupied = true;
-		break;
 	case START:
 		m_colour.r = 255;
 		m_colour.g = 0;
@@ -168,25 +162,18 @@ bool Tile::IsOccupied()
 void Tile::SetOccupied(bool occupied)
 {
 	m_occupied = occupied;
-
-	if (occupied)
-	{
-		m_state = BLOCKED;
-	}
-	else
-	{
-		m_state = EMPTY;
-	}
 }
 
 void Tile::SetWall(bool hasWall)
 {
 	m_hasWall = hasWall;
 
-	if (m_state == EMPTY)
-	{
-		m_state = BLOCKED;
-	}
+	m_occupied = hasWall;
+
+	//if (m_state == EMPTY)
+	//{
+	//	m_state = BLOCKED;
+	//}
 }
 
 void Tile::SetSpriteDefault(Sprite* sprite)

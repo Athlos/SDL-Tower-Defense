@@ -9,10 +9,11 @@ class Sprite;
 
 enum TileState // State of the tile
 {
-	EMPTY,
-	BLOCKED,
+	//EMPTY,
+	//BLOCKED,
 	START,
-	END
+	END,
+	CLEAR
 };
 
 class Tile
@@ -26,7 +27,7 @@ class Tile
 
 	//Member Methods:
 public:
-	Tile(int x, int y, TileState walkable);
+	Tile(int x, int y);
 	~Tile();
 
 	int FCost() const; // F cost for A* pathfinding

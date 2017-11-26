@@ -6,10 +6,18 @@ TileHeap::TileHeap(int size)
 	, currentItemCount(0)
 {
 	m_tiles = new Tile*[size]; // Allocate array
+	memset(m_tiles, 0, sizeof(m_tiles));
 }
 
 TileHeap::~TileHeap()
 {
+	for (int i = 0; i < currentItemCount; ++i)
+	{
+		m_tiles[i]->m_gCost = 0;
+		m_tiles[i]->m_hCost = 0;
+		m_tiles[i]->m_heapIndex = -1;
+	}
+
 	delete m_tiles;
 	m_tiles = 0;
 }
@@ -34,6 +42,8 @@ Tile* TileHeap::RemoveFirst()
 	m_tiles[0]->m_heapIndex = 0;
 
 	SortDown(m_tiles[0]);
+
+	first->m_heapIndex = -1;
 
 	return first;
 }

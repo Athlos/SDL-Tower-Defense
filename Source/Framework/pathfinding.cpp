@@ -3,14 +3,17 @@
 #include "tile.h"
 #include "tileheap.h"
 #include "position.h"
+#include "logmanager.h"
 
 #include <queue>
 #include <set>
 #include <cassert>
 #include <algorithm>
+#include <sstream>
 
 Pathfinding::Pathfinding()
 {
+	m_grid = 0;
 }
 
 Pathfinding::~Pathfinding()
@@ -22,11 +25,14 @@ std::vector<Tile*> Pathfinding::FindPath(int xStart, int yStart, int xEnd, int y
 	Tile* startTile = m_grid->GetTileFromPixelCoord(xStart, yStart); // Convert start point to a tile
 	Tile* endTile = m_grid->GetTileFromPixelCoord(xEnd, yEnd); // Convert end point to a tile
 
-	std::vector<Tile*> waypoints; // Path
+	assert(startTile);
+	assert(endTile);
+
+	std::vector<Tile*> waypoints = std::vector<Tile*>(); // Path
 
 	TileHeap* openSet = new TileHeap(m_grid->GetGridSizeX() * m_grid->GetGridSizeY()); // Fringe set
 
-	std::set<Tile*> closedSet; // Explored set
+	std::set<Tile*> closedSet = std::set<Tile*>(); // Explored set
 
 	openSet->Add(startTile); // Load start point
 
@@ -39,8 +45,13 @@ std::vector<Tile*> Pathfinding::FindPath(int xStart, int yStart, int xEnd, int y
 
 		if (currentTile == endTile) // Path found
 		{
-			waypoints = RetracePath(startTile, endTile, drawPath); // Process the tiles to get the path
-			delete(openSet);
+			waypoints = RetracePath(startTile, endTile, drawPath); // Process the tiles to get the path	
+
+			for each (Tile* t in closedSet)
+			{
+				t->m_gCost = 0;
+				t->m_hCost = 0;
+			}
 
 			break;
 		}
@@ -87,17 +98,7 @@ std::vector<Tile*> Pathfinding::FindPath(int xStart, int yStart, int xEnd, int y
 
 					int newCostToNeighbour = currentTile->GetGCost() + GetDistance(currentTile, neighbour); // Calculate heuristic cost to move to that neighbour
 
-					if (neighbour->GetGridX() != currentTile->GetGridX() && neighbour->GetGridY() != currentTile->GetGridY()) // Handle blocked diagonal routes
-					{
-						//neighbour is diagonal to current tile
-						if (m_grid->GetTile(neighbour->GetGridX(), currentTile->GetGridY())->IsOccupied() && m_grid->GetTile(currentTile->GetGridX(), neighbour->GetGridY())->IsOccupied())
-						{
-							//Cannot go diagonal if there are blocked tiles around it
-							continue;
-						}
-					}
-
-					if (newCostToNeighbour < neighbour->GetGCost() || !openSet->Contains(neighbour))
+					if (newCostToNeighbour <= neighbour->GetGCost() || !openSet->Contains(neighbour))
 					{
 						neighbour->m_gCost = newCostToNeighbour;
 
@@ -107,6 +108,7 @@ std::vector<Tile*> Pathfinding::FindPath(int xStart, int yStart, int xEnd, int y
 
 						if (!openSet->Contains(neighbour)) // If open set does not contain neighbour, push it
 						{
+							neighbour->m_heapIndex = -1;
 							openSet->Add(neighbour);
 						}
 					}
@@ -114,6 +116,9 @@ std::vector<Tile*> Pathfinding::FindPath(int xStart, int yStart, int xEnd, int y
 			}
 		}
 	}
+
+	delete(openSet);
+	openSet = 0;
 
 	return waypoints;
 }
@@ -158,7 +163,7 @@ std::vector<Tile*> Pathfinding::RetracePath(Tile* start, Tile* end, bool drawPat
 {
 	Tile* currentTile = end;
 
-	std::vector<Tile*> path;
+	std::vector<Tile*> path = std::vector<Tile*>();
 
 	while (currentTile != start)
 	{
@@ -244,7 +249,7 @@ void Pathfinding::FindPathVector(int xStart, int yStart, int xEnd, int yEnd)
 
 		for each(Tile* neighbour in m_grid->GetNeighbours(currentTile)) // Process neighbouring tiles
 		{
-			if (neighbour->GetState() == BLOCKED || closedSet.find(neighbour) != closedSet.end()) // check if valid neighbour
+			if (neighbour->IsOccupied() || closedSet.find(neighbour) != closedSet.end()) // check if valid neighbour
 			{
 				continue;
 			}
@@ -305,7 +310,7 @@ void Pathfinding::FindPathHeap(int xStart, int yStart, int xEnd, int yEnd)
 
 		for each(Tile* neighbour in m_grid->GetNeighbours(currentTile)) // Process neighbouring tiles
 		{
-			if (neighbour->GetState() == BLOCKED || closedSet.find(neighbour) != closedSet.end()) // check if valid neighbour
+			if (neighbour->IsOccupied() || closedSet.find(neighbour) != closedSet.end()) // check if valid neighbour
 			{
 				continue;
 			}

@@ -1,0 +1,29 @@
+
+
+SOUND:
+-----------------------------
+sfxr - sound effect generator
+-----------------------------
+   by DrPetter, 2007-12-14
+    developed for LD48#10
+
+http://www.cyd.liu.se/~tompe573/hp
+
+       drpetter@gmail.com
+-----------------------------
+
+Game Music:
+"Rhinoceros" Kevin MacLeod (incompetech.com) 
+Licensed under Creative Commons: By Attribution 3.0
+http://creativecommons.org/licenses/by/3.0/
+
+
+ASSET CREATION:
+MS Paint
+Gimp - http://www.gimp.org/
+Piskel - http://www.piskelapp.com/
+Some assets from Steffan Hooper
+
+ONSCEEN TEXT:
+SDL_tff - https://www.libsdl.org/projects/SDL_ttf/docs/index.html
+Fonts from Microsoft Fonts

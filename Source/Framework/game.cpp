@@ -1043,7 +1043,7 @@ void Game::PlaceTower(int x, int y)
 		return;
 	}
 
-	if (currentTile->GetState() == BLOCKED)
+	if (currentTile->IsOccupied())
 	{
 		return;
 	}
@@ -1145,11 +1145,12 @@ void Game::PlaceWall(int x, int y)
 	{
 		return;
 	}
+
 	Tile* clicked = m_map->GetTileFromPixelCoord(x, y);
 
 	if (clicked != 0)
 	{
-		if (clicked->GetState() == EMPTY && m_currency >= 10)
+		if (!clicked->IsOccupied() && m_currency >= 10)
 		{
 			clicked->SetWall(true);
 			clicked->SetOccupied(true);
@@ -1158,8 +1159,10 @@ void Game::PlaceWall(int x, int y)
 
 			if (!m_map->UpdatePath())
 			{
-				clicked->SetOccupied(false);
 				clicked->SetWall(false);
+				clicked->SetOccupied(false);
+
+				m_map->UpdatePath();
 			}
 			else
 			{
@@ -1183,4 +1186,6 @@ void Game::PlaceWall(int x, int y)
 			m_audioManager->PlaySound("assets\\audio\\error.wav");
 		}
 	}
+
+	m_map->UpdatePath();
 }

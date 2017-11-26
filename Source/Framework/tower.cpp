@@ -142,11 +142,7 @@ int Tower::GetSellValue() const
 
 int Tower::GetTowerUpgradeCost() const
 {
-	int upgradeCost = 150;
-
-	upgradeCost *= (m_currentLevel * m_currentLevel);
-
-	return upgradeCost;
+	return -1;
 }
 
 void Tower::UpgradeTower()

@@ -21,6 +21,8 @@ public:
 
 	void Shoot(); // Fire a projectile
 
+	int GetTowerUpgradeCost() const; // Get cost to upgrade to next level
+
 	//Member Data:
 protected:
 	Enemy* m_currentTarget; // Current enemy to shoot at

@@ -29,6 +29,10 @@ void InputHandler::ProcessInput(Game& game)
 
 	while (SDL_PollEvent(&e) != 0)
 	{
+		if (e.type == SDL_QUIT)
+		{
+			game.Quit();
+		}
 		
 		if (e.type == SDL_MOUSEBUTTONDOWN) // Mouse pressed
 		{

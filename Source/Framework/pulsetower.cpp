@@ -12,7 +12,9 @@ PulseTower::PulseTower() : Tower(PULSE)
 {
 	m_tileRange = 1;
 	m_firingSpeed = 1.5f;
-	m_damage = 2;
+	m_damage = 1;
+
+	m_cost = 200;
 }
 
 PulseTower::~PulseTower()
@@ -97,4 +99,13 @@ void PulseTower::SetScale()
 	int scale = m_tileRange * 2 + 1;
 
 	m_attackSprite->SetScale(m_tilePosition->GetTileWidth() * scale, m_tilePosition->GetTileHeight() * scale);
+}
+
+int PulseTower::GetTowerUpgradeCost() const
+{
+	int upgradeCost = m_cost * 1.5f;
+
+	upgradeCost *= (m_currentLevel * m_currentLevel);
+
+	return upgradeCost;
 }

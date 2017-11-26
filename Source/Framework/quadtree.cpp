@@ -45,6 +45,30 @@ void QuadTree::Subdivide()
 	m_topRight = new QuadTree(topRightBounds);
 	m_bottomLeft = new QuadTree(bottomLeftBounds);
 	m_bottomRight = new QuadTree(bottomRightBounds);
+
+	//Attempt to reinsert points into children trees
+	std::vector<Entity*>::iterator pointIter = m_points.begin();
+
+	while (pointIter != m_points.end())
+	{
+		Entity* current = *pointIter;
+
+		if (AmountOfIntersectionsInChildren(current->GetCollisionBounds()) <= 1)
+		{
+			if (AddNodeToChildren(current))
+			{
+				pointIter = m_points.erase(pointIter);
+			}
+			else
+			{
+				++pointIter;
+			}
+		}
+		else
+		{
+			++pointIter;
+		}
+	}
 }
 
 std::vector<Entity*> QuadTree::QueryRange(AxisAlignedBoundingBox* range)
@@ -123,43 +147,51 @@ std::vector<Entity*> QuadTree::QueryPoint(Position* point)
 
 bool QuadTree::Insert(Entity* pos)
 {
-	if (!m_bounds->containsPosition(pos->GetPosition())) // Skip positions not inside this quad tree
+	if (!m_bounds->intersects(pos->GetCollisionBounds())) // Skip positions not inside this quad tree
 	{
 		return false;
 	}
 
-	if (m_points.size() < NODE_CAPACITY) //Add if there is space
-	{
-		m_points.push_back(pos);
-		return true;
-	}
-	
-	if (m_topLeft == 0) // If full, then subdivide and add to one that has room
+	if (m_points.size() >= NODE_CAPACITY && m_topLeft == 0)
 	{
 		Subdivide();
 	}
 
-	//Attempt to insert into sub trees
-	if (m_topLeft->Insert(pos))
+	//Check if it collides with children nodes
+	if (m_topLeft != 0)
 	{
-		return true;
-	}
-	else if (m_topRight->Insert(pos))
-	{
-		return true;
-	}
-	else if (m_bottomLeft->Insert(pos))
-	{
-		return true;
-	}
-	else if (m_bottomRight->Insert(pos))
-	{
-		return true;
+		if (AmountOfIntersectionsInChildren(pos->GetCollisionBounds()) > 1) // We have to insert into current level since it collides with more than one child
+		{
+			m_points.push_back(pos);
+
+			return true;
+		}
+		else
+		{
+			//Attempt to insert into sub trees
+			return AddNodeToChildren(pos);
+		}
 	}
 	else
 	{
-		return false; // if node could not be inserted anywhere, should not trigger
+		m_points.push_back(pos);
+		return true;
 	}
+
+	//if (m_points.size() < NODE_CAPACITY) //Add if there is space
+	//{
+	//	m_points.push_back(pos);
+	//	return true;
+	//}
+	//
+	//if (m_topLeft == 0) // If full, then subdivide and add to one that has room
+	//{
+	//	Subdivide();
+	//}
+	//
+	//Check how many children this collides with
+
+
 }
 
 void QuadTree::Draw(BackBuffer& backBuffer)
@@ -180,5 +212,56 @@ void QuadTree::Draw(BackBuffer& backBuffer)
 		m_topRight->Draw(backBuffer);
 		m_bottomLeft->Draw(backBuffer);
 		m_bottomRight->Draw(backBuffer);
+	}
+}
+
+int QuadTree::AmountOfIntersectionsInChildren(AxisAlignedBoundingBox* bounds)
+{
+	int numIntersections = 0;
+
+	if (m_topLeft->m_bounds->intersects(bounds))
+	{
+		++numIntersections;
+	}
+
+	if (m_topRight->m_bounds->intersects(bounds))
+	{
+		++numIntersections;
+	}
+
+	if (m_bottomLeft->m_bounds->intersects(bounds))
+	{
+		++numIntersections;
+	}
+
+	if (m_bottomRight->m_bounds->intersects(bounds))
+	{
+		++numIntersections;
+	}
+
+	return numIntersections;
+}
+
+bool QuadTree::AddNodeToChildren(Entity * pos)
+{
+	if (m_topLeft->Insert(pos))
+	{
+		return true;
+	}
+	else if (m_topRight->Insert(pos))
+	{
+		return true;
+	}
+	else if (m_bottomLeft->Insert(pos))
+	{
+		return true;
+	}
+	else if (m_bottomRight->Insert(pos))
+	{
+		return true;
+	}
+	else
+	{
+		return false; // if node could not be inserted anywhere, should not trigger
 	}
 }

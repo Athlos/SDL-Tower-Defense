@@ -23,6 +23,10 @@ public:
 
 	void Draw(BackBuffer& backBuffer); // Draw quad tree
 
+	int AmountOfIntersectionsInChildren(AxisAlignedBoundingBox* bounds); // Return how many children intersect a set of bounds
+
+	bool AddNodeToChildren(Entity* pos);
+
 	//Member Data:
 private:
 	const int NODE_CAPACITY = 4; // Max elements that can be stored

@@ -87,6 +87,8 @@ protected:
 	void UpdateWaves(); // Update wave counter and text
 	void UpdateCurrency(int amount); // Update currency counter and text
 	void UpdateSelected(); // Update selection UI
+	void ClearSelected(); // Clear up UI elements in slection UI
+	void UpdateTowerStats(Tower* tower); // Updates the tower stats part of the selection UI
 
 	void PlaceTower(int x, int y); // Places a tower on the map
 	void SellBuilding(Building* building); // Sells a building

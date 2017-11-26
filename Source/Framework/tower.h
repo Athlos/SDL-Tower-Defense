@@ -42,7 +42,7 @@ public:
 
 	int GetSellValue() const; // Get value of the tower to sell
 
-	int GetTowerUpgradeCost() const; // Get cost to upgrade to next level
+	virtual int GetTowerUpgradeCost() const; // Get cost to upgrade to next level
 	void UpgradeTower(); // Upgrade teh tower to a new level
 
 	bool IsMaxLevel(); // Returns if the tower has reached the final level of upgrades

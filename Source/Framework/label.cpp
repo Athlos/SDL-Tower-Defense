@@ -10,6 +10,7 @@ Label::Label(std::string text)
 	: m_textTexture(NULL)
 	, m_requiredUpdate(false)
 	, m_fontSize(24)
+	, m_maxFontSize(24)
 	, m_textAlignment(LEFT)
 	, m_drawable(true)
 {
@@ -55,6 +56,15 @@ void Label::SetText(std::string textOnScreen)
 	if (m_text == textOnScreen)
 	{
 		return;
+	}
+
+	if (textOnScreen == "")
+	{
+		m_drawable = false;
+	}
+	else
+	{
+		m_drawable = true;
 	}
 
 	m_text = textOnScreen;
@@ -127,6 +137,7 @@ bool Label::WasClickedOn(int x, int y)
 void Label::SetFontSize(int size)
 {
 	m_fontSize = size;
+	m_maxFontSize = m_fontSize;
 
 	m_font = TTF_OpenFont("assets/currentfont.TTF", m_fontSize);
 }
@@ -150,12 +161,62 @@ void Label::ResizeText()
 
 	TTF_SizeText(m_font, m_text.c_str(), &m_currentBounds.w, &m_currentBounds.h);
 
-	while (m_currentBounds.w > m_bounds.w)
+	if (m_currentBounds.w * 1.15f > m_bounds.w)
 	{
-		m_fontSize *= 0.9f;
-		m_font = TTF_OpenFont("assets/currentfont.TTF", m_fontSize);
+		while (m_currentBounds.w > m_bounds.w)
+		{
+			int newFontSize = m_fontSize * 0.9f;
 
-		TTF_SizeText(m_font, m_text.c_str(), &m_currentBounds.w, &m_currentBounds.h);
+			if (newFontSize == m_fontSize)
+			{
+				--newFontSize;
+			}
+
+			m_fontSize = newFontSize;
+
+			m_font = TTF_OpenFont("assets/currentfont.TTF", m_fontSize);
+
+			TTF_SizeText(m_font, m_text.c_str(), &m_currentBounds.w, &m_currentBounds.h);
+		}
+	}
+	else if(m_currentBounds.w * 0.85f < m_bounds.w)
+	{
+		while (m_currentBounds.w < m_bounds.w && m_drawable && m_fontSize != m_maxFontSize)
+		{
+			int newFontSize = m_fontSize * 1.1f;
+
+			if (newFontSize == m_fontSize)
+			{
+				++newFontSize;
+			}
+
+			m_fontSize = newFontSize;
+
+			if (m_fontSize > m_maxFontSize)
+			{
+				m_fontSize = m_maxFontSize;
+			}
+
+			m_font = TTF_OpenFont("assets/currentfont.TTF", m_fontSize);
+
+			int newWidth;
+			int newHeight;
+
+			TTF_SizeText(m_font, m_text.c_str(), &newWidth, &newHeight);
+
+			if (newWidth > m_bounds.w)
+			{
+				newWidth = m_bounds.w;
+			}
+
+			if (newHeight > m_bounds.h)
+			{
+				newHeight = m_bounds.h;
+			}
+
+			m_currentBounds.w = newWidth;
+			m_currentBounds.h = newHeight;
+		}
 	}
 
 	if (m_textAlignment == CENTER)

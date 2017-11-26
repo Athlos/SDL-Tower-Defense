@@ -62,6 +62,7 @@ protected:
 
 	TTF_Font* m_font; // Font
 	int m_fontSize; // Font size
+	int m_maxFontSize; // Max font size to scale to
 
 	Alignment m_textAlignment; // Alignment of the text
 

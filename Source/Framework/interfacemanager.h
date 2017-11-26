@@ -71,16 +71,5 @@ protected:
 
 	std::map<std::string, Icon*> m_icons; // Map of icons in game with their name for the key
 
-	std::vector<SDL_Color> m_colours = 
-	{
-		{255, 255, 255, 255},
-		{0, 0, 0, 255},
-		{192, 192, 192, 255},
-		{255, 0, 0, 255},
-		{0, 255, 0, 255},
-		{0, 0, 255, 255},
-		{ 255, 215, 0, 255 },
-		{34, 139, 34, 255},
-		{ 178, 34, 34, 255}
-	}; // List of all colours in the game, list elements match the ColourTags
+	std::vector<SDL_Color> m_colours;
 };

@@ -5,6 +5,9 @@
 #include "game.h"
 #include "backbuffer.h"
 #include "sprite.h"
+#include "logmanager.h"
+
+#include <cassert>
 
 InterfaceManager::InterfaceManager(BackBuffer* backbuffer)
 {
@@ -14,10 +17,37 @@ InterfaceManager::InterfaceManager(BackBuffer* backbuffer)
 	m_buttonCollisions = new QuadTree(gridBounds);
 
 	m_backBuffer = backbuffer;
+
+	m_colours =
+	{
+		{ 255, 255, 255, 255 },
+		{ 0, 0, 0, 255 },
+		{ 192, 192, 192, 255 },
+		{ 255, 0, 0, 255 },
+		{ 0, 255, 0, 255 },
+		{ 0, 0, 255, 255 },
+		{ 255, 215, 0, 255 },
+		{ 34, 139, 34, 255 },
+		{ 178, 34, 34, 255 }
+	}; // List of all colours in the game, list elements match the ColourTags
 }
 
 InterfaceManager::~InterfaceManager()
 {
+	//for (std::map<std::string, Label*>::iterator it = m_labels.begin(); it != m_labels.end(); ++it) // Draw Labels
+	//{
+	//	delete it->second;
+	//}
+
+	//for (std::map<std::string, Button*>::iterator it = m_buttons.begin(); it != m_buttons.end(); ++it) // Draw Buttons
+	//{
+	//	delete it->second;
+	//}
+
+	//for (std::map<std::string, Icon*>::iterator it = m_icons.begin(); it != m_icons.end(); ++it) // Draw Icons
+	//{
+	//	delete it->second;
+	//}
 }
 
 void InterfaceManager::AddLabel(std::string tag, std::string text, int x, int y, int w, int h, ColourTags colourTag)
@@ -36,21 +66,32 @@ Label * InterfaceManager::GetLabel(std::string tag)
 
 void InterfaceManager::AddButton(std::string tag, std::string text, std::string spriteLocation, int x, int y, int w, int h, ColourTags colourTag)
 {
-	Button* newButton = new Button(text);
-	newButton->SetBounds(x, y, w, h);
-	newButton->SetColour(m_colours[colourTag].r, m_colours[colourTag].g, m_colours[colourTag].b, m_colours[colourTag].a);
-
-	if (spriteLocation != "")
+	if (m_buttons.find(text) == m_buttons.end()) 
 	{
-		Sprite* newSprite = m_backBuffer->CreateSprite(spriteLocation.c_str());
-		newButton->SetCustomSprite(newSprite);
-	}
+		Button* newButton = new Button(text);
+		newButton->SetBounds(x, y, w, h);
+		newButton->SetColour(m_colours[colourTag].r, m_colours[colourTag].g, m_colours[colourTag].b, m_colours[colourTag].a);
 
-	m_buttons[tag] = newButton;
+		if (spriteLocation != "")
+		{
+			Sprite* newSprite = m_backBuffer->CreateSprite(spriteLocation.c_str());
+
+			assert(newSprite);
+
+			newButton->SetCustomSprite(newSprite);
+		}
+
+		m_buttons[tag] = newButton;
+	}
 }
 
 Button * InterfaceManager::GetButton(std::string tag)
 {
+	if (m_buttons.find(tag) == m_buttons.end())
+	{
+		return 0;
+	}
+
 	return m_buttons[tag];
 }
 

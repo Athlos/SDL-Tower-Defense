@@ -13,6 +13,8 @@ SniperTower::SniperTower() : Tower(SNIPER)
 	m_tileRange = 2;
 	m_firingSpeed = 0.5f;
 	m_damage = 1;
+
+	m_cost = 100;
 }
 
 SniperTower::~SniperTower()
@@ -136,4 +138,13 @@ void SniperTower::Shoot()
 
 	Game::GetInstance().AddProjectile(firedProjectile);
 
+}
+
+int SniperTower::GetTowerUpgradeCost() const
+{
+	int upgradeCost = m_cost * 1.5f;
+
+	upgradeCost *= (m_currentLevel * m_currentLevel);
+
+	return upgradeCost;
 }

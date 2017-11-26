@@ -24,6 +24,7 @@
 #include "audiomanager.h"
 #include "interfacemanager.h"
 #include "wall.h"
+#include "texture.h"
 
 // Library includes:
 #include <cassert>
@@ -77,6 +78,8 @@ Game::Game()
 
 Game::~Game()
 {
+	CleanUp();
+
 	delete m_pBackBuffer;
 	m_pBackBuffer = 0;
 
@@ -89,7 +92,8 @@ Game::~Game()
 	delete m_audioManager;
 	m_audioManager = 0;
 
-	CleanUp();
+	delete m_interfaceManager;
+	m_interfaceManager = 0;
 }
 
 bool Game::Initialise(bool firstTime)
@@ -145,7 +149,7 @@ bool Game::Initialise(bool firstTime)
 		m_interfaceManager->AddButton("upgradeButton", "", "", SCREEN_WIDTH * 0.76f, SCREEN_HEIGHT * 0.82f, SCREEN_WIDTH * 0.23f, SCREEN_HEIGHT * 0.05f, BLACK);
 		m_interfaceManager->AddButton("sellButton", "", "", SCREEN_WIDTH * 0.76f, SCREEN_HEIGHT * 0.87f, SCREEN_WIDTH * 0.23f, SCREEN_HEIGHT * 0.05f, GOLD);
 
-		m_interfaceManager->GetButton("upgradeButton")->SetDrawable(false);
+		//m_interfaceManager->GetButton("upgradeButton")->SetDrawable(false);
 
 		//UI selection icons
 		m_interfaceManager->AddIcon("rangeIcon", "assets\\range_icon.png", SCREEN_WIDTH * 0.76f, SCREEN_HEIGHT * 0.60f, 32, 32);
@@ -191,7 +195,7 @@ bool Game::Initialise(bool firstTime)
 	m_totalLives = 10;
 	m_currentLives = m_totalLives;
 
-	m_currency = 5000000;
+	m_currency = 500;
 
 	m_enemySpawner = new EnemySpawner(0.5f, m_pBackBuffer);
 
@@ -366,13 +370,13 @@ void Game::OnLeftMouseClick(int x, int y)
 
 			if (clickedOn.empty())
 			{
+				m_towerQuadTree->QueryPoint(&pos);
 				if (m_selectedBuilding != 0)
 				{
 					m_selectedBuilding->SetSelected(false);
 				}
 
 				m_selectedBuilding = 0;
-				UpdateSelected();
 			}
 			else
 			{
@@ -386,13 +390,12 @@ void Game::OnLeftMouseClick(int x, int y)
 					m_selectedBuilding = building;
 
 					m_selectedBuilding->SetSelected(true);
-
-					UpdateSelected();
 				}
 			}
 		}
 	}
 
+	UpdateSelected();
 }
 
 void Game::OnRightMouseClick(int x, int y)
@@ -400,6 +403,8 @@ void Game::OnRightMouseClick(int x, int y)
 	delete(m_cursorSprite);
 	m_cursorSprite = 0;
 	m_selected = BUILD_NONE;
+
+	UpdateSelected();
 }
 
 void Game::StartWave()
@@ -473,21 +478,26 @@ void Game::UpdateGameState(GameState state)
 
 	switch (m_gameState)
 	{
-	case WON:
-	{
-		m_interfaceManager->GetLabel("gameOver")->SetText("You Win");
-	}
-	break;
-	case LOST:
-	{
-		m_interfaceManager->GetLabel("gameOver")->SetText("You Lost");
-	}
-	break;
-	default:
-	{
-		m_interfaceManager->GetLabel("gameOver")->SetText("Paused");
-	}
-	break;
+		case WON:
+		{
+			m_interfaceManager->GetLabel("gameOver")->SetText("You Win");
+		}
+		break;
+		case LOST:
+		{
+			m_interfaceManager->GetLabel("gameOver")->SetText("You Lost");
+		}
+		break;
+		case PAUSED:
+		{
+			m_interfaceManager->GetLabel("gameOver")->SetText("Paused");
+		}
+		break;
+		default:
+		{
+			m_interfaceManager->GetLabel("gameOver")->SetText("");
+		}
+		break;
 	}
 }
 
@@ -552,8 +562,8 @@ void Game::Process(float deltaTime)
 		m_frameCount = 0;
 
 		//Update fps label
-		std::string fpsString = std::to_string(m_FPS);
-		m_interfaceManager->GetLabel("fpsCounter")->SetText(fpsString);
+		//std::string fpsString = std::to_string(m_FPS);
+		//m_interfaceManager->GetLabel("fpsCounter")->SetText(fpsString);
 	}
 
 	// Check if game is paused
@@ -874,6 +884,7 @@ void Game::UpdateCurrency(int amount)
 void Game::UpdateSelected()
 {
 	bool draw = false;
+	ClearSelected();
 
 	if (m_selectedBuilding != 0)
 	{
@@ -883,21 +894,8 @@ void Game::UpdateSelected()
 		{
 			draw = true;
 
-			message << "Range: " << dynamic_cast<Tower*>(m_selectedBuilding)->GetTowerRange();
-
-			m_interfaceManager->GetLabel("towerRangeText")->SetText(message.str());
-			message.str("");
-
-			message << std::setprecision(2);
-			message << "Speed: " << 1.0f / dynamic_cast<Tower*>(m_selectedBuilding)->GetTowerFireRate();
-
-			m_interfaceManager->GetLabel("towerSpeedText")->SetText(message.str());
-			message.str("");
-
-			message << "Damage: " << dynamic_cast<Tower*>(m_selectedBuilding)->GetTowerDamage();
-
-			m_interfaceManager->GetLabel("towerDamageText")->SetText(message.str());
-			message.str("");
+			//Get tower stats
+			UpdateTowerStats(dynamic_cast<Tower*>(m_selectedBuilding));
 
 			message << "Sell $" << dynamic_cast<Tower*>(m_selectedBuilding)->GetSellValue();
 
@@ -938,23 +936,91 @@ void Game::UpdateSelected()
 	}
 	else
 	{
-		m_interfaceManager->GetLabel("selected")->SetText("Selected");
+		draw = true;
 
-		m_interfaceManager->GetButton("sellButton")->SetDrawable(false);
+		std::stringstream message;
 
-		draw = false;
+		//If a building is not selected, check if the buy building has been selected
+		switch (m_selected)
+		{
+			case BUILD_WALL:
+			{
+				m_interfaceManager->GetLabel("selected")->SetText("Wall");
 
-		m_interfaceManager->GetButton("sellButton")->SetText("");
+				m_interfaceManager->GetButton("sellButton")->SetText("Cost $5");
+
+				draw = false;
+			}
+			break;
+			case BUILD_SNIPER:
+			{
+				m_interfaceManager->GetLabel("selected")->SetText("Sniper Tower");
+
+				SniperTower tower;
+				message << "Cost $" << tower.GetCost();
+
+				m_interfaceManager->GetButton("sellButton")->SetText(message.str());
+
+				UpdateTowerStats(&tower);
+			}
+			break;
+			case BUILD_PULSE:
+			{
+				m_interfaceManager->GetLabel("selected")->SetText("Pulse Tower");
+
+				PulseTower tower;
+				message << "Cost $" << tower.GetCost();
+
+				m_interfaceManager->GetButton("sellButton")->SetText(message.str());
+
+				UpdateTowerStats(&tower);
+			}
+			break;
+			default:
+			{
+				draw = false;
+			}
+			break;
+		}
 	}
-
-	m_interfaceManager->GetLabel("towerRangeText")->SetDrawable(draw);
-	m_interfaceManager->GetLabel("towerSpeedText")->SetDrawable(draw);
-	m_interfaceManager->GetLabel("towerDamageText")->SetDrawable(draw);
-	m_interfaceManager->GetButton("upgradeButton")->SetDrawable(draw);
 
 	m_interfaceManager->GetIcon("rangeIcon")->drawable = draw;
 	m_interfaceManager->GetIcon("speedIcon")->drawable = draw;
 	m_interfaceManager->GetIcon("damageIcon")->drawable = draw;
+}
+
+void Game::ClearSelected()
+{
+	m_interfaceManager->GetLabel("selected")->SetText("Selected");
+
+	m_interfaceManager->GetButton("sellButton")->SetText("");
+
+	m_interfaceManager->GetLabel("towerRangeText")->SetText("");
+	m_interfaceManager->GetLabel("towerSpeedText")->SetText("");
+	m_interfaceManager->GetLabel("towerDamageText")->SetText("");
+	m_interfaceManager->GetButton("upgradeButton")->SetText("");
+	m_interfaceManager->GetButton("sellButton")->SetText("");
+}
+
+void Game::UpdateTowerStats(Tower* tower)
+{
+	std::stringstream message;
+
+	message << "Range: " << tower->GetTowerRange();
+
+	m_interfaceManager->GetLabel("towerRangeText")->SetText(message.str());
+	message.str("");
+
+	message << std::setprecision(2);
+	message << "Speed: " << 1.0f / tower->GetTowerFireRate();
+
+	m_interfaceManager->GetLabel("towerSpeedText")->SetText(message.str());
+	message.str("");
+
+	message << "Damage: " << tower->GetTowerDamage();
+
+	m_interfaceManager->GetLabel("towerDamageText")->SetText(message.str());
+	message.str("");
 }
 
 void Game::PlaceTower(int x, int y)

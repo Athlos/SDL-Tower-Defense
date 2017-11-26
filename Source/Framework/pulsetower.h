@@ -20,6 +20,8 @@ public:
 
 	void SetScale(); // Scale sprites based on tile dimensions
 
+	int GetTowerUpgradeCost() const; // Get cost to upgrade to next level
+
 	//Member Data:
 public:
 	AnimatedSprite* m_attackSprite; // Animated sprite of the tower's attack

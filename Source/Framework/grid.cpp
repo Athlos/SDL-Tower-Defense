@@ -61,32 +61,32 @@ void Grid::Draw(BackBuffer& backBuffer)
 	}
 
 	//Draw Map Path
-	backBuffer.SetDrawColour(0, 255, 0);
+	//backBuffer.SetDrawColour(0, 255, 0);
 
-	std::queue<Position*> path = m_pathFinding->SimplifyPath(m_gridPath);
+	//std::queue<Position*> path = m_pathFinding->SimplifyPath(m_gridPath);
 
-	Position* current = 0;
-	Position* next = 0;
+	//Position* current = 0;
+	//Position* next = 0;
 
-	if (!path.empty())
-	{
-		current = path.front();
-		path.pop();
-	}
+	//if (!path.empty())
+	//{
+	//	current = path.front();
+	//	path.pop();
+	//}
 
-	while (!path.empty())
-	{
-		next = path.front();
-		path.pop();
+	//while (!path.empty())
+	//{
+	//	next = path.front();
+	//	path.pop();
 
-		backBuffer.DrawLine(current->m_x, current->m_y, next->m_x, next->m_y);
+	//	backBuffer.DrawLine(current->m_x, current->m_y, next->m_x, next->m_y);
 
-		delete current;
+	//	delete current;
 
-		current = next;
-	}
+	//	current = next;
+	//}
 
-	delete next;
+	//delete next;
 }
 
 std::vector<Tile*> Grid::GetNeighboursDiagonal(Tile* tile)

@@ -10,7 +10,7 @@ EnemySpawner::EnemySpawner(float spawnInterval, BackBuffer* backBuffer)
 	, m_waveActive(false)
 	, m_waveLoaded(false)
 	, m_waveNumber(1)
-	, m_maxWaves(5)
+	, m_maxWaves(20)
 	, m_backBuffer(backBuffer)
 	, m_allWavesCompleted(false)
 {

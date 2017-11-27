@@ -121,9 +121,9 @@ bool Game::Initialise(bool firstTime)
 
 		//UI counters
 		m_interfaceManager->AddLabel("fpsCounter", "", SCREEN_WIDTH - 48, 0, 48, 24, GREEN);
-		m_interfaceManager->AddLabel("lifeCounter", "", SCREEN_WIDTH * 0.76f, SCREEN_HEIGHT * 0.01f, SCREEN_WIDTH * 0.15f, SCREEN_HEIGHT * 0.05f, RED);
+		m_interfaceManager->AddLabel("lifeCounter", "", SCREEN_WIDTH * 0.76f, SCREEN_HEIGHT * 0.01f, SCREEN_WIDTH * 0.15f, SCREEN_HEIGHT * 0.05f, BLUE);
 		m_interfaceManager->AddLabel("waveCounter", "", SCREEN_WIDTH * 0.76f, SCREEN_HEIGHT * 0.07f, SCREEN_WIDTH * 0.15f, SCREEN_HEIGHT * 0.05f, BLUE);
-		m_interfaceManager->AddLabel("currencyCounter", "", SCREEN_WIDTH * 0.76f, SCREEN_HEIGHT * 0.13f, SCREEN_WIDTH * 0.15f, SCREEN_HEIGHT * 0.05f, GOLD);
+		m_interfaceManager->AddLabel("currencyCounter", "", SCREEN_WIDTH * 0.76f, SCREEN_HEIGHT * 0.13f, SCREEN_WIDTH * 0.15f, SCREEN_HEIGHT * 0.05f, BLUE);
 
 		m_interfaceManager->GetLabel("fpsCounter")->SetDrawable(false);
 
@@ -147,9 +147,11 @@ bool Game::Initialise(bool firstTime)
 		m_interfaceManager->AddButton("sniperBuildButton", "", "assets\\tower_sniper_icon.png", SCREEN_WIDTH * 0.84f, SCREEN_HEIGHT * 0.28f, SCREEN_WIDTH * 0.05f, SCREEN_WIDTH * 0.05f, BLACK);
 		m_interfaceManager->AddButton("pulseBuildButton", "", "assets\\tower_pulse_icon.png", SCREEN_WIDTH * 0.91f, SCREEN_HEIGHT * 0.28f, SCREEN_WIDTH * 0.05f, SCREEN_WIDTH * 0.05f, BLACK);
 		m_interfaceManager->AddButton("upgradeButton", "", "", SCREEN_WIDTH * 0.76f, SCREEN_HEIGHT * 0.82f, SCREEN_WIDTH * 0.23f, SCREEN_HEIGHT * 0.05f, BLACK);
-		m_interfaceManager->AddButton("sellButton", "", "", SCREEN_WIDTH * 0.76f, SCREEN_HEIGHT * 0.87f, SCREEN_WIDTH * 0.23f, SCREEN_HEIGHT * 0.05f, GOLD);
+		m_interfaceManager->AddButton("sellButton", "", "", SCREEN_WIDTH * 0.76f, SCREEN_HEIGHT * 0.87f, SCREEN_WIDTH * 0.23f, SCREEN_HEIGHT * 0.05f, BLACK);
 
-		//m_interfaceManager->GetButton("upgradeButton")->SetDrawable(false);
+		m_interfaceManager->GetButton("sellButton")->SetBackgroundColour(m_interfaceManager->GetColour(DARKGREEN));
+		m_interfaceManager->GetButton("sellButton")->SetDrawable(false);
+		m_interfaceManager->GetButton("sellButton")->SetTextAlignment(CENTER);
 
 		//UI selection icons
 		m_interfaceManager->AddIcon("rangeIcon", "assets\\range_icon.png", SCREEN_WIDTH * 0.76f, SCREEN_HEIGHT * 0.60f, 32, 32);
@@ -192,7 +194,7 @@ bool Game::Initialise(bool firstTime)
 	AxisAlignedBoundingBox* towerGridBounds = new AxisAlignedBoundingBox(towerTopLeft, SCREEN_HEIGHT / 2);
 	m_towerQuadTree = new QuadTree(towerGridBounds);
 
-	m_totalLives = 10;
+	m_totalLives = 100;
 	m_currentLives = m_totalLives;
 
 	m_currency = 500;
@@ -947,7 +949,7 @@ void Game::UpdateSelected()
 			{
 				m_interfaceManager->GetLabel("selected")->SetText("Wall");
 
-				m_interfaceManager->GetButton("sellButton")->SetText("Cost $5");
+				m_interfaceManager->GetButton("sellButton")->SetText("Cost $10");
 
 				draw = false;
 			}

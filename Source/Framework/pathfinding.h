@@ -34,9 +34,6 @@ public:
 
 	std::vector<Tile*> RetracePath(Tile* start, Tile* end, bool drawPath); // Uses the closed set of the pathfinding algorithm to retrace from the start to end using a tile's parent
 
-	void FindPathVector(int xStart, int yStart, int xEnd, int yEnd); // Finds the path from start to end, first iteration using a vector to hold the open set and iterates over all the elements to find the best choice, I have kept this for comparison reasons to see how it holds up compared to other implementations
-	void FindPathHeap(int xStart, int yStart, int xEnd, int yEnd); // Finds the path from start to end, second iteration using std::make_heap and the associated functions. Had issue that heap kept being invalidated due to a poor comparator and had to keep being remade.
-
 	//Member Data
 public:
 	Grid* m_grid; // Grid used to store the path

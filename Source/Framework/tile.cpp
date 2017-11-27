@@ -52,11 +52,11 @@ void Tile::Draw(BackBuffer& backBuffer)
 		backBuffer.DrawRectangle(m_xScreenPos, m_yScreenPos, m_xScreenPos + m_gridWidth, m_yScreenPos + m_gridHeight, 0);
 	}
 
-	if (m_occupied)
-	{
-		backBuffer.SetDrawColour(0, 0, 0);
-		backBuffer.DrawRectangle(m_xScreenPos, m_yScreenPos, m_xScreenPos + m_gridWidth, m_yScreenPos + m_gridHeight, 1);
-	}
+	//if (m_occupied)
+	//{
+	//	backBuffer.SetDrawColour(0, 0, 0);
+	//	backBuffer.DrawRectangle(m_xScreenPos, m_yScreenPos, m_xScreenPos + m_gridWidth, m_yScreenPos + m_gridHeight, 1);
+	//}
 }
 
 void Tile::Initialise(BackBuffer& backBuffer)

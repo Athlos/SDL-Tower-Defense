@@ -1,25 +1,25 @@
 #include "label.h"
-#include "entity.h"
-#include "sprite.h"
 #include "backbuffer.h"
-#include "texture.h"
 
 #include <cassert>
 
-Label::Label(std::string text)
-	: m_textTexture(NULL)
-	, m_requiredUpdate(false)
+Label::Label(std::string text, BackBuffer& backBuffer)
+	: m_textTexture(0)
+	, m_backBuffer(&backBuffer)
 	, m_fontSize(24)
 	, m_maxFontSize(24)
 	, m_textAlignment(LEFT)
 	, m_drawable(true)
 {
-	m_colour = { 0, 0, 0, 0 };
-	SetText(text);
 	SetBounds(0, 0, 100, 30);
+	m_colour = { 0, 0, 0, 0 };
+
+	m_fontName = "assets/zekton rg.TTF";
 
 	TTF_Init();
-	m_font = TTF_OpenFont("assets/currentfont.TTF", m_fontSize);
+	UpdateFont();
+
+	SetText(text);
 }
 
 Label::Label()
@@ -37,23 +37,9 @@ std::string Label::GetText()
 	return m_text;
 }
 
-void Label::SetText(std::string textOnScreen, BackBuffer& backbuffer)
-{
-	if (m_text == textOnScreen) 
-	{
-		return;
-	}
-
-	m_text = textOnScreen;
-	m_textTexture = backbuffer.CreateText(textOnScreen, m_colour);
-
-
-	TTF_SizeText(m_font, m_text.c_str(), &m_bounds.w, &m_bounds.h);
-}
-
 void Label::SetText(std::string textOnScreen)
 {
-	if (m_text == textOnScreen)
+	if (m_text.compare(textOnScreen) == 0)
 	{
 		return;
 	}
@@ -68,40 +54,15 @@ void Label::SetText(std::string textOnScreen)
 	}
 
 	m_text = textOnScreen;
-	m_requiredUpdate = true;
-
-	//Debug
-	//std::string message;
-	//for each (char c in textOnScreen)
-	//{
-	//	message += c;
-	//	if (c == '\n')
-	//	{
-	//		m_textArray.push_back(message);
-	//		message = "";
-	//		SDL_Log("NEWLINE");
-	//	}
-	//}
-
-	//m_textArray.push_back(message);
+	UpdateTexture();
 }
 
 void Label::Draw(BackBuffer& backBuffer)
 {
-	//Make sure message is synced to the texture
-	if (m_requiredUpdate)
-	{
-		m_requiredUpdate = false;
-		m_textTexture = backBuffer.CreateText(m_text, m_colour);
-
-		ResizeText();
-	}
-
 	if (m_drawable)
 	{
 		backBuffer.DrawText(m_textTexture, m_currentBounds);
 	}
-	//m_textTexture = TTF_RenderText_Blended_Wrapped(m_font, "this is \n 2 lines", m_colour, 50);
 }
 
 SDL_Rect Label::GetBounds()
@@ -109,7 +70,7 @@ SDL_Rect Label::GetBounds()
 	return m_bounds;
 }
 
-void Label::SetBounds(int x, int y, int w, int h) 
+void Label::SetBounds(int x, int y, int w, int h)
 {
 	m_bounds.x = x;
 	m_bounds.y = y;
@@ -122,16 +83,7 @@ void Label::SetBounds(int x, int y, int w, int h)
 void Label::SetColour(int r, int g, int b, int a)
 {
 	m_colour = { (Uint8)r, (Uint8)g, (Uint8)b, (Uint8)a };
-}
-
-bool Label::WasClickedOn(int x, int y)
-{
-	if (!m_drawable)
-	{
-		return false;
-	}
-
-	return ((x > m_bounds.x) && (x < m_bounds.x + m_bounds.w) && (y > m_bounds.y) && (y < m_bounds.y + m_bounds.h));
+	UpdateTexture();
 }
 
 void Label::SetFontSize(int size)
@@ -139,14 +91,15 @@ void Label::SetFontSize(int size)
 	m_fontSize = size;
 	m_maxFontSize = m_fontSize;
 
-	m_font = TTF_OpenFont("assets/currentfont.TTF", m_fontSize);
+	UpdateFont();
+
+	UpdateTexture();
 }
 
 void Label::SetTextAlignment(Alignment align)
 {
 	m_textAlignment = align;
-
-	m_requiredUpdate = true;
+	UpdateTexture();
 }
 
 void Label::SetDrawable(bool draw)
@@ -159,7 +112,7 @@ void Label::ResizeText()
 	//Resize bounds to fit text;
 	m_currentBounds = m_bounds;
 
-	TTF_SizeText(m_font, m_text.c_str(), &m_currentBounds.w, &m_currentBounds.h);
+	TTF_SizeText(m_font, m_text.c_str(), &m_currentBounds.w, 0);
 
 	if (m_currentBounds.w * 1.15f > m_bounds.w)
 	{
@@ -174,12 +127,12 @@ void Label::ResizeText()
 
 			m_fontSize = newFontSize;
 
-			m_font = TTF_OpenFont("assets/currentfont.TTF", m_fontSize);
+			UpdateFont();
 
-			TTF_SizeText(m_font, m_text.c_str(), &m_currentBounds.w, &m_currentBounds.h);
+			TTF_SizeText(m_font, m_text.c_str(), &m_currentBounds.w, 0);
 		}
 	}
-	else if(m_currentBounds.w * 0.85f < m_bounds.w)
+	else if (m_currentBounds.w * 0.85f < m_bounds.w)
 	{
 		while (m_currentBounds.w < m_bounds.w && m_drawable && m_fontSize != m_maxFontSize)
 		{
@@ -197,25 +150,18 @@ void Label::ResizeText()
 				m_fontSize = m_maxFontSize;
 			}
 
-			m_font = TTF_OpenFont("assets/currentfont.TTF", m_fontSize);
+			UpdateFont();
 
 			int newWidth;
-			int newHeight;
 
-			TTF_SizeText(m_font, m_text.c_str(), &newWidth, &newHeight);
+			TTF_SizeText(m_font, m_text.c_str(), &newWidth, 0);
 
 			if (newWidth > m_bounds.w)
 			{
 				newWidth = m_bounds.w;
 			}
 
-			if (newHeight > m_bounds.h)
-			{
-				newHeight = m_bounds.h;
-			}
-
 			m_currentBounds.w = newWidth;
-			m_currentBounds.h = newHeight;
 		}
 	}
 
@@ -223,4 +169,20 @@ void Label::ResizeText()
 	{
 		m_currentBounds.x = m_bounds.x + (float)(m_bounds.w - m_currentBounds.w) / 2.0f;
 	}
+}
+
+void Label::UpdateTexture()
+{
+	ResizeText();
+
+	SDL_DestroyTexture(m_textTexture);
+	m_textTexture = 0;
+
+	m_textTexture = m_backBuffer->CreateText(m_text, m_colour, m_font);
+}
+
+void Label::UpdateFont()
+{
+	m_font = TTF_OpenFont(m_fontName.c_str(), m_fontSize);
+
 }

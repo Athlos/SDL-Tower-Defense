@@ -4,7 +4,7 @@
 TextParticle::TextParticle()
 {
 	m_type = TEXT;
-	m_text = new Label("");
+	//m_text = new Label("");
 	m_text->SetColour(255,0,0,0);
 }
 

@@ -60,6 +60,9 @@ public:
 
 	SDL_Color GetColour(ColourTags tag); // Gets a colour from the list of colours in the game
 
+	void OnMouseClick(int x, int y);
+	void OnMouseRelease(int x, int y);
+
 	//Member Data:
 protected:
 	BackBuffer* m_backBuffer; // Backbuffer to render and create all UI elements

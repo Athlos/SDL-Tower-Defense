@@ -39,7 +39,7 @@ public:
 	void DrawLine(int x1, int y1, int x2, int y2); // Draw a line between 2 points
 
 	void DrawText(SDL_Texture* textOnScreen, SDL_Rect bounds); // Draw text to the screen
-	SDL_Texture* CreateText(std::string text, SDL_Color colour); // Create a text texture
+	SDL_Texture* CreateText(std::string text, SDL_Color colour, TTF_Font* font); // Create a text texture
 
 	void DrawAnimatedSprite(AnimatedSprite& sprite, SDL_Rect* bounds, SDL_Rect* raw); // Draw an animated sprite, pass in dimensions to draw to, and from
 	AnimatedSprite* CreateAnimatedSprite(const char* pcFilename); // Create an animated sprite based on a filename
@@ -61,7 +61,6 @@ protected:
 	SDL_Window* m_pWindow; // Game window
 	SDL_Renderer* m_pRenderer; // Game renderer
 	SDL_Surface* m_surface; // Window surface
-	TTF_Font* m_font; // Game font
 
 	int m_width; // Window width
 	int m_height; // Window height

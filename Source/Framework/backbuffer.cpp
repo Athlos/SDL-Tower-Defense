@@ -50,13 +50,10 @@ BackBuffer::~BackBuffer()
 	m_pTextureManager = 0;
 
 	SDL_FreeSurface(m_surface);
-	TTF_CloseFont(m_font);
 
 	//delete m_surface;
 	m_surface = 0;
 
-	//delete m_font;
-	m_font = 0;
 
 	IMG_Quit();
 	SDL_Quit();
@@ -111,7 +108,6 @@ bool BackBuffer::Initialise(int width, int height)
 
 	// Load fonts
 	TTF_Init();
-	m_font = TTF_OpenFont("assets\\currentfont.ttf", 12);
 
 	SDL_Color clrFg = { 0, 0, 255, 0 };  // Blue ("Fg" is foreground)
 
@@ -219,20 +215,13 @@ void BackBuffer::DrawText(SDL_Texture* textOnScreen, SDL_Rect bounds)
 	SDL_RenderCopy(m_pRenderer, textOnScreen, 0, &bounds);
 }
 
-SDL_Texture* BackBuffer::CreateText(std::string text, SDL_Color colour)
+SDL_Texture* BackBuffer::CreateText(std::string text, SDL_Color colour, TTF_Font* font)
 {
-	//replace surface
-	SDL_FreeSurface(m_surface);
-	m_surface = 0;
-
-	m_surface = SDL_GetWindowSurface(m_pWindow);
-
 	//create text and save into surface, then use surface to create a texture we can render
-	m_surface = TTF_RenderText_Blended(m_font, text.c_str(), colour);
+	m_surface = TTF_RenderText_Blended(font, text.c_str(), colour);
 	SDL_Texture* tTexture = SDL_CreateTextureFromSurface(m_pRenderer, m_surface);
 
 	return tTexture;
-
 }
 
 void BackBuffer::DrawAnimatedSprite(AnimatedSprite& sprite, SDL_Rect* bounds, SDL_Rect* raw)

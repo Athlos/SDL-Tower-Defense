@@ -3,13 +3,14 @@
 
 // Local includes:
 #include "game.h"
+#include "interfacemanager.h"
 
 // Library includes:
 #include <cassert>
 
 InputHandler::InputHandler()
 	: m_pGameController(0)
-	, counter(0)
+	, m_mouseDown(false)
 {
 }
 
@@ -22,7 +23,7 @@ bool InputHandler::Initialise()
 	return (true);
 }
 
-void InputHandler::ProcessInput(Game& game)
+void InputHandler::ProcessInput(Game& game, InterfaceManager& ui)
 {
 	// Receive Input Events below...
 	SDL_Event e;
@@ -36,14 +37,24 @@ void InputHandler::ProcessInput(Game& game)
 		
 		if (e.type == SDL_MOUSEBUTTONDOWN) // Mouse pressed
 		{
+			m_mouseDown = true;
+
 			if (e.button.button == SDL_BUTTON_LEFT)
 			{
 				game.OnLeftMouseClick(e.button.x, e.button.y);
+
+				ui.OnMouseClick(e.button.x, e.button.y);
 			}
 			else
 			{
 				game.OnRightMouseClick(e.button.x, e.button.y);
 			}
+		}
+		else if (e.type == SDL_MOUSEBUTTONUP)
+		{
+			m_mouseDown = false;
+
+			ui.OnMouseRelease(e.button.x, e.button.y);
 		}
 
 		int xPos;

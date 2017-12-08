@@ -3,8 +3,7 @@
 #include <string>
 #include <vector>
 #include <SDL_ttf.h>
-
-#include "SDL.h"
+#include <SDL.h>
 
 class BackBuffer;
 class SDL_Image;
@@ -18,14 +17,13 @@ enum Alignment
 
 class Label
 {
-	// Member Methods:
+	// Member Functions:
 public:
-	Label(std::string text);
+	Label(std::string text, BackBuffer& backBuffer);
 	Label();
 	~Label();
 
 	std::string GetText(); // Get the string of text stored
-	void SetText(std::string newText, BackBuffer& backBuffer); //Set the text image, if the text is the same it returns, you can call this in the process loop safely
 	void SetText(std::string textOnScreen); //only changes the string, does not make new image
 
 	void Draw(BackBuffer& backBuffer); // Draw label
@@ -35,8 +33,6 @@ public:
 
 	void SetColour(int r, int g, int b, int a); // Set the colour, default is black already, set this before you set the text
 
-	bool WasClickedOn(int x, int y); // Check if label was clicked on, basic button functionality
-
 	void SetFontSize(int size); // Sets the font size
 
 	void SetTextAlignment(Alignment align); // Set text alignment
@@ -44,23 +40,24 @@ public:
 	void SetDrawable(bool draw); // Set if label will be drawn
 
 protected:
-	void ResizeText();
+	void ResizeText(); // Resizes the font size to find the best fit for the bounds
+	void UpdateTexture(); // Creates a new texture for the text
+	void UpdateFont(); // Reloads the font
 
 	// Member Data:
 protected:
 	std::string m_text; // Label text
+	BackBuffer* m_backBuffer; // Backbuffer to render and create textures
 
-	//Holds multi line message
-	std::vector<std::string> m_textArray; // Multi line message
 	SDL_Texture* m_textTexture; // Texture made from text
 
 	SDL_Rect m_bounds; // Bounds of the label
 	SDL_Rect m_currentBounds; // Current label bounds, used to resize the text appropriately within the bounds
 
 	SDL_Color m_colour; // Text colour
-	bool m_requiredUpdate; // Flag if text texture needs to be redone
 
 	TTF_Font* m_font; // Font
+	std::string m_fontName; // Filename of the font to use
 	int m_fontSize; // Font size
 	int m_maxFontSize; // Max font size to scale to
 

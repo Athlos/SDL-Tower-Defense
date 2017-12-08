@@ -5,6 +5,7 @@
 
 // Forward Declarations:
 class Game;
+class InterfaceManager;
 
 class InputHandler
 {
@@ -14,7 +15,7 @@ public:
 	~InputHandler();
 
 	bool Initialise(); // Set up handler
-	void ProcessInput(Game& game); // Process all inputs
+	void ProcessInput(Game& game, InterfaceManager& ui); // Process all inputs
 
 private:
 	InputHandler(const InputHandler& inputHandler);
@@ -23,6 +24,5 @@ private:
 	// Member Data:
 protected:
 	SDL_Joystick* m_pGameController;
-	int counter;
-
+	bool m_mouseDown;
 };

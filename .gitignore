@@ -56,3 +56,4 @@ Temporary Items
 *.pdb
 *.idb
 *.tlog
+*.ipch

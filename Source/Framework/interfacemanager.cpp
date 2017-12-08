@@ -52,7 +52,7 @@ InterfaceManager::~InterfaceManager()
 
 void InterfaceManager::AddLabel(std::string tag, std::string text, int x, int y, int w, int h, ColourTags colourTag)
 {
-	Label* newLabel = new Label(text);
+	Label* newLabel = new Label(text, *m_backBuffer);
 	newLabel->SetBounds(x, y, w, h);
 	newLabel->SetColour(m_colours[colourTag].r, m_colours[colourTag].g, m_colours[colourTag].b, m_colours[colourTag].a);
 
@@ -61,6 +61,11 @@ void InterfaceManager::AddLabel(std::string tag, std::string text, int x, int y,
 
 Label * InterfaceManager::GetLabel(std::string tag)
 {
+	if (m_labels.find(tag) == m_labels.end())
+	{
+		return 0;
+	}
+
 	return m_labels[tag];
 }
 
@@ -68,7 +73,7 @@ void InterfaceManager::AddButton(std::string tag, std::string text, std::string 
 {
 	if (m_buttons.find(text) == m_buttons.end()) 
 	{
-		Button* newButton = new Button(text);
+		Button* newButton = new Button(text, *m_backBuffer);
 		newButton->SetBounds(x, y, w, h);
 		newButton->SetColour(m_colours[colourTag].r, m_colours[colourTag].g, m_colours[colourTag].b, m_colours[colourTag].a);
 
@@ -110,6 +115,11 @@ void InterfaceManager::AddIcon(std::string tag, std::string spriteLocation, int 
 
 Icon * InterfaceManager::GetIcon(std::string tag)
 {
+	if (m_icons.find(tag) == m_icons.end())
+	{
+		return 0;
+	}
+
 	return m_icons[tag];
 }
 
@@ -137,4 +147,20 @@ void InterfaceManager::Draw()
 SDL_Color InterfaceManager::GetColour(ColourTags tag)
 {
 	return m_colours[tag];
+}
+
+void InterfaceManager::OnMouseClick(int x, int y)
+{
+	for (std::map<std::string, Button*>::iterator it = m_buttons.begin(); it != m_buttons.end(); ++it)
+	{
+		it->second->WasClickedOn(x, y);
+	}
+}
+
+void InterfaceManager::OnMouseRelease(int x, int y)
+{
+	for (std::map<std::string, Button*>::iterator it = m_buttons.begin(); it != m_buttons.end(); ++it)
+	{
+		it->second->SetActive(false);
+	}
 }
